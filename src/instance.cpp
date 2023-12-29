@@ -7,8 +7,8 @@ Instance::Instance(int argc, char **argv) {
     input_file = output_file = "";
     normal = "2"; execute = "0"; taxa_mode = "0"; weight = "0";
     output_quartets = "0";
-    refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 100;
-    support_low = 0; support_high = 1;
+    refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 10;
+    support_low = 0; support_high = 1; support_threshold = 0;
     dict = NULL; output = NULL;
     if (parse(argc, argv)) {
         std::cout << help_info;
@@ -25,6 +25,7 @@ Instance::Instance(int argc, char **argv) {
                 dict->update_singletons();
                 resolve_trees();
                 prepare_trees();
+                // for (Tree *t : input) std::cout << t->to_string() << std::endl;
                 if (verbose > "0") {
                     subproblem_csv.open(output_file + "_subproblems.csv");
                     subproblem_csv << "ID,PARENT,DEPTH,SIZE,ARTIFICIAL,SUBSET";
@@ -111,7 +112,7 @@ bool Instance::parse(int argc, char **argv) {
         if (opt == "-w" || opt == "--weight") {
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
-            if (param != "0" && param != "1" && param != "2") {
+            if (param != "0" && param != "1" && param != "2" && param != "3") {
                 std::cout << "ERROR: invalid weight parameter: " << param << "." << std::endl;
                 return true;
             }
@@ -167,7 +168,14 @@ bool Instance::parse(int argc, char **argv) {
                 return true;
             }
         }
-
+        if (opt == "--threshold") {
+            std::string param = "";
+            if (i < argc - 1) param = argv[++ i];
+            if (! s2d(param, &support_threshold)) {
+                std::cout << "ERROR: invalid parameter: " << param << "." << std::endl;
+                return true;
+            }
+        }
         if (opt == "--outputquartets") output_quartets = "1";
         if (opt == "--shared") taxa_mode = "1";
         i ++;
@@ -176,12 +184,15 @@ bool Instance::parse(int argc, char **argv) {
     std::cout << "output file: " << (output_file == "" ? "std" : output_file) << std::endl;
     std::cout << "normalization scheme: n" + normal << std::endl;
     if (weight == "0")  
-        std::cout << "weighting mode: none" << std::endl;
+        std::cout << "weighting mode: none (TREE-QMC)" << std::endl;
     else if (weight == "1") 
         std::cout << "weighting mode: support" << std::endl;
-    else
+    else if (weight == "2") 
         std::cout << "weighting mode: hybrid" << std::endl;
+    else 
+        std::cout << "weighting mode: none (wTREE-QMC)" << std::endl;
     std::cout << "support min: " << (double)support_low << ", max: " << (double)support_high << std::endl;
+    std::cout << "support threshold: " << (double)support_threshold << std::endl;
     if (execute == "0") 
         std::cout << "execution mode: efficient" << std::endl;
     else if (execute == "1") {
@@ -239,5 +250,5 @@ void Instance::resolve_trees() {
 
 void Instance::prepare_trees() {
     for (Tree *t : input) 
-        t->prepare(weight, support_low, support_high);
+        t->prepare(weight, support_low, support_high, support_threshold);
 }

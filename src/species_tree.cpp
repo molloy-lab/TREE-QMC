@@ -18,7 +18,9 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
             std::unordered_map<quartet_t, weight_t> quartets;
             if (mode[3] == '0') 
                 for (Tree * tree: input) tree->get_quartets(&quartets);
-            else 
+            else if (mode[3] == '1') 
+                for (Tree * tree: input) tree->get_wquartets_(&quartets);
+            else
                 for (Tree * tree: input) tree->get_wquartets(&quartets);
             // std::cout << to_string(quartets);
             // std::cout << quartets.size() << std::endl;

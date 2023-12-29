@@ -37,7 +37,7 @@ class Tree {
         virtual ~Tree();
         std::string to_string();
         size_t resolve();
-        void prepare(std::string weight, weight_t low, weight_t high);
+        void prepare(std::string weight, weight_t low, weight_t high, weight_t threshold);
         index_t size();
         std::unordered_map<index_t, index_t> &get_indices();
         weight_t ***build_graph(Taxa &subset);
@@ -71,7 +71,7 @@ class Tree {
         Node *build_tree(const std::string &newick, std::string support);
         Node *build_subtree_from(Node *root);
         size_t resolve_tree(Node *root);
-        void prepare_tree(Node *root, std::string weight, weight_t low, weight_t high);
+        void prepare_tree(Node *root, std::string weight, weight_t low, weight_t high, weight_t threshold);
         void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);

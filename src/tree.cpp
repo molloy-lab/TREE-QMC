@@ -25,9 +25,9 @@ size_t Tree::resolve() {
     return count;
 }
 
-void Tree::prepare(std::string weight, weight_t low, weight_t high) {
+void Tree::prepare(std::string weight, weight_t low, weight_t high, weight_t threshold) {
     //std::cout << display_tree(root) << std::endl;
-    prepare_tree(root, weight, low, high);
+    prepare_tree(root, weight, low, high, threshold);
 }
 
 index_t Tree::size() {
@@ -103,6 +103,7 @@ Node *Tree::build_tree(const std::string &newick) {
     }
 }
 
+/*
 std::string Tree::display_tree(Node *root) {
     if (root->children.size() == 0) 
         return dict->index2label(root->index) + ":" + std::to_string((double) root->length);
@@ -111,6 +112,17 @@ std::string Tree::display_tree(Node *root) {
         s += display_tree(node) + ",";
     s[s.size() - 1] = ')';
     return s + std::to_string((double) root->support) + ":" + std::to_string((double) root->length);
+}
+*/
+
+std::string Tree::display_tree(Node *root) {
+    if (root->children.size() == 0) 
+        return dict->index2label(root->index);
+    std::string s = "(";
+    for (Node * node : root->children) 
+        s += display_tree(node) + ",";
+    s[s.size() - 1] = ')';
+    return s;
 }
 
 std::string Tree::display_tree_index(Node *root) {
@@ -143,20 +155,25 @@ size_t Tree::resolve_tree(Node *root) {
     return total;
 }
 
-void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high) {
+void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high, weight_t threshold) {
     if (weight == "0") return ;
     assert(root->children.size() == 0 || root->children.size() == 2);
     weight_t s = root->support;
     if (s < low || s > high) s = low;
     s = (s - low) / (high - low);
+    if (weight == "3")
+        if (s > threshold) 
+            s = 1;
+        else 
+            s = 0;
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
-    if (weight == "1") 
+    if (weight == "1" || weight == "3") 
         root->length_ = 1;
     else 
         root->length_ = exp(- root->length);
     for (Node *child : root->children) 
-        prepare_tree(child, weight, low, high);
+        prepare_tree(child, weight, low, high, threshold);
 }
 
 void Tree::clear_states(Node *root) {
@@ -536,7 +553,7 @@ void Tree::get_wquartets_(std::unordered_map<quartet_t, weight_t> *quartets) {
         else {
             //std::cout << 0 << std::endl;
         }
-        weight_t w = exp(- l) * s;
+        weight_t w = 1 - s;
         index_t indices[4];
         for (index_t i = 0; i < 4; i ++) {
             indices[i] = nodes[i]->index;
