@@ -63,20 +63,37 @@ index_t Tree::pseudonym() {
 }
 
 Node *Tree::build_tree(const std::string &newick) {
+    std::string label, support, length;
+    int sep;
+
     if (newick.length() == 0 || newick.at(0) != '(') {
-        std::string label = newick.substr(0, newick.find(":"));
-        std::string length = newick.substr(newick.find(":") + 1, std::string::npos);
+        sep = newick.find(":");
+        if (sep != std::string::npos) {
+            label = newick.substr(0, sep);
+            length = newick.substr(sep + 1, std::string::npos);
+            //std::cout << label << ' ' << length << std::endl;
+        } else {
+            label = newick.substr(0, std::string::npos);
+            //std::cout << label << std::endl;
+        }
+
+        // Create leaf node
         Node *root = new Node(dict->label2index(label));
-        //std::cout << length << std::endl;
         if (length.size() > 0) root->length = std::stod(length);
+
+        // Update related data structures
         index2node[root->index] = root;
         if (indices.find(root->index) == indices.end())
             indices[root->index] = 0;
         indices[root->index] ++;
+
         return root;
     }
     else {
+        // Create internal node
         Node *root = new Node(pseudonym());
+
+        // Recurse on all but last child
         int k = 1;
         for (int i = 0, j = 0; i < newick.length(); i ++) {
             if (newick.at(i) == '(') j ++;
@@ -86,19 +103,30 @@ Node *Tree::build_tree(const std::string &newick) {
                 k = i + 1;
             }
         }
+
+        // Get internal branch and support
         int i = newick.length() - 1;
         while (newick.at(i) != ')') i --;
         std::string branch = newick.substr(i + 1, std::string::npos);
-        if (branch.find(":") != std::string::npos) {
-            std::string support = branch.substr(0, branch.find(":"));
-            std::string length = branch.substr(branch.find(":") + 1, std::string::npos);
+        sep = branch.find(":");
+        if (sep != std::string::npos) {
+            std::string support = branch.substr(0, sep);
+            std::string length = branch.substr(sep + 1, std::string::npos);
             //std::cout << branch << ' ' << support << ' ' << length << std::endl;
-            if (support.size() > 0) root->support = std::stod(support);
             if (length.size() > 0) root->length = std::stod(length);
+        } else {
+            std::string support = branch.substr(0, std::string::npos);
+            //std::cout << branch << ' ' << support << std::endl;
         }
+        if (support.size() > 0) root->support = std::stod(support);
+
+        // Recurse on last child
         root->children.push_back(build_tree(newick.substr(k, i - k)));
-        for (Node *child : root->children) 
+
+        // Set root as children's parent
+        for (Node *child : root->children)
             child->parent = root;
+
         return root;
     }
 }
