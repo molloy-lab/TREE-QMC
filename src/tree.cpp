@@ -18,6 +18,10 @@ std::string Tree::to_string() {
     return display_tree(root) + ";";
 }
 
+std::string Tree::to_string_basic() {
+    return display_tree_basic(root) + ";";
+}
+
 size_t Tree::resolve() {
     bool flag = root->children.size() == 3;
     size_t count = resolve_tree(root);
@@ -71,10 +75,10 @@ Node *Tree::build_tree(const std::string &newick) {
         if (sep != std::string::npos) {
             label = newick.substr(0, sep);
             length = newick.substr(sep + 1, std::string::npos);
-            //std::cout << label << ' ' << length << std::endl;
+            //std::cout << "Found leaf node " << label << ' ' << length << std::endl;
         } else {
             label = newick.substr(0, std::string::npos);
-            //std::cout << label << std::endl;
+            //std::cout << "Found leaf node " << label << std::endl;
         }
 
         // Create leaf node
@@ -104,21 +108,27 @@ Node *Tree::build_tree(const std::string &newick) {
             }
         }
 
-        // Get internal branch and support
         int i = newick.length() - 1;
         while (newick.at(i) != ')') i --;
         std::string branch = newick.substr(i + 1, std::string::npos);
-        sep = branch.find(":");
-        if (sep != std::string::npos) {
-            std::string support = branch.substr(0, sep);
-            std::string length = branch.substr(sep + 1, std::string::npos);
-            //std::cout << branch << ' ' << support << ' ' << length << std::endl;
-            if (length.size() > 0) root->length = std::stod(length);
-        } else {
-            std::string support = branch.substr(0, std::string::npos);
-            //std::cout << branch << ' ' << support << std::endl;
-        }
-        if (support.size() > 0) root->support = std::stod(support);
+        if (branch.find(";") == std::string::npos) {
+            // Get internal branch and support
+            
+            sep = branch.find(":");
+            if (sep != std::string::npos) {
+                support = branch.substr(0, sep);
+                length = branch.substr(sep + 1, std::string::npos);
+                //std::cout << "Found internal node " << branch << ' ' << support << ' ' << length << std::endl;
+                if (length.size() > 0) root->length = std::stod(length);
+            } else {
+                support = branch.substr(0, std::string::npos);
+                //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
+            }
+            if (support.size() > 0) root->support = std::stod(support);
+        } 
+        //else {
+        //    std::cout << "Found root" << std::endl;
+        //}
 
         // Recurse on last child
         root->children.push_back(build_tree(newick.substr(k, i - k)));
@@ -131,7 +141,7 @@ Node *Tree::build_tree(const std::string &newick) {
     }
 }
 
-/*
+
 std::string Tree::display_tree(Node *root) {
     if (root->children.size() == 0) 
         return dict->index2label(root->index) + ":" + std::to_string((double) root->length);
@@ -141,14 +151,14 @@ std::string Tree::display_tree(Node *root) {
     s[s.size() - 1] = ')';
     return s + std::to_string((double) root->support) + ":" + std::to_string((double) root->length);
 }
-*/
 
-std::string Tree::display_tree(Node *root) {
+
+std::string Tree::display_tree_basic(Node *root) {
     if (root->children.size() == 0) 
         return dict->index2label(root->index);
     std::string s = "(";
     for (Node * node : root->children) 
-        s += display_tree(node) + ",";
+        s += display_tree_basic(node) + ",";
     s[s.size() - 1] = ')';
     return s;
 }
@@ -165,8 +175,10 @@ std::string Tree::display_tree_index(Node *root) {
 
 size_t Tree::resolve_tree(Node *root) {
     size_t total = 0;
+
     for (index_t i = 0; i < root->children.size(); i ++) 
         total += resolve_tree(root->children[i]);
+
     while (root->children.size() > 2) {
         index_t i = rand() % root->children.size(), j = i;
         while (j == i) j = rand() % root->children.size();
@@ -180,11 +192,13 @@ size_t Tree::resolve_tree(Node *root) {
         root->children.push_back(new_root);
         new_root->parent = root;
     }
+
     return total;
 }
 
 void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high,  bool contract, weight_t threshold) {
-    if (weight == "0") return ;
+    if (weight == "4") return;
+
     assert(root->children.size() == 0 || root->children.size() == 2);
     weight_t s = root->support;
 
@@ -199,6 +213,7 @@ void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t h
         if (s < low || s > high) s = low;
         s = (s - low) / (high - low);
     }
+    //root->support = s;
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
 

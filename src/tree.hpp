@@ -38,6 +38,7 @@ class Tree {
         Tree(const std::string &newick, Dict *dict, std::string support);
         virtual ~Tree();
         std::string to_string();
+        std::string to_string_basic();
         size_t resolve();
         void prepare(std::string weight, weight_t low, weight_t high, bool contract, weight_t threshold);
         index_t size();
@@ -55,6 +56,7 @@ class Tree {
         Dict *dict;
         index_t pseudonym();
         std::string display_tree(Node *root);
+        std::string display_tree_basic(Node *root);
         std::string display_tree_index(Node *root);
     private:
         index_t pseudonyms;

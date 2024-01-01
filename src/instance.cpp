@@ -68,11 +68,11 @@ SpeciesTree *Instance::get_solution() {
 
 void Instance::output_solution() {
     if (output_file == "") {
-        std::cout << output->to_string() << std::endl;
+        std::cout << output->to_string_basic() << std::endl;
     }
     else {
         std::ofstream fout(output_file);
-        fout << output->to_string() << std::endl;
+        fout << output->to_string_basic() << std::endl;
     }
 }
 
@@ -259,15 +259,16 @@ std::size_t Instance::input_trees() {
 }
 
 void Instance::resolve_trees() {
-    if (execute != "0") return ;
     srand(refine_seed);
     size_t total = 0;
-    for (Tree *t : input) 
+    for (Tree *t : input)
         total += t->resolve();
+
     std::cout << "Found " << total << " polytomies." << std::endl;
+
     if (total != 0) {
         std::ofstream fout(input_file + ".refined");
-        for (Tree *t : input) 
+        for (Tree *t : input)
             fout << t->to_string() << std::endl;
         fout.close();
     }
