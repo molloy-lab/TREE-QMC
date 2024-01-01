@@ -161,11 +161,13 @@ void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t h
     weight_t s = root->support;
     if (s < low || s > high) s = low;
     s = (s - low) / (high - low);
-    if (weight == "3")
-        if (s > threshold) 
+    if (weight == "3") {
+        if (s > threshold) {
             s = 1;
-        else 
+        } else {
             s = 0;
+        }
+    }
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
     if (weight == "1" || weight == "3") 
