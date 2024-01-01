@@ -25,9 +25,9 @@ size_t Tree::resolve() {
     return count;
 }
 
-void Tree::prepare(std::string weight, weight_t low, weight_t high, weight_t threshold) {
+void Tree::prepare(std::string weight, weight_t low, weight_t high, bool contract, weight_t threshold) {
     //std::cout << display_tree(root) << std::endl;
-    prepare_tree(root, weight, low, high, threshold);
+    prepare_tree(root, weight, low, high, contract, threshold);
 }
 
 index_t Tree::size() {
@@ -142,7 +142,7 @@ size_t Tree::resolve_tree(Node *root) {
     while (root->children.size() > 2) {
         index_t i = rand() % root->children.size(), j = i;
         while (j == i) j = rand() % root->children.size();
-        Node *new_root = new Node(pseudonym());
+        Node *new_root = new Node(pseudonym(), true);
         total ++;
         new_root->children.push_back(root->children[i]);
         new_root->children.push_back(root->children[j]);
@@ -155,27 +155,34 @@ size_t Tree::resolve_tree(Node *root) {
     return total;
 }
 
-void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high, weight_t threshold) {
+void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high,  bool contract, weight_t threshold) {
     if (weight == "0") return ;
     assert(root->children.size() == 0 || root->children.size() == 2);
     weight_t s = root->support;
-    if (s < low || s > high) s = low;
-    s = (s - low) / (high - low);
-    if (weight == "3") {
-        if (s > threshold) {
-            s = 1;
-        } else {
-            s = 0;
-        }
+
+    // Handle branch support values
+    if (contract) {
+        if (s < threshold) s = 0;
+        else s = 1;
+    } else if (weight == "0" || weight == "3") {
+        if (!root->isfake) s = 1;
+    } else {
+        // weight = 1 or weight = 2
+        if (s < low || s > high) s = low;
+        s = (s - low) / (high - low);
     }
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
-    if (weight == "1" || weight == "3") 
-        root->length_ = 1;
-    else 
+
+    // Handle length values
+    if (weight == "2" || weight == "3")
         root->length_ = exp(- root->length);
+    else
+        root->length_ = 1;
+
+    // Continue
     for (Node *child : root->children) 
-        prepare_tree(child, weight, low, high, threshold);
+        prepare_tree(child, weight, low, high, contract, threshold);
 }
 
 void Tree::clear_states(Node *root) {

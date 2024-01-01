@@ -5,6 +5,15 @@ Node::Node(index_t index) {
     support = length = 0;
     parent = NULL;
     size = -1;
+    isfake = false;
+}
+
+Node::Node(index_t index, bool isfake) {
+    this->index = index;
+    support = length = 0;
+    parent = NULL;
+    size = -1;
+    this->isfake = isfake;
 }
 
 Node::~Node() {

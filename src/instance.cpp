@@ -7,8 +7,10 @@ Instance::Instance(int argc, char **argv) {
     input_file = output_file = "";
     normal = "2"; execute = "0"; taxa_mode = "0"; weight = "0";
     output_quartets = "0";
+    support_low = 0; support_high = 0;  // intentionally bad to force user to set
+    contract = false; threshold = 0.0;
     refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 10;
-    support_low = 0; support_high = 1; support_threshold = 0;
+    
     dict = NULL; output = NULL;
     if (parse(argc, argv)) {
         std::cout << help_info;
@@ -75,18 +77,20 @@ void Instance::output_solution() {
 }
 
 bool Instance::parse(int argc, char **argv) {
-    std::cout << "TREE-QMC version 2.0.0\nCOMMAND: ";
+    std::cout << "wTREE-QMC version 1.0.0\nCOMMAND: ";
     for (int j = 0; j < argc; j ++) 
         std::cout << argv[j] << " ";
     std::cout << std::endl;
     int i = 0;
     bool help = false;
+    bool found_support = false;
     while (i < argc) {
         std::string opt(argv[i]);
         if (opt == "-h" || opt == "--help") help = true;
         if (opt == "-i" || opt == "--input") input_file = argv[++ i];
         if (opt == "-o" || opt == "--output") output_file = argv[++ i];
-        if (opt == "-s" || opt == "--support") {
+        if (opt == "-r" || opt == "--support_range") {
+            found_support = true;
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
             if (! s2d(param, &support_low) || support_low < 0) {
@@ -112,7 +116,7 @@ bool Instance::parse(int argc, char **argv) {
         if (opt == "-w" || opt == "--weight") {
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
-            if (param != "0" && param != "1" && param != "2" && param != "3") {
+            if (param != "0" && param != "1" && param != "2" && param != "3" && param != "4") {
                 std::cout << "ERROR: invalid weight parameter: " << param << "." << std::endl;
                 return true;
             }
@@ -168,10 +172,11 @@ bool Instance::parse(int argc, char **argv) {
                 return true;
             }
         }
-        if (opt == "--threshold") {
+        if (opt == "-c" || opt == "--contract") {
+            contract = true;
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
-            if (! s2d(param, &support_threshold)) {
+            if (! s2d(param, &threshold)) {
                 std::cout << "ERROR: invalid parameter: " << param << "." << std::endl;
                 return true;
             }
@@ -182,17 +187,35 @@ bool Instance::parse(int argc, char **argv) {
     }
     std::cout << "input file: " << input_file << std::endl;
     std::cout << "output file: " << (output_file == "" ? "std" : output_file) << std::endl;
-    std::cout << "normalization scheme: n" + normal << std::endl;
-    if (weight == "0")  
-        std::cout << "weighting mode: none (TREE-QMC)" << std::endl;
-    else if (weight == "1") 
-        std::cout << "weighting mode: support" << std::endl;
-    else if (weight == "2") 
+
+    if (contract) {
+        std::cout << "contract support threshold: " << (double)threshold << std::endl;
+        weight = "0";  // override
+    }
+
+    if (weight == "1") {
+        std::cout << "weighting mode: support only" << std::endl;
+    } else if (weight == "2") {
         std::cout << "weighting mode: hybrid" << std::endl;
-    else 
-        std::cout << "weighting mode: none (wTREE-QMC)" << std::endl;
-    std::cout << "support min: " << (double)support_low << ", max: " << (double)support_high << std::endl;
-    std::cout << "support threshold: " << (double)support_threshold << std::endl;
+    } else if (weight == "3") {
+        std::cout << "weighting mode: length only" << std::endl;
+    } else if (weight == "4") {
+        std::cout << "weighting mode: none*" << std::endl;
+        std::cout << "WARNING: polytomies will be refined arbitrarily!" << std::endl;
+    } else {
+        std::cout << "weighting mode: none" << std::endl;
+    }
+
+    if (weight == "1" || weight == "2") {
+        if (!found_support) {
+            std::cout << "ERROR: Must specify branch support range with option -r!" << std::endl;
+            return 1;
+        }
+        std::cout << "support min: " << (double)support_low << ", max: " << (double)support_high << std::endl;
+    }
+
+    std::cout << "normalization scheme: n" + normal << std::endl;
+
     if (execute == "0") 
         std::cout << "execution mode: efficient" << std::endl;
     else if (execute == "1") {
@@ -208,10 +231,12 @@ bool Instance::parse(int argc, char **argv) {
     std::cout << "random seed for refinement: " << refine_seed << std::endl;
     std::cout << "random seed for max-cut: " << cut_seed << std::endl;
     std::cout << "max-cut heuristic iteration limit: " << iter_limit << std::endl;
+
     if (taxa_mode == "1") 
         std::cout << "WARNING: importance values are shared across gene trees!" << std::endl;
     if (trc > 0) 
         std::cout << "WARNING: input tree set is truncated!" << std::endl;
+
     return help;
 }
 
@@ -239,7 +264,7 @@ void Instance::resolve_trees() {
     size_t total = 0;
     for (Tree *t : input) 
         total += t->resolve();
-    std::cout << "Performed " << total << " refinements." << std::endl;
+    std::cout << "Found " << total << " polytomies." << std::endl;
     if (total != 0) {
         std::ofstream fout(input_file + ".refined");
         for (Tree *t : input) 
@@ -250,5 +275,5 @@ void Instance::resolve_trees() {
 
 void Instance::prepare_trees() {
     for (Tree *t : input) 
-        t->prepare(weight, support_low, support_high, support_threshold);
+        t->prepare(weight, support_low, support_high, contract, threshold);
 }

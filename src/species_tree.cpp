@@ -16,12 +16,16 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
         }
         case '1': {
             std::unordered_map<quartet_t, weight_t> quartets;
-            if (mode[3] == '0') 
+            if (mode[3] == '4') {
+                // Use fast code
                 for (Tree * tree: input) tree->get_quartets(&quartets);
-            else if (mode[3] == '1') 
+            } else if (mode[3] == '0' || mode[3] == '1') {
+                // Use support only code; also used to handle polytomies correctly
                 for (Tree * tree: input) tree->get_wquartets_(&quartets);
-            else
+            } else {
+                // Use hybrid code; also used for length only
                 for (Tree * tree: input) tree->get_wquartets(&quartets);
+            }
             // std::cout << to_string(quartets);
             // std::cout << quartets.size() << std::endl;
             if (quartet_list.is_open()) {
