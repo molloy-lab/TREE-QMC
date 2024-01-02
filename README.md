@@ -17,7 +17,7 @@ We recommend working through [this tutorial](tutorial/README.md).
 
 Build
 -----
-To build, wTREE-QMC use commands:
+To build wTREE-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
 cd weighted-TREE-QMC
