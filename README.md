@@ -68,10 +68,11 @@ OPTIONS:
         -w f: none fast
               Refines polytomies arbitrarily so faster algorithm can be used
 [(-r|--support_range) <min> <max>]
-        Specifies the minimum and maximum branch support values
-        For probability or likelihood support, use: -s 0 1 (default)
-        For bootstrap support, use: -s 0 100
-        For local bayesian support, use: -s 0.333 1 (abayes is recommended)
+        Specifies minimum and maximum branch support value (*required* when
+        using -w s and -w h flags)
+        + For probability or likelihood support, use: -s 0 1
+        + For bootstrap support, use: -s 0 100
+        + For local Bayesian support, use: -s 0.333 1 (abayes is recommended)
 [(-c|--contract) <threshold>]
         Run unweighted TREE-QMC after contracting internal branches with
         support less than <threshold>
