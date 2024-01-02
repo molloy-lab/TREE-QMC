@@ -5,11 +5,11 @@ Weighted TREE-QMC (wTREE-QMC) is a quartet-based method for estimating species t
 
 Acknowledgements
 ----------------
-TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen, & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087).
+TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen, & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). 
 
-TREE-QMC implements the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
+This repository (wTREE-QMC) implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
 
-TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
+The library [MQLib](https://github.com/MQLib/MQLib) is utilized for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
 Tutorial
 --------
@@ -68,13 +68,13 @@ OPTIONS:
         -w f: none fast
               Refines polytomies arbitrarily so faster algorithm can be used
 [(-r|--support_range) <min> <max>]
-        Specifies minimum and maximum branch support value (*required* when
-        using -w s and -w h flags)
+        Specifies minimum and maximum branch support values (*required* when
+        using -w s or -w h options)
         + For probability or likelihood support, use: -s 0 1
         + For bootstrap support, use: -s 0 100
         + For local Bayesian support, use: -s 0.333 1 (abayes is recommended)
 [(-c|--contract) <threshold>]
-        Run unweighted TREE-QMC after contracting internal branches with
+        Run unweighted method (-w n) after contracting internal branches with
         support less than <threshold>
 [(-n|--normalize) <normalization scheme>]
         Normalization scheme for artificial taxa; see paper for details
@@ -106,7 +106,7 @@ OTHER OPTIONS:
 [--shared <use shared taxon data structure to normalize quartet weights>]
         Do NOT use unless there are NO missing data!!!
 
-Contact: Post issue to Github (https://github.com/molloy-lab/wTREE-QMC/)
+Contact: Post issue to Github (https://github.com/molloy-lab/weighted-TREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
 If you use wTREE-QMC in your work, please cite:
@@ -117,5 +117,5 @@ If you use wTREE-QMC in your work, please cite:
   Han and Molloy, 2023, Improving quartet graph construction for scalable
   and accurate species tree estimation from gene trees, Genome Research,
   http:doi.org/10.1101/gr.277629.122.
-================================================================================
+=================================================================================
 ```

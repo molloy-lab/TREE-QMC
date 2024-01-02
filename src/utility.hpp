@@ -64,12 +64,13 @@ const std::string help_info =
 "        -w f: none fast\n"
 "              Refines polytomies arbitrarily so faster algorithm can be used\n"
 "[(-r|--support_range) <min> <max>]\n"
-"        Specifies the minimum and maximum branch support values\n"
-"        For probability or likelihood support, use: -s 0 1 (default)\n"
-"        For bootstrap support, use: -s 0 100\n"
-"        For local bayesian support, use: -s 0.333 1 (abayes is recommended)\n"
+"        Specifies minimum and maximum branch support values (*required* when\n"
+"        using -w s or -w h options)\n"
+"        + For probability or likelihood support, use: -s 0 1\n"
+"        + For bootstrap support, use: -s 0 100\n"
+"        + For local Bayesian support, use: -s 0.333 1 (abayes is recommended)\n"
 "[(-c|--contract) <threshold>]\n"
-"        Run unweighted TREE-QMC after contracting internal branches with\n"
+"        Run unweighted method (-w n) after contracting internal branches with\n"
 "        support less than <threshold>\n"
 "[(-n|--normalize) <normalization scheme>]\n"
 "        Normalization scheme for artificial taxa; see paper for details\n"
@@ -99,7 +100,7 @@ const std::string help_info =
 "        is used; otherwise, seed should be positive (default: 1).\n"
 "[--shared <use shared taxon data structure to normalize quartet weights>]\n"
 "        Do NOT use unless there are NO missing data!!!\n\n"
-"Contact: Post issue to Github (https://github.com/molloy-lab/wTREE-QMC/)\n"
+"Contact: Post issue to Github (https://github.com/molloy-lab/weighted-TREE-QMC/)\n"
 "        or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)\n\n"
 "If you use wTREE-QMC in your work, please cite:\n"
 "  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.\n\n"
@@ -107,6 +108,6 @@ const std::string help_info =
 "  Han and Molloy, 2023, Improving quartet graph construction for scalable\n"
 "  and accurate species tree estimation from gene trees, Genome Research,\n"
 "  http:doi.org/10.1101/gr.277629.122.\n"
-"================================================================================\n\n";
+"=================================================================================\n\n";
 
 #endif

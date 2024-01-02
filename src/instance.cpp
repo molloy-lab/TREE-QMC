@@ -202,7 +202,6 @@ bool Instance::parse(int argc, char **argv) {
         std::cout << "weighting mode: length only" << std::endl;
     } else if (weight == "f") {
         std::cout << "weighting mode: none fast" << std::endl;
-        std::cout << "WARNING: polytomies will be refined arbitrarily!" << std::endl;
     } else {
         std::cout << "weighting mode: none" << std::endl;
     }
@@ -281,6 +280,10 @@ void Instance::resolve_trees() {
         total += t->resolve();
 
     std::cout << "Found " << total << " polytomies." << std::endl;
+
+    if (total > 0 && execute == "f") {
+        std::cout << "WARNING: polytomies were refined arbitrarily!" << std::endl;
+    }
 
     if (total != 0) {
         std::ofstream fout(input_file + ".refined");
