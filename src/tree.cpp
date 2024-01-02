@@ -213,7 +213,7 @@ void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t h
         if (s < low || s > high) s = low;
         s = (s - low) / (high - low);
     }
-    //root->support = s;
+    root->support = s;
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
 

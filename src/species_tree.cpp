@@ -9,21 +9,23 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
     Taxa subset(dict, mode);
     switch (mode[1]) {
         case '0': {
+            // Fast execution mode
             std::cout << "At most " << subset.size() * 2 - 5 << " subproblems.\n";
             root = construct_stree(input, subset, -1, 0);
             std::cout << std::setw(5) << count[0] << " subproblems computed.\n";
             break;
         }
         case '1': {
+            // Brute force execution mode
             std::unordered_map<quartet_t, weight_t> quartets;
             if (mode[3] == '4') {
-                // Use fast code
+                // Use unweighted code
                 for (Tree * tree: input) tree->get_quartets(&quartets);
             } else if (mode[3] == '0' || mode[3] == '1') {
-                // Use support only code; also used to handle polytomies correctly
+                // Use weighted support only code
                 for (Tree * tree: input) tree->get_wquartets_(&quartets);
             } else {
-                // Use hybrid code; also used for length only
+                // Use weighted hybrid code; also used for length only
                 for (Tree * tree: input) tree->get_wquartets(&quartets);
             }
             // std::cout << to_string(quartets);
@@ -33,10 +35,13 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
                     index_t *indices = split(elem.first);
                     index_t a = indices[0], b = indices[1], c = indices[2], d = indices[3];
                     quartet_list 
-                        << dict->index2label(a) << ' ' << dict->index2label(b) << ' '
-                        << dict->index2label(c) << ' ' << dict->index2label(d) << ' '
+                        << "(("
+                        << dict->index2label(a) << ',' << dict->index2label(b) 
+                        << "),("
+                        << dict->index2label(c) << ',' << dict->index2label(d)
+                        << ")); "
                         << std::fixed << std::setprecision(16) << (double)elem.second << std::endl;
-                    delete [] indices; 
+                    delete [] indices;
                 }
                 quartet_list.close();
             }
