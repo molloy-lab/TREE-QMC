@@ -60,3 +60,25 @@ Contracting branches with low support is recommended when running [ASTRAL-III](h
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc-c10.tre
 ```
+
+Weighting quartets by branch length only (not recommended)
+---
+Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w 3` flag. This option is not recommended but is provided for completeness.
+```
+../wTREE-QMC \
+	-w 3 \
+	-r 0 100 \
+	-i avian_uce_trees_3679.tre \
+	-o wtreeqmc-bl.tre
+```
+
+No quartet weighting
+---
+If you do not want to use quartet weighting, then you can use the faster TREE-QMC algorithm by specifying the `-w 4` command.
+```
+../wTREE-QMC \
+	-w 4
+	-i avian_uce_trees_3679.tre \
+	-o wtreeqmc.tre
+```
+**Importantly**, if there are polytomies in the input, the above command will cause them to be randomly refined; random refinements can be avoided by using the slower `-w 0` option.
