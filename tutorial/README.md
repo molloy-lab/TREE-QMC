@@ -30,7 +30,7 @@ cd tutorial
 
 Weighting quartet by branch support only
 ---
-Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. In the command below, we set `-r 0 100` because rapid bootstrapping with RAxML produces support values between 0 and 100 (inclusive).
+Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. In the command below, we set `-r 0 100` because rapid bootstrapping with RAxML produces support values between 0 and 100 (inclusive).
 ```
 ../wTREE-QMC \
 	-w s \
@@ -45,7 +45,7 @@ Weighting quartets by branch support was originally proposed in [Weighted ASTRAL
 
 Weighting quartets by branch support and branch length (hybrid)
 ---
-Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-h**) by using the `-w h` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on.
+Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with wQTREE-QMC (referred to as **wTREE-QMC-h**) by using the `-w h` flag, along with the `-r` flag.
 ```
 ../wTREE-QMC \
 	-w h \
@@ -66,7 +66,7 @@ Contracting branches with low support is recommended when running [ASTRAL-III](h
 
 Weighting quartets by branch length only (not recommended)
 ---
-Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w l` flag. This option is **not recommended** but is provided for completeness.
+Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC by using the `-w l` flag. This option is **not recommended** but is provided for completeness.
 ```
 ../wTREE-QMC \
 	-w l \
