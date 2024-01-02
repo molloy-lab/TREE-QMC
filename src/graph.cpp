@@ -46,26 +46,72 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
 }
 
 void Graph::write_good_edges(Dict *dict) {
+    index_t i_, j_;
+    weight_t normval, nelem;
+    
+    // Find average value in good edges   
+    /*nelem = size * (size - 1) / 2; // 0 + 1 + 2 + ... + n-1 = n(n-1)/2
+    normval = 0.0;
+    for (size_t i = 1; i < size-1; i++) {
+        for (size_t j = 0; j < i; j++) {
+            normval += (graph[0][i][j] / nelem);
+        }
+    }*/
+
+    // Find minimum value in good edges
+    normval = std::numeric_limits<double>::max();
+    for (size_t i = 1; i < size-1; i++) {
+        for (size_t j = 0; j < i; j++) {
+            if (graph[0][i][j] > 1 && graph[0][i][j] < normval)
+                normval = graph[0][i][j];
+        }
+    }
+
+    std:: cout << "Normalizing good edges by " << normval << std::endl;
+
     good_edges_txt << size << std::endl;
     for (size_t i = 0; i < size; i++) {
-        index_t i_ = index2index[i];
+        i_ = index2index[i];
         good_edges_txt << dict->index2label(i);
         for (size_t j = 0; j < size; j++) {
-            index_t j_ = index2index[j];
-            good_edges_txt << " " << graph[0][i_][j_];
+            j_ = index2index[j];
+            good_edges_txt << " " << graph[0][i_][j_] / normval;
         }
         good_edges_txt << std::endl;
     }
 }
 
 void Graph::write_bad_edges(Dict *dict) {
+    index_t i_, j_;
+    weight_t normval, nelem;
+    
+    // Find average value in good edges   
+    /*nelem = size * (size - 1) / 2; // 0 + 1 + 2 + ... + n-1 = n(n-1)/2
+    normval = 0.0;
+    for (size_t i = 1; i < size-1; i++) {
+        for (size_t j = 0; j < i; j++) {
+            normval += (graph[1][i][j] / nelem);
+        }
+    }*/
+
+    // Find minimum value in good edges
+    normval = std::numeric_limits<double>::max();
+    for (size_t i = 1; i < size-1; i++) {
+        for (size_t j = 0; j < i; j++) {
+            if (graph[1][i][j] > 1 && graph[1][i][j] < normval)
+                normval = graph[1][i][j];
+        }
+    }
+
+    std:: cout << "Normalizing bad edges by " << normval << std::endl;
+
     bad_edges_txt << size << std::endl;
     for (size_t i = 0; i < size; i++) {
-        index_t i_ = index2index[i];
+        i_ = index2index[i];
         bad_edges_txt << dict->index2label(i);
         for (size_t j = 0; j < size; j++) {
-            index_t j_ = index2index[j];
-            bad_edges_txt << " " << graph[1][i_][j_];
+            j_ = index2index[j];
+            bad_edges_txt << " " << graph[1][i_][j_] / normval;
         }
         bad_edges_txt << std::endl;
     }

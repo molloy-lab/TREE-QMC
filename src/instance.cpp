@@ -5,7 +5,7 @@ extern bool DEBUG_MODE;
 Instance::Instance(int argc, char **argv) {
     DEBUG_MODE = false;
     input_file = output_file = "";
-    normal = "2"; execute = "0"; taxa_mode = "0"; weight = "0";
+    normal = "2"; execute = "0"; taxa_mode = "0"; weight = "n";
     support_low = 0; support_high = 0;  // intentionally bad to force user to set
     contract = false; threshold = 0.0;
     refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 10;
@@ -118,7 +118,7 @@ bool Instance::parse(int argc, char **argv) {
         if (opt == "-w" || opt == "--weight") {
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
-            if (param != "0" && param != "1" && param != "2" && param != "3" && param != "4") {
+            if (param != "n" && param != "s" && param != "h" && param != "l" && param != "f") {
                 std::cout << "ERROR: invalid weight parameter: " << param << "." << std::endl;
                 return true;
             }

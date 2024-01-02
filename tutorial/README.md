@@ -72,7 +72,7 @@ Weighting quartets by branch length was originally proposed in [Weighted ASTRAL]
 	-w l \
 	-r 0 100 \
 	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc-bl.tre
+	-o wtreeqmc-l.tre
 ```
 
 No quartet weighting
