@@ -80,7 +80,7 @@ No quartet weighting
 If you do not want to use quartet weighting, then you can use the faster TREE-QMC algorithm by specifying the `-w f` command.
 ```
 ../wTREE-QMC \
-	-w f
+	-w f \
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc.tre
 ```
