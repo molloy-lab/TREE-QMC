@@ -38,7 +38,10 @@ Weighting quartets by branch support was originally proposed in [Weighted ASTRAL
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc-s.tre
 ```
-
+**COMMON SETTINGS**: 
+* For bootstrap support, set `-r 0 100`.
+* For likelihood or probability support (e.g., sh), set `-r 0 1`.
+* For local Bayesian support (e.g., abayes), set `-r 0.333 1`.
 
 Weighting quartets by branch support and branch length (hybrid)
 ---
@@ -63,7 +66,7 @@ Contracting branches with low support is recommended when running [ASTRAL-III](h
 
 Weighting quartets by branch length only (not recommended)
 ---
-Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w 3` flag. This option is not recommended but is provided for completeness.
+Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w 3` flag. This option is **not recommended** but is provided for completeness.
 ```
 ../wTREE-QMC \
 	-w 3 \
