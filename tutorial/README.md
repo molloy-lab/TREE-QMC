@@ -30,10 +30,10 @@ cd tutorial
 
 Weighting quartet by branch support only
 ---
-Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-s**) by using the `-w 1` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. For rapid bootstrapping with RAxML, the range should be set with `-r 0 100`.
+Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. For rapid bootstrapping with RAxML, the range should be set with `-r 0 100`.
 ```
 ../wTREE-QMC \
-	-w 1 \
+	-w s \
 	-r 0 100 \
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc-s.tre
@@ -45,10 +45,10 @@ Weighting quartets by branch support was originally proposed in [Weighted ASTRAL
 
 Weighting quartets by branch support and branch length (hybrid)
 ---
-Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-h**) by using the `-w 2` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on.
+Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-h**) by using the `-w h` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on.
 ```
 ../wTREE-QMC \
-	-w 2 \
+	-w h \
 	-r 0 100 \
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc-h.tre
@@ -56,7 +56,7 @@ Weighting quartets by branch support and branch length (hybrid mode) was origina
 
 Contracting low support branches (instead of quartet weighting)
 ---
-Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with wTREE-QMC, either by contracting branches in advance of running TREE-QMC and then using the `-w 0` flag *or* by using the `-c` flag, along with the support threshold. In the command below, all branches with bootstrap support less than `10` will be contracted.
+Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with wTREE-QMC, either by contracting branches in advance of running TREE-QMC and then using the `-w n` flag *or* by using the `-c` flag, along with the support threshold. In the command below, all branches with bootstrap support less than `10` will be contracted.
 ```
 ../wTREE-QMC \
 	-c 10 \
@@ -66,10 +66,10 @@ Contracting branches with low support is recommended when running [ASTRAL-III](h
 
 Weighting quartets by branch length only (not recommended)
 ---
-Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w 3` flag. This option is **not recommended** but is provided for completeness.
+Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-bl**) by using the `-w l` flag. This option is **not recommended** but is provided for completeness.
 ```
 ../wTREE-QMC \
-	-w 3 \
+	-w l \
 	-r 0 100 \
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc-bl.tre
@@ -77,11 +77,11 @@ Weighting quartets by branch length was originally proposed in [Weighted ASTRAL]
 
 No quartet weighting
 ---
-If you do not want to use quartet weighting, then you can use the faster TREE-QMC algorithm by specifying the `-w 4` command.
+If you do not want to use quartet weighting, then you can use the faster TREE-QMC algorithm by specifying the `-w f` command.
 ```
 ../wTREE-QMC \
-	-w 4
+	-w f
 	-i avian_uce_trees_3679.tre \
 	-o wtreeqmc.tre
 ```
-**Importantly**, if there are polytomies in the input, the above command will cause them to be randomly refined; random refinements can be avoided by using the slower `-w 0` option.
+**Importantly**, if there are polytomies in the input, the above command will cause them to be randomly refined; random refinements can be avoided by using the slower `-w n` option.

@@ -191,23 +191,23 @@ bool Instance::parse(int argc, char **argv) {
 
     if (contract) {
         std::cout << "contract support threshold: " << (double)threshold << std::endl;
-        weight = "0";  // override
+        weight = "n";  // override
     }
 
-    if (weight == "1") {
+    if (weight == "s") {
         std::cout << "weighting mode: support only" << std::endl;
-    } else if (weight == "2") {
+    } else if (weight == "h") {
         std::cout << "weighting mode: hybrid" << std::endl;
-    } else if (weight == "3") {
+    } else if (weight == "l") {
         std::cout << "weighting mode: length only" << std::endl;
-    } else if (weight == "4") {
-        std::cout << "weighting mode: none*" << std::endl;
+    } else if (weight == "f") {
+        std::cout << "weighting mode: none fast" << std::endl;
         std::cout << "WARNING: polytomies will be refined arbitrarily!" << std::endl;
     } else {
         std::cout << "weighting mode: none" << std::endl;
     }
 
-    if (weight == "1" || weight == "2") {
+    if (weight == "s" || weight == "h") {
         if (!found_support) {
             std::cout << "ERROR: Must specify branch support range with option -r!" << std::endl;
             return 1;

@@ -14,7 +14,7 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
         std::unordered_map<index_t, index_t> valid = tree->get_indices();
         subset.weight_update(valid);
         weight_t ***subgraph;
-        if (weighting == "4")
+        if (weighting == "f")
             subgraph = tree->build_graph(subset);
         else
             subgraph = tree->build_wgraph(subset);

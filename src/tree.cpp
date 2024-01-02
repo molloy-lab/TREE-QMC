@@ -197,7 +197,7 @@ size_t Tree::resolve_tree(Node *root) {
 }
 
 void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high,  bool contract, weight_t threshold) {
-    if (weight == "4") return;
+    if (weight == "f") return;
 
     assert(root->children.size() == 0 || root->children.size() == 2);
     weight_t s = root->support;
@@ -206,10 +206,10 @@ void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t h
     if (contract) {
         if (s < threshold) s = 0;
         else s = 1;
-    } else if (weight == "0" || weight == "3") {
+    } else if (weight == "n" || weight == "l") {
         if (!root->isfake) s = 1;
     } else {
-        // weight = 1 or weight = 2
+        // weight = s or weight = h
         if (s < low || s > high) s = low;
         s = (s - low) / (high - low);
     }
@@ -218,7 +218,7 @@ void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t h
     root->support_[1] = 1;
 
     // Handle length values
-    if (weight == "2" || weight == "3")
+    if (weight == "h" || weight == "l")
         root->length_ = exp(- root->length);
     else
         root->length_ = 1;

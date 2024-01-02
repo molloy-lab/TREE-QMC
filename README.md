@@ -61,11 +61,11 @@ OPTIONS:
         Name of file for writing output species tree (default: stdout)
 [(-w|--weight) <weighting scheme>]
         Weighting scheme for quartets; see paper for details
-        -w 0: none (default)
-        -w 1: support only
-        -w 2: hybrid of support and length
-        -w 3: length only
-        -w 4: none fast
+        -w n: none (default)
+        -w s: support only
+        -w h: hybrid of support and length
+        -w l: length only
+        -w f: none fast
               Refines polytomies arbitrarily so faster algorithm can be used
 [(-r|--support_range) <min> <max>]
         Specifies the minimum and maximum branch support values
