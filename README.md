@@ -7,7 +7,7 @@ Acknowledgements
 ----------------
 TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen, & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087).
 
-TREE-QMC implements the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol* , 2022](https://doi.org/10.1093/molbev/msac215).
+TREE-QMC implements the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
 
 TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
@@ -109,7 +109,7 @@ Contact: Post issue to Github (https://github.com/molloy-lab/wTREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
 If you use wTREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/wTREE-QMC.
+  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.
 
   and
 

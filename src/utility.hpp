@@ -102,7 +102,11 @@ const std::string help_info =
 "Contact: Post issue to Github (https://github.com/molloy-lab/wTREE-QMC/)\n"
 "        or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)\n\n"
 "If you use wTREE-QMC in your work, please cite:\n"
-"  Han and Molloy, 2024, https://github.com/molloy-lab/wTREE-QMC.\n"
+"  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.\n\n"
+"  and\n\n"
+"  Han and Molloy, 2023, Improving quartet graph construction for scalable\n"
+"  and accurate species tree estimation from gene trees, Genome Research,\n"
+"  http:doi.org/10.1101/gr.277629.122.\n"
 "================================================================================\n\n";
 
 #endif
