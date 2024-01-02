@@ -30,7 +30,7 @@ cd tutorial
 
 Weighting quartet by branch support only
 ---
-Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. For rapid bootstrapping with RAxML, the range should be set with `-r 0 100`.
+Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wQTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. In the command below, we set `-r 0 100` because rapid bootstrapping with RAxML produces support values between 0 and 100 (inclusive).
 ```
 ../wTREE-QMC \
 	-w s \
@@ -56,7 +56,7 @@ Weighting quartets by branch support and branch length (hybrid mode) was origina
 
 Contracting low support branches (instead of quartet weighting)
 ---
-Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with wTREE-QMC, either by contracting branches in advance of running TREE-QMC and then using the `-w n` flag *or* by using the `-c` flag, along with the support threshold. In the command below, all branches with bootstrap support less than `10` will be contracted.
+Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with wTREE-QMC, either by contracting branches in advance of running TREE-QMC and then using the `-w n` flag *or* by using the `-c` flag, along with the support threshold. In the command below, we set `-c 10` so that internal branches with bootstrap support less than `10` will be contracted.
 ```
 ../wTREE-QMC \
 	-c 10 \
