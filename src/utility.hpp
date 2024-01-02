@@ -79,6 +79,8 @@ const std::string help_info =
 "[(-x|--execution) <execution mode>]\n"
 "        -x 0: run efficient algorithm (default)\n"
 "        -x 1: run brute force algorithm for testing\n"
+"        -x 2: compute weighted quartets, then exit\n"
+"        -x 3: compute good and bad edges, then exit\n"
 "[(-v|--verbose) <verbose mode>]\n"
 "        -v 0: write no subproblem information (default)\n"
 "        -v 1: write CSV with subproblem information (subproblem ID, parent\n"

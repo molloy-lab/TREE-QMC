@@ -45,6 +45,32 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
     if (verbose > "1") subproblem_csv << ',' << count[1] << ',' << count[2] << ',' << count[3];
 }
 
+void Graph::write_good_edges(Dict *dict) {
+    good_edges_txt << size << std::endl;
+    for (size_t i = 0; i < size; i++) {
+        index_t i_ = index2index[i];
+        good_edges_txt << dict->index2label(i);
+        for (size_t j = 0; j < size; j++) {
+            index_t j_ = index2index[j];
+            good_edges_txt << " " << graph[0][i_][j_];
+        }
+        good_edges_txt << std::endl;
+    }
+}
+
+void Graph::write_bad_edges(Dict *dict) {
+    bad_edges_txt << size << std::endl;
+    for (size_t i = 0; i < size; i++) {
+        index_t i_ = index2index[i];
+        bad_edges_txt << dict->index2label(i);
+        for (size_t j = 0; j < size; j++) {
+            index_t j_ = index2index[j];
+            bad_edges_txt << " " << graph[1][i_][j_];
+        }
+        bad_edges_txt << std::endl;
+    }
+}
+
 Graph::Graph(std::unordered_map<quartet_t, weight_t> &quartets, Taxa &subset) {
     size = subset.size();
     for (index_t i = 0; i < size; i ++) {
@@ -58,7 +84,10 @@ Graph::Graph(std::unordered_map<quartet_t, weight_t> &quartets, Taxa &subset) {
         index_t *indices = split(elem.first);
         index_t a = index2index[indices[0]], b = index2index[indices[1]], c = index2index[indices[2]], d = index2index[indices[3]];
         weight_t w = elem.second;
+        // bad edges
         graph[1][a][b] += w; graph[1][c][d] += w; graph[1][b][a] += w; graph[1][d][c] += w;
+
+        // good edges
         graph[0][a][c] += w; graph[0][a][d] += w; graph[0][b][c] += w; graph[0][b][d] += w;
         graph[0][c][a] += w; graph[0][d][a] += w; graph[0][c][b] += w; graph[0][d][b] += w;
         delete [] indices;

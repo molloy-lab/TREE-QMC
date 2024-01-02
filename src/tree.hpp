@@ -120,7 +120,7 @@ class SpeciesTree : public Tree {
         Node *artificial2node(Node *root, index_t artificial);
 };
 
-extern std::ofstream subproblem_csv, quartet_list;
+extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
 extern std::string verbose;
 extern unsigned long long count[8];
 

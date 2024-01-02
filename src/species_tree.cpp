@@ -28,13 +28,29 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
                 // Use weighted hybrid code; also used for length only
                 for (Tree * tree: input) tree->get_wquartets(&quartets);
             }
+            root = construct_stree(quartets, subset, -1, 0);
+            break;
+        }
+        case '2': {
+            // Compute weighted quartets, then exit
+            std::unordered_map<quartet_t, weight_t> quartets;
+            if (mode[3] == '4') {
+                // Use unweighted code
+                for (Tree * tree: input) tree->get_quartets(&quartets);
+            } else if (mode[3] == '0' || mode[3] == '1') {
+                // Use weighted support only code
+                for (Tree * tree: input) tree->get_wquartets_(&quartets);
+            } else {
+                // Use weighted hybrid code; also used for length only
+                for (Tree * tree: input) tree->get_wquartets(&quartets);
+            }
             // std::cout << to_string(quartets);
             // std::cout << quartets.size() << std::endl;
-            if (quartet_list.is_open()) {
+            // if (quartets_txt.is_open()) {
                 for (auto elem : quartets) {
                     index_t *indices = split(elem.first);
                     index_t a = indices[0], b = indices[1], c = indices[2], d = indices[3];
-                    quartet_list 
+                    quartets_txt
                         << "(("
                         << dict->index2label(a) << ',' << dict->index2label(b) 
                         << "),("
@@ -43,9 +59,19 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
                         << std::fixed << std::setprecision(16) << (double)elem.second << std::endl;
                     delete [] indices;
                 }
-                quartet_list.close();
-            }
-            root = construct_stree(quartets, subset, -1, 0);
+                quartets_txt.close();
+            //}
+            break;
+        }
+        case '3': {
+            // Compute good and bad edges, then exit
+            Graph *g = new Graph(input, subset, mode.substr(3, 1));
+
+            g->write_good_edges(dict);
+            good_edges_txt.close();
+
+            g->write_bad_edges(dict);
+            bad_edges_txt.close();
             break;
         }
         default: {

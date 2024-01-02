@@ -16,6 +16,8 @@ class Graph {
         ~Graph();
         std::string to_string();
         weight_t get_cut(std::vector<index_t> *A, std::vector<index_t> *B, unsigned long int iter_limit);
+        void write_good_edges(Dict *dict);
+        void write_bad_edges(Dict *dict);
     private:
         index_t size;
         std::unordered_map<index_t, index_t> index2index;
@@ -34,7 +36,7 @@ class QuartetGraphMaxCutCallback : public MaxCutCallback {
         unsigned long int iter_limit;
 };
 
-extern std::ofstream subproblem_csv;
+extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
 extern std::string verbose;
 extern unsigned long long count[8];
 

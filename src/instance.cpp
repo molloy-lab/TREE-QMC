@@ -6,7 +6,6 @@ Instance::Instance(int argc, char **argv) {
     DEBUG_MODE = false;
     input_file = output_file = "";
     normal = "2"; execute = "0"; taxa_mode = "0"; weight = "0";
-    output_quartets = "0";
     support_low = 0; support_high = 0;  // intentionally bad to force user to set
     contract = false; threshold = 0.0;
     refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 10;
@@ -51,15 +50,17 @@ long long Instance::solve() {
     if (input.size() == 0) {
         return -1;
     }
-    else {
-        srand(cut_seed);
-        std::string mode = normal + execute + taxa_mode + weight;
-        auto start = std::chrono::high_resolution_clock::now();
-        output = new SpeciesTree(input, dict, mode, iter_limit);
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        return duration.count();
-    }
+
+    srand(cut_seed);
+    std::string mode = normal + execute + taxa_mode + weight;
+    auto start = std::chrono::high_resolution_clock::now();
+
+    output = new SpeciesTree(input, dict, mode, iter_limit);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    return duration.count();
 }
 
 SpeciesTree *Instance::get_solution() {
@@ -73,6 +74,7 @@ void Instance::output_solution() {
     else {
         std::ofstream fout(output_file);
         fout << output->to_string_basic() << std::endl;
+        fout.close();
     }
 }
 
@@ -125,7 +127,7 @@ bool Instance::parse(int argc, char **argv) {
         if (opt == "-x" || opt == "--execution") {
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
-            if (param != "0" && param != "1" && param != "2") {
+            if (param != "0" && param != "1" && param != "2" && param != "3" && param != "4") {
                 std::cout << "ERROR: invalid execution parameter " << param << "." << std::endl;
                 return true;
             }
@@ -181,7 +183,6 @@ bool Instance::parse(int argc, char **argv) {
                 return true;
             }
         }
-        if (opt == "--outputquartets") output_quartets = "1";
         if (opt == "--shared") taxa_mode = "1";
         i ++;
     }
@@ -216,12 +217,23 @@ bool Instance::parse(int argc, char **argv) {
 
     std::cout << "normalization scheme: n" + normal << std::endl;
 
-    if (execute == "0") 
+    if (execute == "0") {
         std::cout << "execution mode: efficient" << std::endl;
+    }
     else if (execute == "1") {
         std::cout << "execution mode: brute force" << std::endl;
+    }
+    else if (execute == "2") {
+        std::cout << "execution mode: compute weighted quartets, then exit" << std::endl;
         std::cout << "quartets saved in: " << output_file << "_quartets.txt" << std::endl;
-        quartet_list.open(output_file + "_quartets.txt");
+        quartets_txt.open(output_file + "_quartets.txt");
+    }
+    else if (execute == "3") {
+        std::cout << "execution mode: compute good and bad edges, then exit" << std::endl;
+        std::cout << "good edges saved in: " << output_file << "_good_edges.txt" << std::endl;
+        std::cout << "bad edges saved in: " << output_file << "_bad_edges.txt" << std::endl;
+        good_edges_txt.open(output_file + "_good_edges.txt");
+        bad_edges_txt.open(output_file + "_bad_edges.txt");
     }
     else {
         DEBUG_MODE = true;
@@ -238,6 +250,10 @@ bool Instance::parse(int argc, char **argv) {
         std::cout << "WARNING: input tree set is truncated!" << std::endl;
 
     return help;
+}
+
+std::string Instance::get_execution_mode() {
+    return execute;
 }
 
 std::size_t Instance::input_trees() {
