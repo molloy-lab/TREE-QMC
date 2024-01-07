@@ -281,7 +281,7 @@ void Instance::resolve_trees() {
 
     std::cout << "Found " << total << " polytomies." << std::endl;
 
-    if (total > 0 && execute == "f") {
+    if (total > 0 && weight == "f") {
         std::cout << "WARNING: polytomies were refined arbitrarily!" << std::endl;
     }
 
