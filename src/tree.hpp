@@ -29,9 +29,11 @@ class Node {
         weight_t *ssinglet, *ssinglet_, *pdoublet[2], *ptriplet[2], *mdoublet[2], *mdoublet_[2];
         weight_t **sdoublet[2], **sdoublet_[2], **striplet[2];
         bool isfake;
+        weight_t f[3];
 };
 
 class Tree {
+    friend class SpeciesTree;
     public:
         Tree();
         Tree(const std::string &newick, Dict *dict);
@@ -102,12 +104,18 @@ class Tree {
         void test_pxlet(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset);
         void test_pxlet_(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset);
         void test_graph(Node *root, Taxa &subset, weight_t ***graph);
+        void build_wstates(Node *root);
+        void build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad);
+        weight_t get_freq(std::unordered_map<index_t, index_t> quad);
+        weight_t freq_(Node *root);
+        void clear_wstates_(Node *root);
 };
 
 class SpeciesTree : public Tree {
     public:
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit);
         ~SpeciesTree();
+        std::string annotate(std::vector<Tree *> input);
     private:
         index_t artifinyms;
         std::string mode;
@@ -118,6 +126,8 @@ class SpeciesTree : public Tree {
         Node *reroot(Node *root, std::unordered_set<index_t> &visited);
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
+        void get_freq(Node *root, std::vector<Tree *> input);
+        std::string display_tree_annotated(Node *root);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

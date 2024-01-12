@@ -324,3 +324,62 @@ Node *SpeciesTree::artificial2node(Node *root, index_t artificial) {
         return NULL;
     }
 }
+
+void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
+    if (root->children.size() != 0 && root->parent != NULL) {
+        std::vector<Node *> x, y, z, w;
+        get_leaves(root->children[0], &x);
+        get_leaves(root->children[1], &y);
+        if (root->parent->parent != NULL) {
+            if (root->parent->children[0] == root) 
+                get_leaves(root->parent->children[1], &z);
+            else 
+                get_leaves(root->parent->children[0], &z);
+        }
+        else {
+            if (root->parent->children[0] == root) 
+                get_leaves(root->parent->children[1]->children[0], &z);
+            else 
+                get_leaves(root->parent->children[0]->children[0], &z);
+        }
+        get_leaves(this->root, &w);
+        root->f[0] = root->f[1] = root->f[2] = 0;
+        std::unordered_map<index_t, index_t> quad;
+        for (Node *leaf : w) quad[leaf->index] = 4;
+        for (Node *leaf : x) quad[leaf->index] = 1;
+        for (Node *leaf : y) quad[leaf->index] = 2;
+        for (Node *leaf : z) quad[leaf->index] = 3;
+        for (Tree *t : input) root->f[0] += t->get_freq(quad);
+        for (Node *leaf : w) quad[leaf->index] = 4;
+        for (Node *leaf : x) quad[leaf->index] = 1;
+        for (Node *leaf : y) quad[leaf->index] = 3;
+        for (Node *leaf : z) quad[leaf->index] = 2;
+        for (Tree *t : input) root->f[1] += t->get_freq(quad);
+        for (Node *leaf : w) quad[leaf->index] = 2;
+        for (Node *leaf : x) quad[leaf->index] = 1;
+        for (Node *leaf : y) quad[leaf->index] = 3;
+        for (Node *leaf : z) quad[leaf->index] = 4;
+        for (Tree *t : input) root->f[2] += t->get_freq(quad);
+        weight_t total = root->f[1] + root->f[2] + root->f[0];
+        root->f[0] /= total;
+        root->f[1] /= total;
+        root->f[2] /= total;
+    }
+    for (Node *child : root->children) 
+        get_freq(child, input);
+}
+
+std::string SpeciesTree::annotate(std::vector<Tree *> input) {
+    get_freq(root, input);
+    return display_tree_annotated(root);
+}
+
+std::string SpeciesTree::display_tree_annotated(Node *root) {
+    if (root->children.size() == 0) 
+        return dict->index2label(root->index);
+    std::string s = "(";
+    for (Node * node : root->children) 
+        s += display_tree_annotated(node) + ",";
+    s[s.size() - 1] = ')';
+    return s + "[" + std::to_string(root->f[0]) + "," + std::to_string(root->f[1]) + "," + std::to_string(root->f[2]) + "]";
+}

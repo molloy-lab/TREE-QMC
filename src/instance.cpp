@@ -5,7 +5,7 @@ extern bool DEBUG_MODE;
 Instance::Instance(int argc, char **argv) {
     DEBUG_MODE = false;
     input_file = output_file = "";
-    normal = "2"; execute = "0"; taxa_mode = "0"; weight = "n";
+    normal = "2"; execute = "0"; taxa_mode = "0"; weight = "n"; score_mode = "0";
     support_low = 0; support_high = 0;  // intentionally bad to force user to set
     contract = false; threshold = 0.0;
     refine_seed = 12345; cut_seed = 1; trc = 0; iter_limit = 10;
@@ -68,6 +68,7 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
+    if (score_mode == "1") std::cout << output->annotate(input) << std::endl;
     if (output_file == "") {
         std::cout << output->to_string_basic() << std::endl;
     }
@@ -184,6 +185,7 @@ bool Instance::parse(int argc, char **argv) {
             }
         }
         if (opt == "--shared") taxa_mode = "1";
+        if (opt == "--scored") score_mode = "1";
         i ++;
     }
     std::cout << "input file: " << input_file << std::endl;
