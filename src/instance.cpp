@@ -68,13 +68,18 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
-    if (score_mode == "1") std::cout << output->annotate(input) << std::endl;
     if (output_file == "") {
-        std::cout << output->to_string_basic() << std::endl;
+        if (score_mode == "1")
+            std::cout << output->annotate(input) << std::endl;
+        else
+            std::cout << output->to_string_basic() << std::endl;
     }
     else {
         std::ofstream fout(output_file);
-        fout << output->to_string_basic() << std::endl;
+        if (score_mode == "1") 
+            fout << output->annotate(input) << std::endl;
+        else
+            fout << output->to_string_basic() << std::endl;
         fout.close();
     }
 }

@@ -370,6 +370,7 @@ void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
 }
 
 std::string SpeciesTree::annotate(std::vector<Tree *> input) {
+    std::cout << "Computing branch support" << std::endl;
     get_freq(root, input);
     return display_tree_annotated(root);
 }
@@ -377,9 +378,14 @@ std::string SpeciesTree::annotate(std::vector<Tree *> input) {
 std::string SpeciesTree::display_tree_annotated(Node *root) {
     if (root->children.size() == 0) 
         return dict->index2label(root->index);
+
     std::string s = "(";
-    for (Node * node : root->children) 
+    for (Node * node : root->children)
         s += display_tree_annotated(node) + ",";
     s[s.size() - 1] = ')';
-    return s + "[" + std::to_string(root->f[0]) + "," + std::to_string(root->f[1]) + "," + std::to_string(root->f[2]) + "]";
+
+    if (root->parent == NULL)
+        return s + ";";
+
+    return s + "\'[q1=" + std::to_string(root->f[0]) + ";q2=" + std::to_string(root->f[1]) + ";q3=" + std::to_string(root->f[2]) + "]\'";
 }
