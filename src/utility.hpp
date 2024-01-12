@@ -15,6 +15,7 @@
 #include <vector>
 #include <iomanip>
 #include <queue>
+#include <stack>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6

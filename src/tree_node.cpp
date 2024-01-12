@@ -21,6 +21,72 @@ Node::~Node() {
         delete child;
 }
 
+bool Node::is_leaf() {
+    if (children.size() == 0) return true;
+    return false;
+}
+
+void Node::set_parent(Node *parent) {
+    this->parent = parent;
+}
+
+Node* Node::get_parent() {
+    return parent;
+}
+
+void Node::print_leaves_below_index() {
+    std::queue<Node*> queue;
+    Node *node;
+    std::vector<index_t> leaves;
+
+    queue.push(this);
+
+    while (queue.size() > 0) {
+        node = queue.front();
+        queue.pop();
+
+        if (node->children.size() == 0) {
+            leaves.push_back(node->index);
+        } else {
+            for (Node* child: node->children)
+                queue.push(child);
+        }
+    }
+
+    for (index_t leaf : leaves) {
+        std::cout << " " << leaf;
+    }
+    std::cout << std::endl;
+}
+
+Node* Node::get_sibling() {
+    Node *sibling = NULL;
+
+    if (parent->children.size() != 2)
+        std::cout << "ERROR: Cannot get sibling in non-binary tree" << std::endl;
+
+    for (Node* child : parent->children) {
+        if (child != this) sibling = child;
+    }
+
+    return sibling;
+}
+
+bool Node::remove_child(Node *child) {
+    auto it = std::find(children.begin(), children.end(), child);
+    if (it != children.end()) {
+        children.erase(it);
+        child->parent = NULL;
+        return true;
+    }
+    return false;
+}
+
+void Node::add_child(Node *child) {
+    children.push_back(child);
+    child->set_parent(this);
+}
+
 void Node::new_states(index_t size) {
     this->size = size;
     singlet = new weight_t[size + 1];

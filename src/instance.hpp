@@ -13,7 +13,10 @@ class Instance {
         void output_solution();
         std::string get_execution_mode();
     private:
-        std::string input_file, output_file, normal, weight, execute, taxa_mode, output_quartets, score_mode;
+        std::unordered_set<std::string> root_taxon_set;
+        std::string input_file, output_file, stree_file;
+        std::string root_str;
+        std::string normal, weight, execute, taxa_mode, output_quartets, score_mode;
         unsigned long int refine_seed, cut_seed, trc, iter_limit;
         weight_t support_low, support_high, threshold;
         bool contract;

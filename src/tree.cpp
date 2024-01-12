@@ -14,6 +14,10 @@ Tree::~Tree() {
     delete root;
 }
 
+Node* Tree::get_root() {
+    return root;
+}
+
 std::string Tree::to_string() {
     return display_tree(root) + ";";
 }
@@ -118,7 +122,7 @@ Node *Tree::build_tree(const std::string &newick) {
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
                 length = branch.substr(sep + 1, std::string::npos);
-                //std::cout << "Found internal node " << branch << ' ' << support << ' ' << length << std::endl;
+                //std::cout << "Found internal node " << branch << " with support " << support << " and length " << length << std::endl;
                 if (length.size() > 0) root->length = std::stod(length);
             } else {
                 support = branch.substr(0, std::string::npos);
@@ -641,4 +645,142 @@ void Tree::get_depth(Node *root, index_t depth) {
     root->depth = depth;
     for (Node *child : root->children) 
         get_depth(child, depth + 1);
+}
+
+Node* Tree::find_node_for_split(std::unordered_set<index_t> clade) {
+    std::vector<Node*> nodes, postorder_nodes;
+    std::queue<Node*> queue;
+    Node *node;
+    index_t ni, ci, n_leaves = 0, n_nodes = 0;
+
+    // Prepare for postorder traversal and count
+    nodes.push_back(root);
+    while (nodes.size() > 0) {
+        node = nodes.back();
+        nodes.pop_back();
+        for (Node* child : node->children)
+            nodes.push_back(child);
+        postorder_nodes.push_back(node);
+
+        if (node->is_leaf()) n_leaves++;
+        n_nodes++;
+    }
+
+    // Run postorder traversal and count
+    std::vector<index_t> n_lv_below(n_nodes, 0);
+    std::vector<index_t> n_og_below(n_nodes, 0);
+
+    while (postorder_nodes.size() > 0) {
+        node = postorder_nodes.back();
+        postorder_nodes.pop_back();
+
+        ni = node->index;
+
+        // Update counts
+        if (node->is_leaf()) {
+            if (clade.find(ni) != clade.end())
+                n_og_below[ni]++;
+            n_lv_below[ni]++;
+        } else {
+            for (Node* child : node->children) {
+                ci = child->index;
+                n_og_below[ni] += n_og_below[ci];
+                n_lv_below[ni] += n_lv_below[ci];
+            }
+        }
+
+        // Check if found clade
+        if (n_og_below[ni] == clade.size()) {
+            if (n_lv_below[ni] == clade.size())
+                return node;
+            else
+                return NULL;
+        }
+    }
+
+    // Run preorder traversal
+    queue.push(root);
+    while (queue.size() > 0) {
+        node = queue.front();
+        queue.pop();
+        for (Node* child: node->children)
+            queue.push(child);
+
+        // Check if clade is split across root
+        ni = node->index;
+        if (n_og_below[ni] == 0) {
+            if ((n_leaves - n_lv_below[ni]) == clade.size())
+                return node;
+            else
+                return NULL;
+        }
+    }
+
+    return NULL;
+}
+
+Node* Tree::find_node(index_t index) {
+    std::queue<Node*> queue;
+    Node *node;
+
+    // Run preorder traversal
+    queue.push(root);
+    while (queue.size() > 0) {
+        node = queue.front();
+        queue.pop();
+
+        if (node->index == index)
+            return node;
+
+        for (Node* child: node->children)
+            queue.push(child);
+    }
+
+    return NULL;
+}
+
+void Tree::reroot_on_edge_above_node(Node *node) {
+    if (node == NULL) return;
+
+    std::stack<Node*> stack;
+    Node *old_root, *next_root, *sibl, *keep;
+
+    keep = node;
+
+    while (node != NULL) {
+        stack.push(node);
+        node = node->get_parent();
+    }
+    stack.pop();  // Remove root from stack
+
+    // Start relocating root
+    node = stack.top();
+    stack.pop();
+    while (node != keep) {
+        next_root = stack.top();
+
+        // Remove node from root
+        old_root = node->get_parent();
+        old_root->remove_child(node);
+
+        // Remove next root's sibling 
+        sibl = next_root->get_sibling();
+        node->remove_child(sibl);
+
+        // Attach next root's sibling to old root
+        old_root->add_child(sibl);
+        old_root->f[0] = next_root->f[0]; // need to do for all data
+        old_root->f[1] = next_root->f[1];
+        old_root->f[2] = next_root->f[2];
+
+        // Make node the new root so next root is below it
+        node->add_child(old_root);
+        node->f[0] = 0; // need to do for all data
+        node->f[1] = 0;
+        node->f[2] = 0;
+        root = node;
+
+        node = next_root;
+        stack.pop();
+    }
 }

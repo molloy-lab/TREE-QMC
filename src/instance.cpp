@@ -4,7 +4,10 @@ extern bool DEBUG_MODE;
 
 Instance::Instance(int argc, char **argv) {
     DEBUG_MODE = false;
-    input_file = output_file = "";
+    input_file = "";
+    output_file = "";
+    stree_file = "";
+    root_str = "";
     normal = "2"; execute = "0"; taxa_mode = "0"; weight = "n"; score_mode = "0";
     support_low = 0; support_high = 0;  // intentionally bad to force user to set
     contract = false; threshold = 0.0;
@@ -55,7 +58,11 @@ long long Instance::solve() {
     std::string mode = normal + execute + taxa_mode + weight;
     auto start = std::chrono::high_resolution_clock::now();
 
-    output = new SpeciesTree(input, dict, mode, iter_limit);
+    if (stree_file != "") {
+        output = new SpeciesTree(stree_file, dict);
+    } else {
+        output = new SpeciesTree(input, dict, mode, iter_limit);
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -68,16 +75,26 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
+    if (score_mode == "1") {
+        std::cout << "Computing branch info" << std::endl;
+        output->annotate(input);
+    }
+
+    if (root_str != "")
+        output->root_at_clade(root_taxon_set);
+    else 
+        output->put_back_root();
+
     if (output_file == "") {
         if (score_mode == "1")
-            std::cout << output->annotate(input) << std::endl;
+            std::cout << output->to_string_annotated() << std::endl;
         else
             std::cout << output->to_string_basic() << std::endl;
     }
     else {
         std::ofstream fout(output_file);
         if (score_mode == "1") 
-            fout << output->annotate(input) << std::endl;
+            fout << output->to_string_annotated() << std::endl;
         else
             fout << output->to_string_basic() << std::endl;
         fout.close();
@@ -89,14 +106,20 @@ bool Instance::parse(int argc, char **argv) {
     for (int j = 0; j < argc; j ++) 
         std::cout << argv[j] << " ";
     std::cout << std::endl;
+
     int i = 0;
     bool help = false;
     bool found_support = false;
+
     while (i < argc) {
         std::string opt(argv[i]);
         if (opt == "-h" || opt == "--help") help = true;
+
         if (opt == "-i" || opt == "--input") input_file = argv[++ i];
         if (opt == "-o" || opt == "--output") output_file = argv[++ i];
+        if (opt == "-q" || opt == "--scoring") stree_file = argv[++ i];
+        if (opt == "--root") root_str = argv[++ i];
+
         if (opt == "-r" || opt == "--support_range") {
             found_support = true;
             std::string param = "";
@@ -195,6 +218,26 @@ bool Instance::parse(int argc, char **argv) {
     }
     std::cout << "input file: " << input_file << std::endl;
     std::cout << "output file: " << (output_file == "" ? "std" : output_file) << std::endl;
+    if (stree_file != "")
+        std::cout << "score tree file: " << stree_file << std::endl;
+
+
+    if (root_str != "") {
+        // Extract taxa for rooting
+        std::cout << "target root placement: " << root_str << std::endl;
+
+        std::vector<int> splits;
+        splits.push_back(-1);
+        for (int j = 0; j < root_str.size(); j++)
+            if (root_str[j] == ',') splits.push_back(j);
+        splits.push_back(root_str.size() + 1);
+
+        for (int j = 0; j < splits.size() - 1; j++)
+            root_taxon_set.insert(root_str.substr(splits[j]+1, splits[j+1] - splits[j] - 1));
+
+        //for (auto& str : root_taxon_set) std::cout << str << " ";
+        //std::cout << std::endl;
+    }
 
     if (contract) {
         std::cout << "contract support threshold: " << (double)threshold << std::endl;
@@ -273,7 +316,10 @@ std::size_t Instance::input_trees() {
     while (std::getline(fin, newick)) {
         if (newick.find(";") == std::string::npos) break;
         Tree *t = new Tree(newick, dict);
-        input.push_back(t);
+        if (t->size() > 3)
+            input.push_back(t);
+        else
+            std::cout << "Gene tree " << i << " has fewer than 4 species, ignoring." << std::endl;
         if (++ i == trc) break;
     }
     fin.close();

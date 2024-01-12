@@ -1,11 +1,63 @@
 #include "tree.hpp"
 #include "graph.hpp"
 
+SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
+    this->dict = dict;
+    this->artifinyms = dict->max_size();
+    leaf_for_rooting = NULL;
+
+    std::ifstream fin(stree_file);
+    if (fin.fail()) {
+        std::cout << std::endl << "ERROR: Unable to read file " << stree_file << std::endl;
+        exit(1);
+    }
+
+    std::string newick;
+    index_t i = 0;
+    while (std::getline(fin, newick)) {
+        if (newick.find(";") == std::string::npos) break;
+        root = build_tree(newick);
+    }
+    fin.close();
+
+    if (this->size() < 3) {
+        std::cout << "ERROR: Score tree has less than 4 leaves!" << std::endl;
+        exit(1);
+    }
+    std::cout << "Score tree has " << size() << " leaves." << std::endl;
+
+
+    // Resolve polytomies
+    int total = resolve_tree(root);
+    if (total > 0)
+        std::cout << "Resolved " << total << " polytomies in " << stree_file << std::endl;
+
+    // Re-position root
+    Node *sibling, *node_for_rooting;
+    for (Node* child: root->children) {
+        if (child->children.size() == 0)
+            leaf_for_rooting = child;
+        else 
+            sibling = child;
+    }
+
+    if (leaf_for_rooting != NULL) {
+        // If rooted at leaf, balance around root so get_freq function works
+        for (Node* child: sibling->children) {
+            if (child->children.size() >= 2)
+                node_for_rooting = child;
+        }
+        reroot_on_edge_above_node(node_for_rooting);
+    }
+}
+
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit) {
     this->dict = dict;
     this->artifinyms = dict->max_size();
     this->mode = mode;
     this->iter_limit = iter_limit;
+    leaf_for_rooting = NULL;
+
     Taxa subset(dict, mode);
     switch (mode[1]) {
         case '0': {
@@ -330,6 +382,7 @@ void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
         std::vector<Node *> x, y, z, w;
         get_leaves(root->children[0], &x);
         get_leaves(root->children[1], &y);
+
         if (root->parent->parent != NULL) {
             if (root->parent->children[0] == root) 
                 get_leaves(root->parent->children[1], &z);
@@ -365,13 +418,17 @@ void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
         root->f[1] /= total;
         root->f[2] /= total;
     }
-    for (Node *child : root->children) 
+    for (Node *child : root->children) {
         get_freq(child, input);
+    }
 }
 
-std::string SpeciesTree::annotate(std::vector<Tree *> input) {
-    std::cout << "Computing branch support" << std::endl;
+void SpeciesTree::annotate(std::vector<Tree *> input) {
     get_freq(root, input);
+    //return display_tree_annotated(root);
+}
+
+std::string SpeciesTree::to_string_annotated() {
     return display_tree_annotated(root);
 }
 
@@ -388,4 +445,49 @@ std::string SpeciesTree::display_tree_annotated(Node *root) {
         return s + ";";
 
     return s + "\'[q1=" + std::to_string(root->f[0]) + ";q2=" + std::to_string(root->f[1]) + ";q3=" + std::to_string(root->f[2]) + "]\'";
+}
+
+void SpeciesTree::root_at_clade(std::unordered_set<std::string> &clade_label_set) {
+    std::cout << "Rooting tree" << std::endl;
+
+    std::unordered_set<index_t> clade_index_set;
+    std::string backup_label;
+    Node *node;
+    index_t index, backup_index;
+    index_t tracker = dict->size();
+
+    for (auto label : clade_label_set) {
+        index = dict->label2index(label);
+        if (dict->size() > tracker) {
+            std::cout << "    " << label << " does not exist in input trees!" << std::endl;
+            tracker++;
+        }
+        else {
+            clade_index_set.insert(index);
+            backup_index = index;
+            backup_label = label;
+        }
+    }
+
+    if (clade_index_set.size() == 0) {
+        std::cout << "    None of the root taxa do not exist in tree!" << std::endl;
+        return;
+    }
+    else if (clade_index_set.size() == 1) {
+        node = find_node(backup_index);
+    } else {
+        node = find_node_for_split(clade_index_set);
+        if (node == NULL) {
+            std::cout << "    Root taxa do not form a clade in the output tree!" << std::endl;
+            std::cout << "    Indead rooting at " << backup_label << std::endl;
+            node = find_node(backup_index);
+        }
+    }
+
+    reroot_on_edge_above_node(node);
+}
+
+void SpeciesTree::put_back_root() {
+    if (leaf_for_rooting != NULL)
+        reroot_on_edge_above_node(leaf_for_rooting);
 }

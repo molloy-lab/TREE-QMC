@@ -14,21 +14,37 @@ class Node {
         ~Node();
         void new_states(index_t size);
         void delete_states();
+        bool is_leaf();
+        void set_parent(Node *parent);
+        Node* get_parent();
+        Node* get_sibling();
+        void add_child(Node *child);
+        bool remove_child(Node *child);
+        void print_leaves_below_index();
     private:
         Node *parent;
         std::vector<Node *> children;
         index_t index, size, depth;
-        weight_t /* **doublet, */ *singlet, s1, s2, support, length;
+        weight_t s1, s2, support, length;
+        bool isfake;
+
+        weight_t /* **doublet, */ *singlet;
         // std::map<index_t, weight_t> doublet;
         std::vector<std::pair<index_t, weight_t>> *doublet;
         static weight_t get_doublet(weight_t *singlet, weight_t s1, weight_t s2, index_t x, index_t y);
         weight_t get_doublet(index_t a, index_t b);
         void add_doublet(index_t a, index_t b, weight_t c);
+
         // for weighted quartets:
         weight_t length_, support_[2], plength, tdoublet[2], tdoublet_[2];
         weight_t *ssinglet, *ssinglet_, *pdoublet[2], *ptriplet[2], *mdoublet[2], *mdoublet_[2];
         weight_t **sdoublet[2], **sdoublet_[2], **striplet[2];
-        bool isfake;
+
+        // TODO: make the objects below (and maybe above) vector in tree class
+        // and then index via node index
+        // > better for managing memory leaks
+        // > won't need to carry around data if not using it
+
         weight_t f[3];
 };
 
@@ -52,14 +68,18 @@ class Tree {
         void get_wquartets_(std::unordered_map<quartet_t, weight_t> *quartets);
         std::string to_string(std::unordered_map<quartet_t, weight_t> &quartets);
         void test(Taxa &subset);
+        Node* find_node(index_t index);
+        Node* get_root();
     protected:
-        Node *root;
+        Node *root, *leaf_for_rooting;
         std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t pseudonym();
         std::string display_tree(Node *root);
         std::string display_tree_basic(Node *root);
         std::string display_tree_index(Node *root);
+        Node* find_node_for_split(std::unordered_set<index_t> clade);
+        void reroot_on_edge_above_node(Node *node);
     private:
         index_t pseudonyms;
         std::unordered_map<index_t, index_t> indices;
@@ -114,8 +134,12 @@ class Tree {
 class SpeciesTree : public Tree {
     public:
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit);
+        SpeciesTree(std::string stree_file, Dict *dict);
         ~SpeciesTree();
-        std::string annotate(std::vector<Tree *> input);
+        void annotate(std::vector<Tree *> input);
+        void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
+        void put_back_root();
+        std::string to_string_annotated();
     private:
         index_t artifinyms;
         std::string mode;
