@@ -396,27 +396,84 @@ void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
                 get_leaves(root->parent->children[0]->children[0], &z);
         }
         get_leaves(this->root, &w);
-        root->f[0] = root->f[1] = root->f[2] = 0;
+
+        std::vector<weight_t> localf0, localf1, localf2, localf3;
+        weight_t globaltotal, localtotal, tmp;
         std::unordered_map<index_t, index_t> quad;
+
+        root->wq[0] = 0;
+        root->wq[1] = 0;
+        root->wq[2] = 0;
+
+        // First topology
         for (Node *leaf : w) quad[leaf->index] = 4;
         for (Node *leaf : x) quad[leaf->index] = 1;
         for (Node *leaf : y) quad[leaf->index] = 2;
         for (Node *leaf : z) quad[leaf->index] = 3;
-        for (Tree *t : input) root->f[0] += t->get_freq(quad);
+        for (Tree *t : input) {
+            tmp = t->get_freq(quad) / 2;;
+            localf0.push_back(tmp);
+            root->wq[0] += tmp;
+        }
+
+        // Second topology
         for (Node *leaf : w) quad[leaf->index] = 4;
         for (Node *leaf : x) quad[leaf->index] = 1;
         for (Node *leaf : y) quad[leaf->index] = 3;
         for (Node *leaf : z) quad[leaf->index] = 2;
-        for (Tree *t : input) root->f[1] += t->get_freq(quad);
+        for (Tree *t : input) {
+            tmp = t->get_freq(quad) / 2;
+            localf1.push_back(tmp);
+            root->wq[1] += tmp;
+        }
+
+        // Third topology
         for (Node *leaf : w) quad[leaf->index] = 2;
         for (Node *leaf : x) quad[leaf->index] = 1;
         for (Node *leaf : y) quad[leaf->index] = 3;
         for (Node *leaf : z) quad[leaf->index] = 4;
-        for (Tree *t : input) root->f[2] += t->get_freq(quad);
-        weight_t total = root->f[1] + root->f[2] + root->f[0];
-        root->f[0] /= total;
-        root->f[1] /= total;
-        root->f[2] /= total;
+        for (Tree *t : input) {
+            tmp = t->get_freq(quad) / 2;
+            localf2.push_back(tmp);
+            root->wq[2] += tmp;
+        }
+
+        // Check the fourth topology by figuring out
+        // per gene tree QC and subtracting 
+        for (Tree *t : input) {
+            tmp = t->get_qc(quad);
+            localf3.push_back(tmp);
+        }
+
+        // handle weighted astral values
+        globaltotal = root->wq[0] + root->wq[1] + root->wq[2];
+        if (globaltotal != 0.0) {
+            root->wq[0] /= globaltotal;
+            root->wq[1] /= globaltotal;
+            root->wq[2] /= globaltotal;
+        }
+
+        // handle regular astral values
+        for (index_t i = 0; i < input.size(); i++) {
+            localtotal = localf0[i] + localf1[i] + localf2[i];
+            if (localtotal != 0.0) {
+                localf0[i] /= localf3[i];
+                localf1[i] /= localf3[i];
+                localf2[i] /= localf3[i];
+            }
+        }
+
+        // Store frequencies
+        root->f[0] = 0;
+        root->f[1] = 0;
+        root->f[2] = 0;
+        for (index_t i = 0; i < input.size(); i++) {
+            root->f[0] += localf0[i];
+            root->f[1] += localf1[i];
+            root->f[2] += localf2[i];
+        }
+
+
     }
     for (Node *child : root->children) {
         get_freq(child, input);
@@ -424,6 +481,7 @@ void SpeciesTree::get_freq(Node *root, std::vector<Tree *> input) {
 }
 
 void SpeciesTree::annotate(std::vector<Tree *> input) {
+    display_tree_index(root);
     get_freq(root, input);
     //return display_tree_annotated(root);
 }
@@ -444,7 +502,40 @@ std::string SpeciesTree::display_tree_annotated(Node *root) {
     if (root->parent == NULL)
         return s + ";";
 
-    return s + "\'[q1=" + std::to_string(root->f[0]) + ";q2=" + std::to_string(root->f[1]) + ";q3=" + std::to_string(root->f[2]) + "]\'";
+
+    weight_t f1, f2, f3, q1, q2, q3, en;
+    std::string brlen;
+
+    f1 = root->f[0];
+    f2 = root->f[1];
+    f3 = root->f[2];
+    en = f1 + f2 + f3;
+    q1 = f1 / en;
+    q2 = f2 / en;
+    q3 = f3 / en;
+
+    if (q1 < q2 || q1 < q3)
+        brlen = "-1";
+    else if (q1 == 1.0)
+        brlen = "40";
+    else
+        brlen = std::to_string(-1.0 * log(1.5 * (1 - q1)));
+
+    return s + "\'[f1=" + std::to_string(f1) +
+             ";f2=" + std::to_string(f2) +
+             ";f3=" + std::to_string(f3) +
+             ";q1=" + std::to_string(q1) +
+             ";q2=" + std::to_string(q2) +
+             ";q3=" + std::to_string(q3) +
+             ";EN=" + std::to_string(en) +
+             ";wq1=" + std::to_string(root->wq[0]) +
+             ";wq2=" + std::to_string(root->wq[1]) +
+             ";wq3=" + std::to_string(root->wq[2]) + 
+             "]\':"  + brlen;
+
+    //return s + "\'[f1=" + std::to_string(root->f[0]) + 
+    //              ";f2=" + std::to_string(root->f[1]) + 
+    //              ";f3=" + std::to_string(root->f[2]) + "]\'";
 }
 
 void SpeciesTree::root_at_clade(std::unordered_set<std::string> &clade_label_set) {

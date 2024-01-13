@@ -52,6 +52,24 @@ void Tree::build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad)
     }
 }
 
+weight_t Tree::get_qc(std::unordered_map<index_t, index_t> quad) {
+    index_t c1 = 0;
+    index_t c2 = 0;
+    index_t c3 = 0;
+    index_t c4 = 0;
+    for ( const auto &myPair : quad ) {
+        Node* nodeptr = index2node[myPair.first];
+
+        if (nodeptr != NULL) {
+            if (myPair.second == 1) c1++;
+            else if (myPair.second == 2) c2++;
+            else if (myPair.second == 3) c3++;
+            else c4++;
+        }
+    }
+    return c1 * c2 * c3 * c4;
+}
+
 weight_t Tree::get_freq(std::unordered_map<index_t, index_t> quad) {
     build_wstates(root);
     build_ssinglet(root, quad);

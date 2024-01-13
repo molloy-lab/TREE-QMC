@@ -46,6 +46,7 @@ class Node {
         // > won't need to carry around data if not using it
 
         weight_t f[3];
+        weight_t wq[3];
 };
 
 class Tree {
@@ -126,6 +127,7 @@ class Tree {
         void test_graph(Node *root, Taxa &subset, weight_t ***graph);
         void build_wstates(Node *root);
         void build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad);
+        weight_t get_qc(std::unordered_map<index_t, index_t> quad);
         weight_t get_freq(std::unordered_map<index_t, index_t> quad);
         weight_t freq_(Node *root);
         void clear_wstates_(Node *root);
