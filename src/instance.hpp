@@ -3,6 +3,7 @@
 
 #include "utility.hpp"
 #include "tree.hpp"
+#include "charmat.hpp"
 
 class Instance {
     public:
@@ -28,6 +29,7 @@ class Instance {
         void prepare_root_taxa();
         void prepare_indiv2taxon_map();
         void input_trees();
+        void input_matrix();
         void prepare_trees();
         void refine_trees();
 };

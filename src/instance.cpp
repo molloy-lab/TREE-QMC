@@ -58,16 +58,8 @@ Instance::Instance(int argc, char **argv) {
     // First try to figure out data type and whether the file exists...
 
     dict = new Dict;
-    if (data_mode == "t") {
-        input_trees();
-    } else {
-
-        std::cout << "Bipartition / character option is not yet implemented!" << std::endl;
-        exit(1);
-
-        // for now we will just read as trees with polytomies because this
-        // expands to multiple character states
-    }
+    if (data_mode == "t") input_trees();
+    else input_matrix();
 
     if (input.size() == 0) {
         std::cout << "\nERROR: Nothing read from input" << std::endl;
@@ -162,6 +154,7 @@ void Instance::output_solution() {
     std::cout << output->to_string_annotated(brln_mode) << std::endl;
 }
 
+
 int Instance::parse(int argc, char **argv) {
     std::cout << "TREE-QMC version 2.0.0" << std::endl;
 
@@ -179,17 +172,28 @@ int Instance::parse(int argc, char **argv) {
     index_t i = 1;
     while (i < argc) {
         std::string opt(argv[i]);
-        if (opt == "-h" || opt == "--help") return 1;
-
-        else if (opt == "-i" || opt == "--input") input_file = argv[++ i];
-        else if (opt == "-o" || opt == "--output") output_file = argv[++ i];
-        else if (opt == "-a" || opt == "--mapping") mapping_file = argv[++ i];
-        else if (opt == "-u" || opt == "--support") score_mode = "1";
-        else if (opt == "-q" || opt == "--supportonly") {
-            stree_file = argv[++ i];
+        if (opt == "-h" || opt == "--help") {
+            return 1;
+        }
+        else if (opt == "-i" || opt == "--input") {
+            if (i < argc - 1) input_file = argv[++ i];
+        }
+        else if (opt == "-o" || opt == "--output") {
+            if (i < argc - 1) output_file = argv[++ i];
+        }
+        else if (opt == "-a" || opt == "--mapping") {
+            if (i < argc - 1) mapping_file = argv[++ i];
+        }
+        else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
         }
-        else if (opt == "--root") root_str = argv[++ i];
+        else if (opt == "-q" || opt == "--supportonly") {
+            score_mode = "1";
+            if (i < argc - 1) stree_file = argv[++ i];
+        }
+        else if (opt == "--root") {
+            if (i < argc - 1) root_str = argv[++ i];
+        }
         else if (opt == "--chars") {
             data_mode = "c";   // input data are multi-state characters
             brln_mode = "n";  // don't estimate branch lengths!
@@ -365,7 +369,7 @@ int Instance::parse(int argc, char **argv) {
     // Input files
     if (input_file == "") {
         std::cout << "input file not found" << std::endl;
-        return 3;   
+        return 2;   
     }
     std::cout << "input file: " << input_file << std::endl;
     if (mapping_file != "") std::cout << "mapping file: " << mapping_file << std::endl;
@@ -460,7 +464,8 @@ int Instance::parse(int argc, char **argv) {
                 return 1;
             }
         }
-    } else {
+    }
+    else {
         if (nweightparam > 1 || nminparam > 0 || nmaxparam > 0 || ndefaultparam > 0) {
             if (data_mode == "b")
                 std::cout << "  WARNING: Running in bipartition mode so ignoring any weight or support options" << std::endl;
@@ -470,7 +475,7 @@ int Instance::parse(int argc, char **argv) {
         weight_mode = "n";
         support_low = 0.0;
         support_high = 1.0;
-        support_default = 0.0;
+        support_default = 1.0;
     }
 
     // Process normalization mode
@@ -539,6 +544,7 @@ void Instance::input_trees() {
             else
                 std::cout << "  WARNING: Input tree on line " << i << " has fewer than 4 species so ignoring" << std::endl;
         }
+        i++;
     }
 
     std::cout << "Found" << std::endl;
@@ -553,6 +559,49 @@ void Instance::input_trees() {
     fin.close();
 }
 
+void Instance::input_matrix() {
+    std::ifstream fin(input_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
+        exit(1);
+    }
+    std::string line;
+    std::getline(fin, line);
+    fin.close();
+
+    if (line[0] == '(') {
+        input_trees();
+        return;
+    }
+
+    CharMat *cmat = new CharMat(input_file);
+
+    std::string newick;
+    int mintax = INDEX_WIDTH;
+    int maxtax = 0;
+    index_t i = 1;
+    while (cmat->size() > 0) {
+        cmat->pop_newick(newick);
+        Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
+        if (t->size() > maxtax) maxtax = t->size();
+        if (t->size() < mintax) mintax = t->size();
+        if (t->size() > 3)
+            input.push_back(t);
+        else
+            std::cout << "  WARNING: Input character on column " << i << " has fewer than 4 species so ignoring" << std::endl;
+        i++;
+    }
+
+    std::cout << "Found" << std::endl;
+    std::cout << "    " << input.size() << " characters\n";
+    std::cout << "    " << dict->size() << " taxa\n";
+
+    if (mintax != maxtax && taxa_mode == "1") {
+        std::cout << "    some input characters are missing taxa" << std::endl;
+        std::cout << "WARNING: --shared option should NOT be used with missing taxa!" << std::endl;
+    }
+}
+
 void Instance::refine_trees() {
     srand(refine_seed);
 
@@ -560,7 +609,8 @@ void Instance::refine_trees() {
     for (Tree *t : input)
         total += t->refine();
 
-    std::cout << "    " << total << " polytomies across all trees\n";
+    if (data_mode == "t")
+        std::cout << "    " << total << " polytomies across all trees\n";
 
     if (total > 0 && weight_mode == "f") {
         std::cout << "  WARNING: polytomies were refined arbitrarily!" << std::endl;
