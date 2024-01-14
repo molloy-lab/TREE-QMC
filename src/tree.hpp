@@ -10,7 +10,7 @@ class Node {
     friend class SpeciesTree;
     public:
         Node(index_t index);
-        Node(index_t index, bool isfake);
+        //Node(index_t index, bool isfake);
         ~Node();
         void new_states(index_t size);
         void delete_states();
@@ -26,7 +26,7 @@ class Node {
         std::vector<Node *> children;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
-        bool isfake;
+        //bool isfake;
 
         weight_t /* **doublet, */ *singlet;
         // std::map<index_t, weight_t> doublet;
@@ -40,26 +40,23 @@ class Node {
         weight_t *ssinglet, *ssinglet_, *pdoublet[2], *ptriplet[2], *mdoublet[2], *mdoublet_[2];
         weight_t **sdoublet[2], **sdoublet_[2], **striplet[2];
 
-        // TODO: make the objects below (and maybe above) vector in tree class
-        // and then index via node index
-        // > better for managing memory leaks
-        // > won't need to carry around data if not using it
-
+        // TODO: make below vector in species tree class
         weight_t f[3];
-        weight_t wq[3];
 };
 
 class Tree {
     friend class SpeciesTree;
     public:
         Tree();
-        Tree(const std::string &newick, Dict *dict);
-        Tree(const std::string &newick, Dict *dict, std::string support);
+        Tree(const std::string &newick,
+             Dict *dict, 
+             const std::unordered_map<std::string, std::string> &indiv2taxon,
+             weight_t support_default);
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
-        size_t resolve();
-        void prepare(std::string weight, weight_t low, weight_t high, bool contract, weight_t threshold);
+        size_t refine();
+        void prepare(std::string weight_mode, weight_t low, weight_t high, weight_t threshold);
         index_t size();
         std::unordered_map<index_t, index_t> &get_indices();
         weight_t ***build_graph(Taxa &subset);
@@ -79,9 +76,10 @@ class Tree {
         std::string display_tree(Node *root);
         std::string display_tree_basic(Node *root);
         std::string display_tree_index(Node *root);
-        Node* find_node_for_split(std::unordered_set<index_t> clade);
+        Node* find_node_for_split(std::unordered_set<index_t> &clade);
         void reroot_on_edge_above_node(Node *node);
     private:
+        weight_t support_default;
         index_t pseudonyms;
         std::unordered_map<index_t, index_t> indices;
         void clear_states(Node *root);
@@ -94,12 +92,12 @@ class Tree {
         void sort_doublet(Node *root);
         std::unordered_set<index_t> bad_edges(Node *root, Taxa &subset, weight_t ***graph);
         void good_edges(Node *root, Taxa &subset, weight_t ***graph);
-        Node *build_tree(const std::string &newick);
-        Node *build_tree(const std::string &newick, std::string support);
+        Node *build_tree(const std::string &newick,
+                         const std::unordered_map<std::string, std::string> &indiv2taxon);
         Node *build_subtree_from(Node *root);
-        size_t resolve_tree(Node *root);
-        void prepare_tree(Node *root, std::string weight, weight_t low, weight_t high, bool contract, weight_t threshold);
-        void resolve_support(Node *root);
+        size_t refine_tree(Node *root);
+        void prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, weight_t threshold);
+        //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);
         void get_depth(Node *root, index_t depth);
@@ -127,24 +125,24 @@ class Tree {
         void test_graph(Node *root, Taxa &subset, weight_t ***graph);
         void build_wstates(Node *root);
         void build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad);
-        weight_t get_qc(std::unordered_map<index_t, index_t> quad);
-        weight_t get_freq(std::unordered_map<index_t, index_t> quad);
+        weight_t get_qcount(std::unordered_map<index_t, index_t> quad);
+        weight_t get_qfreq(std::unordered_map<index_t, index_t> quad);
         weight_t freq_(Node *root);
         void clear_wstates_(Node *root);
 };
 
 class SpeciesTree : public Tree {
     public:
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         ~SpeciesTree();
-        void annotate(std::vector<Tree *> input);
+        void annotate(std::vector<Tree *> input, std::string mode);
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
-        std::string to_string_annotated();
+        std::string to_string_annotated(std::string brln_mode);
     private:
         index_t artifinyms;
-        std::string mode;
+        std::string mode, qfreq_mode;
         unsigned long int iter_limit;
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -152,8 +150,8 @@ class SpeciesTree : public Tree {
         Node *reroot(Node *root, std::unordered_set<index_t> &visited);
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
-        void get_freq(Node *root, std::vector<Tree *> input);
-        std::string display_tree_annotated(Node *root);
+        void get_qfreq_around_branch(Node *root, std::vector<Tree *> input);
+        std::string display_tree_annotated(Node *root, std::string brln_mode);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

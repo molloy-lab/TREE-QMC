@@ -52,7 +52,7 @@ void Tree::build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad)
     }
 }
 
-weight_t Tree::get_qc(std::unordered_map<index_t, index_t> quad) {
+weight_t Tree::get_qcount(std::unordered_map<index_t, index_t> quad) {
     index_t c1 = 0;
     index_t c2 = 0;
     index_t c3 = 0;
@@ -70,7 +70,7 @@ weight_t Tree::get_qc(std::unordered_map<index_t, index_t> quad) {
     return c1 * c2 * c3 * c4;
 }
 
-weight_t Tree::get_freq(std::unordered_map<index_t, index_t> quad) {
+weight_t Tree::get_qfreq(std::unordered_map<index_t, index_t> quad) {
     build_wstates(root);
     build_ssinglet(root, quad);
     build_ssinglet_(root);

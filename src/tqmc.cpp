@@ -10,18 +10,16 @@ int main(int argc, char **argv) {
     Instance instance(argc, argv);
     long long time = instance.solve();
 
-    std::string execute = instance.get_execution_mode();
-    if (execute != "2" && execute != "3") {
-        if (instance.get_solution() != NULL)
+    if (instance.get_solution() != NULL)
         instance.output_solution();
-    }
 
     auto end = std::chrono::high_resolution_clock::now();
-    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Execution time: " << ms.count() << "ms" << std::endl;
 
-    //const auto secs = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    //std::cout << "Execution time: " << ms.count() << "secs" << std::endl;
+    //const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    //std::cout << "Execution time: " << ms.count() << "ms" << std::endl;
+
+    const auto secs = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+    std::cout << "Execution time: " << secs.count() << "secs" << std::endl;
 
     return 0;
 }

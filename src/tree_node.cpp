@@ -2,19 +2,20 @@
 
 Node::Node(index_t index) {
     this->index = index;
-    support = length = 0;
+    support = 0; // Important to have 0 support for polytomies
+    length = 0;  
     parent = NULL;
     size = -1;
-    isfake = false;
+    //isfake = false;
 }
 
-Node::Node(index_t index, bool isfake) {
+/*Node::Node(index_t index, bool isfake) {
     this->index = index;
     support = length = 0;
     parent = NULL;
     size = -1;
     this->isfake = isfake;
-}
+}*/
 
 Node::~Node() {
     for (Node *child : children) 
