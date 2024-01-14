@@ -1,5 +1,6 @@
 #include "tree.hpp"
 #include "graph.hpp"
+#include "toms743.hpp"
 
 SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
     this->dict = dict;
@@ -559,7 +560,7 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
         return s + ";";
 
     weight_t f1, f2, f3, q1, q2, q3, en;
-    std::string brlen;
+    std::string brlen = "";
 
     if (qfreq_mode == "n") {
         f1 = root->f[0];
@@ -584,24 +585,29 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
     }
 
     // Compute branch length from q1
-    brlen = "";
     if (brln_mode == "g") {
         if (q1 < (1.0 / 3.0))
             brlen = ":0";
         else if (q1 == 1.0)
             brlen = ":9";  // same as MP-EST
-        else
-            brlen = ":" + std::to_string(-1.0 * log(1.5 * (1 - q1)));
+        else {
+            weight_t x = -1.0 * log(1.5 * (1.0 - q1));
+            brlen = ":" + std::to_string(x);
+        }
     }
-    else if (brln_mode == "b") {
+    else if (brln_mode == "g") {
         if (q1 < (1.0 / 3.0))
             brlen = ":0";
         else if (q1 == 1.0)
             brlen = ":9";  // same as MP-EST
-        else
-            //brlen = ":" + std::to_string(-1.0 * log(1.5 * (1 - q1)));
-            // use lambert's W
-            std::cout << "WARNING need to implement\n";
+        else {
+            weight_t y, x;
+            int outcome;
+            y = ((2.0 / 3.0) / (1.0 - q1)) - 1.0;
+            x = toms743::wapr(y, 0, outcome, 0);
+            if (outcome != 1)
+                brlen = ":" + std::to_string(x);
+        }
     }
 
     if (qfreq_mode == "n") {

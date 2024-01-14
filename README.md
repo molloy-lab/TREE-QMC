@@ -1,13 +1,13 @@
-Weighted TREE-QMC
-=================
+TREE-QMC
+========
 
-Weighted TREE-QMC (wTREE-QMC) is a quartet-based method for estimating species trees from gene trees, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). To learn more about TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
+TREE-QMC is a quartet-based method for estimating species trees from gene trees, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). To learn more about TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
 
 Acknowledgements
 ----------------
-TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen, & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). 
+TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen, & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087).
 
-This repository (wTREE-QMC) implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
+TREE-QMC implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
 
 The library [MQLib](https://github.com/MQLib/MQLib) is utilized for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
@@ -21,29 +21,42 @@ To build wTREE-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
 cd weighted-TREE-QMC
-cd MQLib
+
+# HANDLE MQLIB
+cd external/MQLib
 make
-cd ..
-g++ -std=c++11 -O2 -I MQLib/include -o wTREE-QMC src/*.cpp MQLib/bin/MQLib.a
+cd ../..
+
+# TO TEST LAMBERT's W
+#cd external/toms743
+#g++ -std=c++11 -O2 -o toms743_test *cpp -lm
+#./toms743_test
+#cd ../..
+
+g++ -std=c++11 -O2 \
+    -I external/MQLib/include -I external/toms743 \
+    -o treeqmc \
+    src/*.cpp external/toms743/toms743.cpp \
+    external/MQLib/bin/MQLib.a -lm 
 ```
 
 Usage
 -----
-To run wTREE-QMC, use command:
+To run TREE-QMC, use command:
 ```
-./wTREE-QMC -i <input file> -o <output file name>
+./treeqmc -i <input file> -o <output file name>
 ```
 
-To see the wTREE-QMC usage options, use command:
+To see the TREE-QMC usage options, use command:
 ```
-./wTREE-QMC -h
+./treeqmc -h
 ```
 
 The output help message should be
 ```
 =================================== wTREE-QMC ===================================
 USAGE:
-./wTREE-QMC (-i|--input) <input file> [(-o|--output) <output file>]
+./treeqmc (-i|--input) <input file> [(-o|--output) <output file>]
             [(-w|-weight) <weighting scheme>]
             [(-r|--support_range) <min> <max>]
             [(-c|--contract) <threshold>]
