@@ -7,7 +7,7 @@ class CharMat {
 	public:
         CharMat(std::string input_file);
         ~CharMat();
-        index_t size();
+        std::size_t size();
         void pop_newick(std::string &newick);
 	private:
         std::vector<std::string> splits_;  // actually characters...

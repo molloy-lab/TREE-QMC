@@ -17,6 +17,11 @@ Tutorial
 --------
 We recommend working through [this tutorial](tutorial/README.md).
 
+If you are having strange problems, try removing the `\r` characters from the file before using TREE-QMC:
+```
+cat file.txt | tr -d '\r' > newfile.txt
+```
+
 Build
 -----
 To build wTREE-QMC, use commands:

@@ -582,18 +582,17 @@ void Instance::input_matrix() {
     index_t i = 1;
     while (cmat->size() > 0) {
         cmat->pop_newick(newick);
-        Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
-        if (t->size() > maxtax) maxtax = t->size();
-        if (t->size() < mintax) mintax = t->size();
-        if (t->size() > 3)
+        if (newick != "") {
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
+            if (t->size() > maxtax) maxtax = t->size();
+            if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
-        else
-            std::cout << "  WARNING: Input character on column " << i << " has fewer than 4 species so ignoring" << std::endl;
+        }
         i++;
     }
 
     std::cout << "Found" << std::endl;
-    std::cout << "    " << input.size() << " characters\n";
+    std::cout << "    " << input.size() << " informative characters\n";
     std::cout << "    " << dict->size() << " taxa\n";
 
     if (mintax != maxtax && taxa_mode == "1") {
