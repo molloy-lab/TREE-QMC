@@ -3,11 +3,11 @@ TREE-QMC
 
 TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
 
-TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER for reconstructing the tree from quartets. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
+TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
 
 Acknowledgements
 ----------------
-TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). We provide fast algorithms for constructing the quartet graph directly from the input trees.
+TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). TREE-QMC contributes fast algorithms for constructing the quartet graph directly from the input trees, rather than explicitly enumerating all quartets or sampling quartets.
 
 TREE-QMC now implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
 
@@ -17,7 +17,7 @@ TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/tom
 
 Build
 -----
-To build wTREE-QMC, use commands:
+To build TREE-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
 cd weighted-TREE-QMC/external/MQLib
@@ -80,8 +80,8 @@ Input Options:
         Input are binary characters i.e. bipartitions
 [(-a|-mapping) <mapping file>]
         File with individual/leaf names (1st col) mapped to species (2nd col)
-[(--root) <list of species separated by commas>]
-        Root species tree at given species if possible
+[(--root) <species name>]
+        Root species tree at given species
 [(--supportonly) <species tree file>]
         Compute quartet support for species tree in file and then exit
 

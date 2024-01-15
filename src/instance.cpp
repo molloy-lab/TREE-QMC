@@ -78,7 +78,7 @@ Instance::Instance(int argc, char **argv) {
             for (Tree *t : input) std::cout << t->to_string_basic() << std::endl;
         }
         else {
-            for (Tree *t : input) fout << t->to_string() << std::endl;
+            for (Tree *t : input) fout << t->to_string_basic() << std::endl;
             fout.close();
         }
         exit(0);
@@ -129,6 +129,9 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
+    std::cout << "Saving species tree" << std::endl;
+    std::cout << output->to_string_basic() << std::endl;
+
     if (execute_mode == "2" || execute_mode == "3") return;
 
     if (score_mode == "1") {
@@ -220,6 +223,9 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
+            if (i < argc - 1) stree_file = argv[++ i];
+        }
+        else if (opt == "-r" || opt == "--rootonly") {
             if (i < argc - 1) stree_file = argv[++ i];
         }
         else if (opt == "-o" || opt == "--output") {
@@ -485,7 +491,7 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "contract support threshold: " << (double)support_threshold << std::endl;
 
             if (support_threshold < 0 || support_threshold > 1) {
-                std::cout << "\nERROR: Support threshold must be between 0 and 1 (it's applied after mapping support values to this interval)" << std::endl;
+                std::cout << "\nERROR: Support threshold must be between 0 and 1 (it's applied after support values are mapped to this interval)" << std::endl;
                 return 1;
             }
         }

@@ -542,13 +542,12 @@ void SpeciesTree::annotate(std::vector<Tree *> input, std::string qfreq_mode) {
 }
 
 std::string SpeciesTree::to_string_annotated(std::string brln_mode) {
+    if (qfreq_mode == "")
+        return display_tree_basic(root) + ";";
     return display_tree_annotated(root, brln_mode);
 }
 
 std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mode) {
-    if (qfreq_mode == "")
-        return display_tree_basic(root);
-
     if (root->children.size() == 0) 
         return dict->index2label(root->index);
 

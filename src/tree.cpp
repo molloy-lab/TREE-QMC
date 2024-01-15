@@ -15,6 +15,7 @@ Tree::Tree(const std::string &newick,
 }
 
 Tree::~Tree() {
+    // TODO: Do we need to check this?
     delete root;
 }
 
