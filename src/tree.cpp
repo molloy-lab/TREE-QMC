@@ -4,14 +4,23 @@ Tree::Tree() {
     pseudonyms = 0;
 }
 
-Tree::Tree(const std::string &newick, Dict *dict) {
+Tree::Tree(const std::string &newick,
+           Dict *dict,
+           const std::unordered_map<std::string, std::string> &indiv2taxon,
+           weight_t support_default) {
     pseudonyms = 0;
     this->dict = dict;
-    root = build_tree(newick);
+    this->support_default = support_default;
+    root = build_tree(newick, indiv2taxon);
 }
 
 Tree::~Tree() {
+    // TODO: Do we need to check this?
     delete root;
+}
+
+Node* Tree::get_root() {
+    return root;
 }
 
 std::string Tree::to_string() {
@@ -22,16 +31,16 @@ std::string Tree::to_string_basic() {
     return display_tree_basic(root) + ";";
 }
 
-size_t Tree::resolve() {
+size_t Tree::refine() {
     bool flag = root->children.size() == 3;
-    size_t count = resolve_tree(root);
+    size_t count = refine_tree(root);
     if (flag) count -= 1;
     return count;
 }
 
-void Tree::prepare(std::string weight, weight_t low, weight_t high, bool contract, weight_t threshold) {
+void Tree::prepare(std::string weight_mode, weight_t low, weight_t high, weight_t threshold) {
     //std::cout << display_tree(root) << std::endl;
-    prepare_tree(root, weight, low, high, contract, threshold);
+    prepare_tree(root, weight_mode, low, high, threshold);
 }
 
 index_t Tree::size() {
@@ -66,20 +75,28 @@ index_t Tree::pseudonym() {
     return - (++ pseudonyms);
 }
 
-Node *Tree::build_tree(const std::string &newick) {
-    std::string label, support, length;
-    int sep;
+Node *Tree::build_tree(const std::string &newick,
+                       const std::unordered_map<std::string, std::string> &indiv2taxon) {
+    std::string label, leaf_label, support, length;
+    std::size_t sep;
 
     if (newick.length() == 0 || newick.at(0) != '(') {
         sep = newick.find(":");
         if (sep != std::string::npos) {
-            label = newick.substr(0, sep);
+            leaf_label = newick.substr(0, sep);
             length = newick.substr(sep + 1, std::string::npos);
-            //std::cout << "Found leaf node " << label << ' ' << length << std::endl;
+            //std::cout << "Found leaf node " << leaf_label << ' ' << length << std::endl;
         } else {
-            label = newick.substr(0, std::string::npos);
-            //std::cout << "Found leaf node " << label << std::endl;
+            leaf_label = newick.substr(0, std::string::npos);
+            //std::cout << "Found leaf node " << leaf_label << std::endl;
         }
+
+        // Map leaf label if possible
+        auto itr = indiv2taxon.find(leaf_label);
+        if (itr == indiv2taxon.end())
+            label = leaf_label;
+        else
+            label = itr->second;
 
         // Create leaf node
         Node *root = new Node(dict->label2index(label));
@@ -103,7 +120,7 @@ Node *Tree::build_tree(const std::string &newick) {
             if (newick.at(i) == '(') j ++;
             if (newick.at(i) == ')') j --;
             if (newick.at(i) == ',' && j == 1) {
-                root->children.push_back(build_tree(newick.substr(k, i - k)));
+                root->children.push_back(build_tree(newick.substr(k, i - k), indiv2taxon));
                 k = i + 1;
             }
         }
@@ -118,20 +135,21 @@ Node *Tree::build_tree(const std::string &newick) {
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
                 length = branch.substr(sep + 1, std::string::npos);
-                //std::cout << "Found internal node " << branch << ' ' << support << ' ' << length << std::endl;
+                //std::cout << "Found internal node " << branch << " with support " << support << " and length " << length << std::endl;
                 if (length.size() > 0) root->length = std::stod(length);
             } else {
                 support = branch.substr(0, std::string::npos);
                 //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
             if (support.size() > 0) root->support = std::stod(support);
+            else root->support = support_default;  // allows user to change default support
         } 
         //else {
         //    std::cout << "Found root" << std::endl;
         //}
 
         // Recurse on last child
-        root->children.push_back(build_tree(newick.substr(k, i - k)));
+        root->children.push_back(build_tree(newick.substr(k, i - k), indiv2taxon));
 
         // Set root as children's parent
         for (Node *child : root->children)
@@ -151,7 +169,6 @@ std::string Tree::display_tree(Node *root) {
     s[s.size() - 1] = ')';
     return s + std::to_string((double) root->support) + ":" + std::to_string((double) root->length);
 }
-
 
 std::string Tree::display_tree_basic(Node *root) {
     if (root->children.size() == 0) 
@@ -173,16 +190,17 @@ std::string Tree::display_tree_index(Node *root) {
     return s;
 }
 
-size_t Tree::resolve_tree(Node *root) {
+size_t Tree::refine_tree(Node *root) {
     size_t total = 0;
 
     for (index_t i = 0; i < root->children.size(); i ++) 
-        total += resolve_tree(root->children[i]);
+        total += refine_tree(root->children[i]);
 
     while (root->children.size() > 2) {
         index_t i = rand() % root->children.size(), j = i;
         while (j == i) j = rand() % root->children.size();
-        Node *new_root = new Node(pseudonym(), true);
+        Node *new_root = new Node(pseudonym());
+        new_root->support = 0.0;  //Node *new_root = new Node(pseudonym(), true);
         total ++;
         new_root->children.push_back(root->children[i]);
         new_root->children.push_back(root->children[j]);
@@ -196,36 +214,38 @@ size_t Tree::resolve_tree(Node *root) {
     return total;
 }
 
-void Tree::prepare_tree(Node *root, std::string weight, weight_t low, weight_t high,  bool contract, weight_t threshold) {
-    if (weight == "f") return;
+void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, weight_t threshold) {
+    //assert(root->children.size() == 0 || root->children.size() == 2);
+    if (weight_mode == "f") return;
 
-    assert(root->children.size() == 0 || root->children.size() == 2);
     weight_t s = root->support;
 
-    // Handle branch support values
-    if (contract) {
-        if (s < threshold) s = 0;
-        else s = 1;
-    } else if (weight == "n" || weight == "l") {
-        if (!root->isfake) s = 1;
-    } else {
-        // weight = s or weight = h
-        if (s < low || s > high) s = low;
+    // Map support to 0 and 1 interval
+    if (s < low || s > high) s = low;
         s = (s - low) / (high - low);
-    }
+
+    // Contract low support branches by setting support to 0
+    if (s < threshold) s = 0;
+
+    // If not weighting by branch support, set support values to 1
+    // do for fast mode as well because will be used for support estimation
+    if (weight_mode == "n" || weight_mode == "l")
+        if (s > 0) s = 1;
+
+    // Save these values
     root->support = s;
     root->support_[0] = 1 - s;
     root->support_[1] = 1;
 
     // Handle length values
-    if (weight == "h" || weight == "l")
+    if (weight_mode == "h" || weight_mode == "l")
         root->length_ = exp(- root->length);
     else
         root->length_ = 1;
 
     // Continue
-    for (Node *child : root->children) 
-        prepare_tree(child, weight, low, high, contract, threshold);
+    for (Node *child : root->children)
+        prepare_tree(child, weight_mode, low, high, threshold);
 }
 
 void Tree::clear_states(Node *root) {
@@ -637,8 +657,165 @@ void Tree::get_leaves(Node *root, std::vector<Node *> *leaves) {
         get_leaves(child, leaves);
 }
 
+void Tree::get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set) {
+    if (root->children.size() == 0) 
+        leaf_set->insert(root);
+    for (Node *child : root->children)
+        get_leaf_set(child, leaf_set);
+}
+
 void Tree::get_depth(Node *root, index_t depth) {
     root->depth = depth;
     for (Node *child : root->children) 
         get_depth(child, depth + 1);
+}
+
+Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
+    std::vector<Node*> nodes, postorder_nodes;
+    std::queue<Node*> queue;
+    Node *node;
+    index_t ni, ci, n_leaves = 0, n_nodes = 0;
+
+    // Prepare for postorder traversal and count
+    nodes.push_back(root);
+    while (nodes.size() > 0) {
+        node = nodes.back();
+        nodes.pop_back();
+        for (Node* child : node->children)
+            nodes.push_back(child);
+        postorder_nodes.push_back(node);
+
+        if (node->is_leaf()) n_leaves++;
+        n_nodes++;
+    }
+
+    // Run postorder traversal and count
+    std::vector<index_t> n_lv_below(n_nodes, 0);
+    std::vector<index_t> n_og_below(n_nodes, 0);
+
+    while (postorder_nodes.size() > 0) {
+        node = postorder_nodes.back();
+        postorder_nodes.pop_back();
+
+        ni = node->index;
+        if (ni < 0) ni = abs(ni) + n_leaves;
+
+        // Update counts
+        if (node->is_leaf()) {
+            if (clade.find(ni) != clade.end())
+                n_og_below[ni]++;
+            n_lv_below[ni]++;
+        } else {
+            for (Node* child : node->children) {
+                ci = child->index;
+                if (ci < 0) ci = abs(ci) + n_leaves;
+                n_og_below[ni] += n_og_below[ci];
+                n_lv_below[ni] += n_lv_below[ci];
+            }
+        }
+
+        // Check if found clade
+        if (n_og_below[ni] == clade.size() && n_lv_below[ni] == clade.size()) {
+            return node;
+        }
+    }
+
+    // Run preorder traversal
+    queue.push(root);
+    while (queue.size() > 0) {
+        node = queue.front();
+        queue.pop();
+        for (Node* child: node->children)
+            queue.push(child);
+
+        // Check if clade is split across root
+        ni = node->index;
+        if (ni < 0) ni = abs(ni) + n_leaves;
+        if (n_og_below[ni] == 0) {
+            if ((n_leaves - n_lv_below[ni]) == clade.size()) {
+                return node;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+Node* Tree::find_node(index_t index) {
+    std::queue<Node*> queue;
+    Node *node;
+
+    // Run preorder traversal
+    queue.push(root);
+    while (queue.size() > 0) {
+        node = queue.front();
+        queue.pop();
+
+        if (node->index == index)
+            return node;
+
+        for (Node* child: node->children)
+            queue.push(child);
+    }
+
+    return NULL;
+}
+
+void Tree::reroot_on_edge_above_node(Node *node) {
+    if (node == NULL) return;
+
+    std::stack<Node*> stack;
+    Node *old_root, *next_root, *sibl, *keep;
+
+    keep = node;
+
+    while (node != NULL) {
+        stack.push(node);
+        node = node->get_parent();
+    }
+    stack.pop();  // Remove root from stack
+
+    // Start relocating root
+    // Basically swapping nodes on stack across root
+    node = stack.top();
+    stack.pop();
+    while (node != keep) {
+        // Move branch length over root
+        sibl = node->get_sibling();
+        sibl->length += node->length;
+        // could also move swapping support here but
+        // problem is whether you want to do it on first node on stack
+        // support should be equal on these branches if rooted at clade
+        // otherwise there can't be support
+
+        // Get next root
+        next_root = stack.top();
+
+        // Remove node from root
+        old_root = node->get_parent();
+        old_root->remove_child(node);
+
+        // Remove next root's sibling 
+        sibl = next_root->get_sibling();
+        node->remove_child(sibl);
+
+        // Attach next root's sibling to old root
+        old_root->add_child(sibl);
+        old_root->f[0] = next_root->f[0]; // need to do for all data
+        old_root->f[1] = next_root->f[1];
+        old_root->f[2] = next_root->f[2];
+        old_root->support = next_root->support;
+
+        // Make node the new root so next root is below it
+        node->add_child(old_root);
+        node->f[0] = 0; // need to do for all data
+        node->f[1] = 0;
+        node->f[2] = 0;
+        node->support = 0.0;
+        node->length = 0.0;
+        this->root = node;
+
+        node = next_root;
+        stack.pop();
+    }
 }

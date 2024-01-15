@@ -3,6 +3,7 @@
 
 #include "utility.hpp"
 #include "tree.hpp"
+#include "charmat.hpp"
 
 class Instance {
     public:
@@ -13,20 +14,27 @@ class Instance {
         void output_solution();
         std::string get_execution_mode();
     private:
-        std::string input_file, output_file, normal, weight, execute, taxa_mode, output_quartets, score_mode;
-        unsigned long int refine_seed, cut_seed, trc, iter_limit;
-        weight_t support_low, support_high, threshold;
-        bool contract;
         std::vector<Tree *> input;
         Dict *dict;
         SpeciesTree *output;
-        bool parse(int argc, char **argv);
-        std::size_t input_trees();
-        void resolve_trees();
+        std::unordered_set<std::string> outgroup_taxon_set;
+        std::unordered_map<std::string, std::string> indiv2taxon;
+        std::string input_file, output_file, mapping_file, stree_file, table_file;
+        std::string root_str;
+        std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode;
+        unsigned long int refine_seed, cut_seed, iter_limit;
+        weight_t support_low, support_high, support_default, support_threshold;
+        bool contract, char2tree, rootonly;
+        int parse(int argc, char **argv);
+        void prepare_root_taxa();
+        void prepare_indiv2taxon_map();
+        void input_trees();
+        void input_matrix();
         void prepare_trees();
+        void refine_trees();
 };
 
-extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
+extern std::ofstream subproblem_csv;
 extern std::string verbose;
 extern unsigned long long count[8];
 

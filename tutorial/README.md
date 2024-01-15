@@ -8,11 +8,15 @@ git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
 
 2. Build wTREE-QMC and go to tutorial directory.
 ```
-cd weighted-TREE-QMC
-cd MQLib
+git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
+cd weighted-TREE-QMC/external/MQLib
 make
-cd ..
-g++ -std=c++11 -O2 -I MQLib/include -o wTREE-QMC src/*.cpp MQLib/bin/MQLib.a
+cd ../..
+g++ -std=c++11 -O2 \
+    -I external/MQLib/include -I external/toms743 \
+    -o treeqmc \
+    src/*.cpp external/toms743/toms743.cpp \
+    external/MQLib/bin/MQLib.a -lm 
 ```
 
 3. Go to tutorial directory.
@@ -22,66 +26,51 @@ cd tutorial
 
 4. Run TREE-QMC on the [example input data](avian_uce_trees_3679.tre). The example data file contains the best maximum likelihood (ML) trees estimated for 3,679 UCEs with RAxML (note that branch support was estimated with rapid bootstrapping). This file comes from the [Avian Phylogenomics Project](https://doi.org/10.1186/s13742-014-0038-1).
 
-5. The output species tree is UNROOTED. **TODO** The root of the tree should be placed at `(TINMA,STRCA)`; see the provided [name map](avian_name_map.txt) for more information.
-
-6. **TODO:** Estimate species tree branch support.
-
 *Below, we describe four different ways of running steps 3 and 4.*
-
-Weighting quartet by branch support only
----
-Weighting quartets by branch support was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-s**. This approach can also be used with wQTREE-QMC (referred to as **wTREE-QMC-s**) by using the `-w s` flag, along with the `-r` flag to specify the minimum and maximum values that branch support can take on. In the command below, we set `-r 0 100` because rapid bootstrapping with RAxML produces support values between 0 and 100 (inclusive).
-```
-../wTREE-QMC \
-	-w s \
-	-r 0 100 \
-	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc-s.tre
-```
-**COMMON SETTINGS**: 
-* For bootstrap support, set `-r 0 100`.
-* For likelihood or probability support (e.g., sh), set `-r 0 1`.
-* For local Bayesian support (e.g., abayes), set `-r 0.333 1`.
 
 Weighting quartets by branch support and branch length (hybrid)
 ---
-Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with wQTREE-QMC (referred to as **wTREE-QMC-h**) by using the `-w h` flag, along with the `-r` flag.
+Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with QTREE-QMC by using the `--hybrid` flag, along with one of the preset options to specify the type of branch support in the input. Try using the following command:
 ```
-../wTREE-QMC \
-	-w h \
-	-r 0 100 \
+../treeqmc \
+	--hybrid \
+	--bootstrap \
+	--root STRCA,TINMA \
 	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc-h.tre
+	-o treeqmc-hybrid.tre
 ```
+which specifies the input gene trees have bootstrap support values and the species tree should be rooted at the clade containing `TINMA,STRCA` if possible. 
+The `--support` option can be specified to annotate the branches of the species tree with quartet support. Alternatively, quartet support can be computed for a fixed species tree with the command:
+```
+../treeqmc \
+	--hybrid \
+	--bootstrap \
+	--root STRCA,TINMA \
+	--supportonly treeqmc-hybrid.tre \
+	-i avian_uce_trees_3679.tre \
+	-o annotated-treeqmc-hybrid.tre
+```
+Lastly, the `--writetable <output file name>` option can be included in the command above to additionally write the branch support information and support values written to a table.
 
 Contracting low support branches (instead of quartet weighting)
 ---
-Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with wTREE-QMC, either by contracting branches in advance of running TREE-QMC and then using the `-w n` flag *or* by using the `-c` flag, along with the support threshold. In the command below, we set `-c 10` so that internal branches with bootstrap support less than `10` will be contracted.
+Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with TREE-QMC, either by contracting branches in advance of running TREE-QMC *or* by using the `--contract <threshold>` flag. Try using the command:
 ```
-../wTREE-QMC \
-	-c 10 \
-	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc-c10.tre
+../treeqmc \
+	--bootstrap \
+	--contract 0.10 \
+	--root STRCA,TINMA \
+	-i avian_uce_trees_3679.tre
 ```
+which specifies that branches in the input gene trees with bootstrap support less than `10` should be contracted (note: the contraction threshold is applied after mapping support values to the interval from 0 to 1).
 
-Weighting quartets by branch length only (not recommended)
+Using the faster algorithm
 ---
-Weighting quartets by branch length was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-bl**. This approach can also be used with wQTREE-QMC by using the `-w l` flag. This option is **not recommended** but is provided for completeness.
+The faster TREE-QMC algorithm (no weighting) can invoked with the command:
 ```
-../wTREE-QMC \
-	-w l \
-	-r 0 100 \
-	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc-l.tre
+../treeqmc \
+	--fast \
+	--root STRCA,TINMA \
+	-i avian_uce_trees_3679.tre
 ```
-
-No quartet weighting
----
-If you do not want to use quartet weighting, then you can use the faster TREE-QMC algorithm by specifying the `-w f` command.
-```
-../wTREE-QMC \
-	-w f \
-	-i avian_uce_trees_3679.tre \
-	-o wtreeqmc.tre
-```
-**Importantly**, if there are polytomies in the input, the above command will cause them to be randomly refined; random refinements can be avoided by using the slower `-w n` option.
+**Importantly**, the above command does not allow quartet weighting and will cause any polytomies in the input to be randomly refined.
