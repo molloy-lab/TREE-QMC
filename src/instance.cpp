@@ -240,19 +240,11 @@ int Instance::parse(int argc, char **argv) {
             weight_mode = 'h';
             nweightparam += 1;
         }
-        else if (opt == "--support") {
-            weight_mode = 's';
-            nweightparam += 1;
-        }
-        else if (opt == "--length") {
-            weight_mode = 'l';
-            nweightparam += 1;
-        }
         else if (opt == "--fast") {
             weight_mode = 'f';
             nweightparam += 1;
         }
-        else if (opt == "--weight") {
+        else if (opt == "-w" || opt == "--weight") {
             std::string param = "";
             if (i < argc - 1) param = argv[++ i];
             if (param == "1" || param == "h") weight_mode = "h";
@@ -284,7 +276,7 @@ int Instance::parse(int argc, char **argv) {
             nminparam += 1;
             nmaxparam += 1;
         }
-        else if (opt == "-B" || opt == "--bootstrap") {
+        else if (opt == "-S" || opt == "--bootstrap") {
             support_default = 0.0;
             support_low = 0.0;
             support_high = 100.0;

@@ -1,54 +1,28 @@
 TREE-QMC
 ========
 
-TREE-QMC is a quartet-based method for estimating species trees from gene trees, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). To learn more about TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
+
+TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER for reconstructing the tree from quartets. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
 
 Acknowledgements
 ----------------
-TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087).
+TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). We provide fast algorithms for constructing the quartet graph directly from the input trees.
 
-TREE-QMC implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
+TREE-QMC now implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215).
 
-[MQLib](https://github.com/MQLib/MQLib) is utilized for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
+TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
-[toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) is utilized for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
-
-
-Tutorial
---------
-We recommend working through [this tutorial](tutorial/README.md).
-
-Quick Tips
-----------
-If you are having strange problems, try removing the `\r` characters from the file before using TREE-QMC:
-```
-cat file.txt | tr -d '\r' > newfile.txt
-```
-
-Add the path to treeqmc to your bash profile for convenience.
-```
-export PATH=$PATH:"<path to treeqmc>"
-```
-
+TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
 
 Build
 -----
 To build wTREE-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
-cd weighted-TREE-QMC
-
-# HANDLE MQLIB
-cd external/MQLib
+cd weighted-TREE-QMC/external/MQLib
 make
 cd ../..
-
-# TO TEST LAMBERT's W
-#cd external/toms743
-#g++ -std=c++11 -O2 -o toms743_test *cpp -lm
-#./toms743_test
-#cd ../..
-
 g++ -std=c++11 -O2 \
     -I external/MQLib/include -I external/toms743 \
     -o treeqmc \
@@ -60,8 +34,26 @@ Usage
 -----
 To run TREE-QMC, use command:
 ```
-./treeqmc -i <input file> -o <output file name>
+./treeqmc -i <input file>
 ```
+
+Tips
+----
+If you are having strange problems, try removing the `\r` characters from the input files and trying again:
+```
+cat file.txt | tr -d '\r' > newfile.txt
+```
+For convenience, add treeqmc to your shell profile. For bash, open `~/.bash_profile` and add
+```
+export PATH=$PATH:"<path to treeqmc>"
+```
+
+Tutorial
+--------
+Check out [this tutorial](tutorial/README.md).
+
+Options
+-------
 
 To see the TREE-QMC usage options, use command:
 ```
@@ -70,47 +62,74 @@ To see the TREE-QMC usage options, use command:
 
 The output help message should be
 ```
-=================================== wTREE-QMC ===================================
-USAGE:
-./treeqmc (-i|--input) <input file> [(-o|--output) <output file>]
-            [(-w|-weight) <weighting scheme>]
-            [(-r|--support_range) <min> <max>]
-            [(-c|--contract) <threshold>]
-            [(-n|--normalize) <normalization scheme>]
-            [(-x|--execution) <execution mode>]
-            [(-v|--verbose) <verbose mode>]
-            [-h|--help]
+=================================== TREE-QMC ===================================
+BASIC USAGE:
+./treeqmc (-i|--input) <input file>
 
-OPTIONS:
+Help Options:
 [-h|--help]
         Prints this help message.
+
+Input Options:
 (-i|--input) <input file>
-        Name of file containing gene trees in newick format (required)
+        File with gene trees in newick format (required)
+[(--chars)]
+        Input are characters rather than trees
+        Missing states are N, -, and ?
+[(--bp)]
+        Input are binary characters i.e. bipartitions
+[(-a|-mapping) <mapping file>]
+        File with individual/leaf names (1st col) mapped to species (2nd col)
+[(--root) <list of species separated by commas>]
+        Root species tree at given species if possible
+[(--supportonly) <species tree file>]
+        Compute quartet support for species tree in file and then exit
+
+Output Options:
 [(-o|--output) <output file>]
-        Name of file for writing output species tree (default: stdout)
-[(-w|--weight) <weighting scheme>]
+        File for writing output species tree (default: stdout)
+[(--support)]
+        Compute quartet support for output species tree
+[(--writetable) <table file>]
+        Write branch and quartet support information to CSV
+[(--char2tree)]
+        Write character matrix as trees (newick strings) to output and exit
+
+Algorithm Options:
+[(--hybrid)]
+        Use hybrid weighting scheme (-w h)
+[(--fast)]
+        Use fast algorithm that does not support weights or polytomies (-w f)
+[(-B|--bayes)]
+       Use presets for bayesian support (-n 0.333 -x 1.0 -d 0.333)
+[(-L|--lrt)]
+       Use presets for likelihood support (-n 0.0 -x 1.0 -d 0.0)
+[(-S|--bootstrap)]
+       Use presets for boostrap support (-n 0 -x 100 -d 0)
+[(-c|--contract) <float>]
+       Contract internal branches with support less than specified threshold
+
+Advanced Options:
+[(-w|--weight) <character>]
         Weighting scheme for quartets; see paper for details
         -w n: none (default)
+        -w h: hybrid of support and length (recommended)
         -w s: support only
-        -w h: hybrid of support and length
         -w l: length only
         -w f: none fast
               Refines polytomies arbitrarily so faster algorithm can be used
-[(-r|--support_range) <min> <max>]
-        Specifies minimum and maximum branch support values (*required* when
-        using -w s or -w h options)
-        + For probability or likelihood support, use: -s 0 1
-        + For bootstrap support, use: -s 0 100
-        + For local Bayesian support, use: -s 0.333 1 (abayes is recommended)
-[(-c|--contract) <threshold>]
-        Run unweighted method (-w n) after contracting internal branches with
-        support less than <threshold>
-[(-n|--normalize) <normalization scheme>]
+[(-n|--min) <float>]
+        Minimum value of input branch support (default: 0.0)
+[(-x|--max) <float>]
+        Maximum value of input branch support (default: 1.0)
+[(-d|--default) <float>]
+        Default value of input branch support when not provided (default: 0.0)
+[(--norm_atax) <integer>]
         Normalization scheme for artificial taxa; see paper for details
         -n 0: none
         -n 1: uniform
         -n 2: non-uniform (default)
-[(-x|--execution) <execution mode>]
+[(-e|--execution) <execution mode>]
         -x 0: run efficient algorithm (default)
         -x 1: run brute force algorithm for testing
         -x 2: compute weighted quartets, then exit
@@ -122,8 +141,6 @@ OPTIONS:
               taxa, species names)
         -v 2: write CSV with subproblem information (info from v1 plus # of
               of elements in f, # of pruned elements in f, # of zeroes in f)
-
-OTHER OPTIONS:
 [(--polyseed) <integer>]
         Seeds random number generator with prior to arbitrarily resolving
         polytomies. If seed is set to -1, system time is used;
@@ -146,5 +163,5 @@ If you use wTREE-QMC in your work, please cite:
   Han and Molloy, 2023, Improving quartet graph construction for scalable
   and accurate species tree estimation from gene trees, Genome Research,
   http:doi.org/10.1101/gr.277629.122.
-=================================================================================
+================================================================================
 ```
