@@ -35,21 +35,21 @@ Weighting quartets by branch support and branch length (hybrid mode) was origina
 ../treeqmc \
 	--hybrid \
 	--bootstrap \
-	--root STRCA \
+	--root STRCA,TINMA \
 	-i avian_uce_trees_3679.tre \
 	-o treeqmc-hybrid.tre
 ```
-which species bootstrap support values on the input and to root the output species tree at the clade containing `TINMA,STRCA` if possible. 
+which specifies the input gene trees have bootstrap support values and the species tree should be rooted at the clade containing `TINMA,STRCA` if possible. 
 The `--support` option can be specified to annotate the branches of the species tree with quartet support. Alternatively, quartet support can be computed for a fixed species tree with the command:
-
 ```
 ../treeqmc \
 	--hybrid \
 	--bootstrap \
+	--supportonly treeqmc-hybrid.tre \
 	-i avian_uce_trees_3679.tre \
-	-supportonly treeqmc.tre
+	-o annotated-treeqmc-hybrid.tre
 ```
-Note that we are in the process of implementing support for rooting at clade rather than a leaf (e.g. `--root TINMA,STRCA`) if it exists in the output species tree. This option is still buggy.
+Lastly, the `--writetable <output file name>` option can be included in the command above to additionally write the branch support information and support values written to a table.
 
 Contracting low support branches (instead of quartet weighting)
 ---
@@ -58,12 +58,12 @@ Contracting branches with low support is recommended when running [ASTRAL-III](h
 ../treeqmc \
 	--bootstrap \
 	--contract 0.10 \
-	--root STRCA \
+	--root STRCA,TINMA \
 	-i avian_uce_trees_3679.tre
 ```
-which species to contract branches with bootstrap support less than `10` (note: that the contraction threshold is applied after mapping support to the 0 to 1 interval).
+which specifies that branches in the input gene trees with bootstrap support less than `10` should be contracted (note: the contraction threshold is applied after mapping support values to the interval from 0 to 1).
 
-Using the fast algorithm
+Using the faster algorithm
 ---
 The faster TREE-QMC algorithm (no weighting) can invoked with the command:
 ```
@@ -71,4 +71,4 @@ The faster TREE-QMC algorithm (no weighting) can invoked with the command:
 	--fast \
 	-i avian_uce_trees_3679.tre
 ```
-**Importantly**, the above command will cause any polytomies in the input to be randomly refined.
+**Importantly**, the above command does not allow quartet weighting and will cause any polytomies in the input to be randomly refined.

@@ -698,6 +698,7 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
         postorder_nodes.pop_back();
 
         ni = node->index;
+        if (ni < 0) ni = abs(ni) + n_leaves;
 
         // Update counts
         if (node->is_leaf()) {
@@ -707,17 +708,15 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
         } else {
             for (Node* child : node->children) {
                 ci = child->index;
+                if (ci < 0) ci = abs(ci) + n_leaves;
                 n_og_below[ni] += n_og_below[ci];
                 n_lv_below[ni] += n_lv_below[ci];
             }
         }
 
         // Check if found clade
-        if (n_og_below[ni] == clade.size()) {
-            if (n_lv_below[ni] == clade.size())
-                return node;
-            else
-                return NULL;
+        if (n_og_below[ni] == clade.size() && n_lv_below[ni] == clade.size()) {
+            return node;
         }
     }
 
@@ -731,11 +730,11 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
 
         // Check if clade is split across root
         ni = node->index;
+        if (ni < 0) ni = abs(ni) + n_leaves;
         if (n_og_below[ni] == 0) {
-            if ((n_leaves - n_lv_below[ni]) == clade.size())
+            if ((n_leaves - n_lv_below[ni]) == clade.size()) {
                 return node;
-            else
-                return NULL;
+            }
         }
     }
 
@@ -777,9 +776,19 @@ void Tree::reroot_on_edge_above_node(Node *node) {
     stack.pop();  // Remove root from stack
 
     // Start relocating root
+    // Basically swapping nodes on stack across root
     node = stack.top();
     stack.pop();
     while (node != keep) {
+        // Move branch length over root
+        sibl = node->get_sibling();
+        sibl->length += node->length;
+        // could also move swapping support here but
+        // problem is whether you want to do it on first node on stack
+        // support should be equal on these branches if rooted at clade
+        // otherwise there can't be support
+
+        // Get next root
         next_root = stack.top();
 
         // Remove node from root
@@ -795,13 +804,16 @@ void Tree::reroot_on_edge_above_node(Node *node) {
         old_root->f[0] = next_root->f[0]; // need to do for all data
         old_root->f[1] = next_root->f[1];
         old_root->f[2] = next_root->f[2];
+        old_root->support = next_root->support;
 
         // Make node the new root so next root is below it
         node->add_child(old_root);
         node->f[0] = 0; // need to do for all data
         node->f[1] = 0;
         node->f[2] = 0;
-        root = node;
+        node->support = 0.0;
+        node->length = 0.0;
+        this->root = node;
 
         node = next_root;
         stack.pop();

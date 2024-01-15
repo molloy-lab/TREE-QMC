@@ -80,8 +80,11 @@ Input Options:
         Input are binary characters i.e. bipartitions
 [(-a|-mapping) <mapping file>]
         File with individual/leaf names (1st col) mapped to species (2nd col)
-[(--root) <species name>]
-        Root species tree at given species
+[(--root) <list of species separated by commas>]
+        Root species tree at given species if possible
+[(--rootonly) <species tree file>]
+        Root species tree in file and then exit
+
 [(--supportonly) <species tree file>]
         Compute quartet support for species tree in file and then exit
 
@@ -109,7 +112,7 @@ Algorithm Options:
 [(-c|--contract) <float>]
        Contract internal branches with support less than specified threshold
 
-Advanced Options:
+       after mapping suport to the interval 0 to 1Advanced Options:
 [(-w|--weight) <character>]
         Weighting scheme for quartets; see paper for details
         -w n: none (default)

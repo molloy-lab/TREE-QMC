@@ -69,7 +69,8 @@ class Tree {
         Node* find_node(index_t index);
         Node* get_root();
     protected:
-        Node *root, *leaf_for_rooting;
+        Node *root;
+        //Node *leaf_for_rooting;
         std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t pseudonym();

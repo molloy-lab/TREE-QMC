@@ -6,7 +6,7 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
     this->dict = dict;
     this->artifinyms = dict->max_size();
     this->root = NULL;
-    this->leaf_for_rooting = NULL;
+    //this->leaf_for_rooting = NULL;
     this->qfreq_mode = "";
 
     std::unordered_map<std::string, std::string> dummy;
@@ -41,13 +41,15 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
     std::cout << "Found" << std::endl;
     std::cout << "    " << size() << " taxa" << std::endl;
 
+    // TODO: Add suppress uniforcations!
+
     // Refined polytomies
     int total = refine_tree(root);
     if (total > 0)
         std::cout << "    " << total << " polytomies" << std::endl;
 
     // Re-position root
-    Node *sibling, *node_for_rooting;
+    /*Node *sibling, *node_for_rooting;
     for (Node* child: root->children) {
         if (child->children.size() == 0)
             leaf_for_rooting = child;
@@ -62,7 +64,7 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
                 node_for_rooting = child;
         }
         reroot_on_edge_above_node(node_for_rooting);
-    }
+    }*/
 }
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
@@ -71,7 +73,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
     this->mode = mode;
     this->iter_limit = iter_limit;
     this->root = NULL;
-    this->leaf_for_rooting = NULL;
+    //this->leaf_for_rooting = NULL;
     this->qfreq_mode = "";
 
     Taxa subset(dict, mode);
@@ -415,9 +417,15 @@ Node *SpeciesTree::artificial2node(Node *root, index_t artificial) {
 }
 
 void SpeciesTree::get_qfreq_around_branch(Node *root, std::vector<Tree *> input) {
+    if (root->children.size() != 2 && root->children.size() != 0) {
+        std::cout << "ERROR: Cannot compute quartet support in non-binary tree" << std::endl;
+        exit(1);
+    }
+
     if (root->children.size() != 0 && root->parent != NULL) {
         std::unordered_map<index_t, index_t> quad;
         std::vector<Node *> x, y, z, w;
+        bool doit = true;
 
         get_leaves(root->children[0], &x);
         get_leaves(root->children[1], &y);
@@ -429,104 +437,115 @@ void SpeciesTree::get_qfreq_around_branch(Node *root, std::vector<Tree *> input)
                 get_leaves(root->parent->children[0], &z);
         }
         else {
-            if (root->parent->children[0] == root) 
-                get_leaves(root->parent->children[1]->children[0], &z);
-            else 
-                get_leaves(root->parent->children[0]->children[0], &z);
+            if (root->parent->children[0] == root) {
+                if (root->parent->children[1]->children.size() != 0) {
+                    get_leaves(root->parent->children[1]->children[0], &z);
+                    doit = false;
+                }
+            }
+            else {
+                if (root->parent->children[0]->children.size() != 0) {
+                    get_leaves(root->parent->children[0]->children[0], &z);
+                } else{
+                    doit = false;
+                }
+            }
         }
         get_leaves(this->root, &w);
 
-        if (qfreq_mode == "n") {
-            std::vector<weight_t> localf0, localf1, localf2, localf3;
-            weight_t localtotal;
+        if (doit) {
+            if (qfreq_mode == "n") {
+                std::vector<weight_t> localf0, localf1, localf2, localf3;
+                weight_t localtotal;
 
-            // First topology
-            for (Node *leaf : w) quad[leaf->index] = 4;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 2;
-            for (Node *leaf : z) quad[leaf->index] = 3;
-            for (Tree *t : input)
-                localf0.push_back(t->get_qfreq(quad) / 2);
+                // First topology
+                for (Node *leaf : w) quad[leaf->index] = 4;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 2;
+                for (Node *leaf : z) quad[leaf->index] = 3;
+                for (Tree *t : input)
+                    localf0.push_back(t->get_qfreq(quad) / 2);
 
-            // Second topology
-            for (Node *leaf : w) quad[leaf->index] = 4;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 3;
-            for (Node *leaf : z) quad[leaf->index] = 2;
-            for (Tree *t : input)
-                localf1.push_back(t->get_qfreq(quad) / 2);
+                // Second topology
+                for (Node *leaf : w) quad[leaf->index] = 4;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 3;
+                for (Node *leaf : z) quad[leaf->index] = 2;
+                for (Tree *t : input)
+                    localf1.push_back(t->get_qfreq(quad) / 2);
 
-            // Third topology
-            for (Node *leaf : w) quad[leaf->index] = 2;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 3;
-            for (Node *leaf : z) quad[leaf->index] = 4;
-            for (Tree *t : input)
-                localf2.push_back(t->get_qfreq(quad) / 2);
+                // Third topology
+                for (Node *leaf : w) quad[leaf->index] = 2;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 3;
+                for (Node *leaf : z) quad[leaf->index] = 4;
+                for (Tree *t : input)
+                    localf2.push_back(t->get_qfreq(quad) / 2);
 
-            // Check the fourth topology by figuring out
-            // quartet count per gene tree and subtracting 
-            for (Tree *t : input)
-                localf3.push_back(t->get_qcount(quad));
+                // Check the fourth topology by figuring out
+                // quartet count per gene tree and subtracting 
+                for (Tree *t : input)
+                    localf3.push_back(t->get_qcount(quad));
 
-            // Normalize for each gene tree
-            for (index_t i = 0; i < input.size(); i++) {
-                localtotal = localf0[i] + localf1[i] + localf2[i];
-                if (localtotal != 0.0) {
-                    localf0[i] /= localf3[i];
-                    localf1[i] /= localf3[i];
-                    localf2[i] /= localf3[i];
+                // Normalize for each gene tree
+                for (index_t i = 0; i < input.size(); i++) {
+                    localtotal = localf0[i] + localf1[i] + localf2[i];
+                    if (localtotal != 0.0) {
+                        localf0[i] /= localf3[i];
+                        localf1[i] /= localf3[i];
+                        localf2[i] /= localf3[i];
+                    }
                 }
+
+                // Sum frequencies across genes
+                root->f[0] = 0;
+                root->f[1] = 0;
+                root->f[2] = 0;
+                for (index_t i = 0; i < input.size(); i++) {
+                    root->f[0] += localf0[i];
+                    root->f[1] += localf1[i];
+                    root->f[2] += localf2[i];
+                } 
+
             }
+            else {
+                weight_t globaltotal;
 
-            // Sum frequencies across genes
-            root->f[0] = 0;
-            root->f[1] = 0;
-            root->f[2] = 0;
-            for (index_t i = 0; i < input.size(); i++) {
-                root->f[0] += localf0[i];
-                root->f[1] += localf1[i];
-                root->f[2] += localf2[i];
-            } 
+                root->f[0] = 0;
+                root->f[1] = 0;
+                root->f[2] = 0;
 
-        }
-        else {
-            weight_t globaltotal;
+                // First topology
+                for (Node *leaf : w) quad[leaf->index] = 4;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 2;
+                for (Node *leaf : z) quad[leaf->index] = 3;
+                for (Tree *t : input)
+                    root->f[0] += t->get_qfreq(quad) / 2;
 
-            root->f[0] = 0;
-            root->f[1] = 0;
-            root->f[2] = 0;
+                // Second topology
+                for (Node *leaf : w) quad[leaf->index] = 4;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 3;
+                for (Node *leaf : z) quad[leaf->index] = 2;
+                for (Tree *t : input)
+                    root->f[1] += t->get_qfreq(quad) / 2;
 
-            // First topology
-            for (Node *leaf : w) quad[leaf->index] = 4;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 2;
-            for (Node *leaf : z) quad[leaf->index] = 3;
-            for (Tree *t : input)
-                root->f[0] += t->get_qfreq(quad) / 2;
+                // Third topology
+                for (Node *leaf : w) quad[leaf->index] = 2;
+                for (Node *leaf : x) quad[leaf->index] = 1;
+                for (Node *leaf : y) quad[leaf->index] = 3;
+                for (Node *leaf : z) quad[leaf->index] = 4;
+                for (Tree *t : input)
+                    root->f[2] += t->get_qfreq(quad) / 2;
 
-            // Second topology
-            for (Node *leaf : w) quad[leaf->index] = 4;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 3;
-            for (Node *leaf : z) quad[leaf->index] = 2;
-            for (Tree *t : input)
-                root->f[1] += t->get_qfreq(quad) / 2;
-
-            // Third topology
-            for (Node *leaf : w) quad[leaf->index] = 2;
-            for (Node *leaf : x) quad[leaf->index] = 1;
-            for (Node *leaf : y) quad[leaf->index] = 3;
-            for (Node *leaf : z) quad[leaf->index] = 4;
-            for (Tree *t : input)
-                root->f[2] += t->get_qfreq(quad) / 2;
-
-            // Gives same q's as weighted ASTRAL
-            globaltotal = root->f[0] + root->f[1] + root->f[2];
-            if (globaltotal != 0.0) {
-                root->f[0] /= globaltotal;
-                root->f[1] /= globaltotal;
-                root->f[2] /= globaltotal;
+                // Gives same q's as weighted ASTRAL
+                globaltotal = root->f[0] + root->f[1] + root->f[2];
+                if (globaltotal != 0.0) {
+                    root->f[0] /= globaltotal;
+                    root->f[1] /= globaltotal;
+                    root->f[2] /= globaltotal;
+                }
             }
         }
     }
@@ -627,9 +646,14 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
 }
 
 void SpeciesTree::write_table_row(Node *root, std::ostream &os, std::string brln_mode) {
+    if (root->children.size() != 2 && root->children.size() != 0) {
+        std::cout << "ERROR: Cannot write table for non-binary tree" << std::endl;
+        exit(1);
+    }
+
     if (root->children.size() != 0 && root->parent != NULL) {
         // Write row of table
-    
+
         std::unordered_set<Node *> x, y, z, w;
 
         get_leaf_set(root->children[0], &x);
@@ -642,7 +666,6 @@ void SpeciesTree::write_table_row(Node *root, std::ostream &os, std::string brln
                 get_leaf_set(root->parent->children[0], &z);
         }
         else {
-            std::cout << "here before segfault" << std::endl;
             if (root->parent->children[0] == root) {
                 if (root->parent->children[1]->children.size() != 0) {
                     get_leaf_set(root->parent->children[1]->children[0], &z);
@@ -656,8 +679,6 @@ void SpeciesTree::write_table_row(Node *root, std::ostream &os, std::string brln
         }
 
         get_leaf_set(this->root, &w);
-
-        std::cout << "here before segfault 2" << std::endl;
 
         for (Node *leaf : x) w.erase(leaf);
         for (Node *leaf : y) w.erase(leaf);
@@ -786,18 +807,22 @@ void SpeciesTree::root_at_clade(std::unordered_set<std::string> &clade_label_set
         node = find_node_for_split(clade_index_set);
         if (node == NULL) {
             std::cout << "    Root taxa do not form a clade in the output tree!" << std::endl;
-            std::cout << "    Indead rooting at " << backup_label << std::endl;
+            std::cout << "    Instead rooting at " << backup_label << std::endl;
             node = find_node(backup_index);
         }
     }
 
+    if (node == NULL) {
+        std::cout << "    Unable to root tree" << std::endl;
+        return;
+    }
     reroot_on_edge_above_node(node);
 }
 
-void SpeciesTree::put_back_root() {
+/*void SpeciesTree::put_back_root() {
     if (leaf_for_rooting != NULL)
         reroot_on_edge_above_node(leaf_for_rooting);
-}
+}*/
 
 
 

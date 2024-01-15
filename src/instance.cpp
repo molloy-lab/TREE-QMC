@@ -21,6 +21,7 @@ Instance::Instance(int argc, char **argv) {
     brln_mode = "g";     // estimate branch lengths under MSC for gene trees
     contract = false;
     char2tree = false;
+    rootonly = false;
 
     support_low = 0;
     support_high = 1.0;
@@ -84,6 +85,7 @@ Instance::Instance(int argc, char **argv) {
         exit(0);
     }
 
+    // TODO: Add suppress uniforcations!
     refine_trees();
     prepare_trees();
 
@@ -129,8 +131,17 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
-    std::cout << "Saving species tree" << std::endl;
+    std::cout << "Printing species tree" << std::endl;
     std::cout << output->to_string_basic() << std::endl;
+
+    if (root_str != "") {
+        std::cout << "Rooting species tree" << std::endl;
+        output->root_at_clade(outgroup_taxon_set);
+        std::cout << output->to_string_basic() << std::endl;  // want to write for root only
+    }
+    /*else {
+        output->put_back_root();
+    }*/
 
     if (execute_mode == "2" || execute_mode == "3") return;
 
@@ -141,14 +152,6 @@ void Instance::output_solution() {
         if (weight_mode == "n" || weight_mode == "f")
             qfreq_mode = "n";
         output->annotate(input, qfreq_mode);
-    }
-
-    if (root_str != "") {
-        std::cout << "Rooting species tree" << std::endl;
-            output->root_at_clade(outgroup_taxon_set);
-    }
-    else {
-        output->put_back_root();
     }
 
     if (table_file != "") {
@@ -173,14 +176,20 @@ void Instance::output_solution() {
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
-            fout << output->to_string_annotated(brln_mode) << std::endl;
+            if (rootonly)
+                fout << output->to_string() << std::endl;
+            else 
+                fout << output->to_string_annotated(brln_mode) << std::endl;
             fout.close();
             return;
         }
         std::cout << "  WARNING: Unable to write to " << output_file << ", writing to stdout" << std::endl;
     }
 
-    std::cout << output->to_string_annotated(brln_mode) << std::endl;
+    if (rootonly)
+        std::cout << output->to_string() << std::endl;
+    else
+        std::cout << output->to_string_annotated(brln_mode) << std::endl;
 }
 
 
@@ -226,6 +235,7 @@ int Instance::parse(int argc, char **argv) {
             if (i < argc - 1) stree_file = argv[++ i];
         }
         else if (opt == "-r" || opt == "--rootonly") {
+            rootonly = true;
             if (i < argc - 1) stree_file = argv[++ i];
         }
         else if (opt == "-o" || opt == "--output") {

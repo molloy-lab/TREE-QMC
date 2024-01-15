@@ -63,8 +63,10 @@ void Node::print_leaves_below_index() {
 Node* Node::get_sibling() {
     Node *sibling = NULL;
 
-    if (parent->children.size() != 2)
+    if (parent->children.size() != 2) {
         std::cout << "ERROR: Cannot get sibling in non-binary tree" << std::endl;
+        exit(1);
+    }
 
     for (Node* child : parent->children) {
         if (child != this) sibling = child;
