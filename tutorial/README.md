@@ -45,6 +45,7 @@ The `--support` option can be specified to annotate the branches of the species 
 ../treeqmc \
 	--hybrid \
 	--bootstrap \
+	--root STRCA,TINMA \
 	--supportonly treeqmc-hybrid.tre \
 	-i avian_uce_trees_3679.tre \
 	-o annotated-treeqmc-hybrid.tre
@@ -69,6 +70,7 @@ The faster TREE-QMC algorithm (no weighting) can invoked with the command:
 ```
 ../treeqmc \
 	--fast \
+	--root STRCA,TINMA \
 	-i avian_uce_trees_3679.tre
 ```
 **Importantly**, the above command does not allow quartet weighting and will cause any polytomies in the input to be randomly refined.

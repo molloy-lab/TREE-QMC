@@ -84,7 +84,6 @@ Input Options:
         Root species tree at given species if possible
 [(--rootonly) <species tree file>]
         Root species tree in file and then exit
-
 [(--supportonly) <species tree file>]
         Compute quartet support for species tree in file and then exit
 
@@ -111,8 +110,9 @@ Algorithm Options:
        Use presets for boostrap support (-n 0 -x 100 -d 0)
 [(-c|--contract) <float>]
        Contract internal branches with support less than specified threshold
+       after mapping suport to the interval 0 to 1
 
-       after mapping suport to the interval 0 to 1Advanced Options:
+Advanced Options:
 [(-w|--weight) <character>]
         Weighting scheme for quartets; see paper for details
         -w n: none (default)
