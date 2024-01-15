@@ -3,13 +3,13 @@ Weighted TREE-QMC Tutorial
 
 1. Clone the repository.
 ```
-git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
+git clone https://github.com/molloy-lab/TREE-QMC.git
 ```
 
 2. Build wTREE-QMC and go to tutorial directory.
 ```
-git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
-cd weighted-TREE-QMC/external/MQLib
+git clone https://github.com/molloy-lab/TREE-QMC.git
+cd TREE-QMC/external/MQLib
 make
 cd ../..
 g++ -std=c++11 -O2 \

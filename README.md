@@ -19,8 +19,8 @@ Build
 -----
 To build TREE-QMC, use commands:
 ```
-git clone https://github.com/molloy-lab/weighted-TREE-QMC.git
-cd weighted-TREE-QMC/external/MQLib
+git clone https://github.com/molloy-lab/TREE-QMC.git
+cd TREE-QMC/external/MQLib
 make
 cd ../..
 g++ -std=c++11 -O2 \
@@ -155,11 +155,11 @@ Advanced Options:
 [--shared <use shared taxon data structure to normalize quartet weights>]
         Do NOT use unless there are NO missing data!!!
 
-Contact: Post issue to Github (https://github.com/molloy-lab/weighted-TREE-QMC/)
+Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
-If you use wTREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.
+If you use TREE-QMC in your work, please cite:
+  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.
 
   and
 
