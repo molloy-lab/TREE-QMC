@@ -542,12 +542,13 @@ void SpeciesTree::annotate(std::vector<Tree *> input, std::string qfreq_mode) {
 }
 
 std::string SpeciesTree::to_string_annotated(std::string brln_mode) {
-    if (qfreq_mode == "")
-        return display_tree_basic(root);
     return display_tree_annotated(root, brln_mode);
 }
 
 std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mode) {
+    if (qfreq_mode == "")
+        return display_tree_basic(root);
+
     if (root->children.size() == 0) 
         return dict->index2label(root->index);
 
@@ -560,8 +561,6 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
         return s + ";";
 
     weight_t f1, f2, f3, q1, q2, q3, en;
-    std::string brlen = "";
-
     if (qfreq_mode == "n") {
         f1 = root->f[0];
         f2 = root->f[1];
@@ -585,6 +584,7 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
     }
 
     // Compute branch length from q1
+    std::string brlen = "";
     if (brln_mode == "g") {
         if (q1 < (1.0 / 3.0))
             brlen = ":0";
@@ -595,7 +595,7 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
             brlen = ":" + std::to_string(x);
         }
     }
-    else if (brln_mode == "g") {
+    else if (brln_mode == "b") {
         if (q1 < (1.0 / 3.0))
             brlen = ":0";
         else if (q1 == 1.0)
@@ -625,6 +625,136 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
                  ";q2=" + std::to_string(q2) +
                  ";q3=" + std::to_string(q3) +
                  "]\'" + brlen;
+}
+
+void SpeciesTree::write_table_row(Node *root, std::ostream &os, std::string brln_mode) {
+    if (root->children.size() != 0 && root->parent != NULL) {
+        // Write row of table
+    
+        std::unordered_set<Node *> x, y, z, w;
+
+        get_leaf_set(root->children[0], &x);
+        get_leaf_set(root->children[1], &y);
+
+        if (root->parent->parent != NULL) {
+            if (root->parent->children[0] == root) 
+                get_leaf_set(root->parent->children[1], &z);
+            else 
+                get_leaf_set(root->parent->children[0], &z);
+        }
+        else {
+            std::cout << "here before segfault" << std::endl;
+            if (root->parent->children[0] == root) {
+                if (root->parent->children[1]->children.size() != 0) {
+                    get_leaf_set(root->parent->children[1]->children[0], &z);
+                }
+            }
+            else {
+                if (root->parent->children[0]->children.size() != 0) {
+                    get_leaf_set(root->parent->children[0]->children[0], &z);
+                }
+            }
+        }
+
+        get_leaf_set(this->root, &w);
+
+        std::cout << "here before segfault 2" << std::endl;
+
+        for (Node *leaf : x) w.erase(leaf);
+        for (Node *leaf : y) w.erase(leaf);
+        for (Node *leaf : z) w.erase(leaf);
+
+        os << "\"";
+        for (Node* leaf : x)
+            os << dict->index2label(leaf->index) << ",";
+        os << "\b\";\"";
+        for (Node* leaf : y)
+            os << dict->index2label(leaf->index) << ",";
+        os << "\b\";\"";
+        for (Node* leaf : z)
+            os << dict->index2label(leaf->index) << ",";
+        os << "\b\";\"";
+        for (Node* leaf : w)
+            os << dict->index2label(leaf->index) << ",";
+        os << "\b\"";
+
+        if (qfreq_mode != "") {
+            weight_t f1, f2, f3, q1, q2, q3, en;
+            if (qfreq_mode == "n") {
+                f1 = root->f[0];
+                f2 = root->f[1];
+                f3 = root->f[2];
+                en = f1 + f2 + f3;
+                if (en > 0) {
+                    q1 = f1 / en;
+                    q2 = f2 / en;
+                    q3 = f3 / en;
+                }
+                else {
+                    q1 = 0;
+                    q2 = 0;
+                    q3 = 0;
+                }
+                os << ";" << q1 << ";" << q2 << ";" << q3 << ";" << en;
+            }
+            else {
+                q1 = root->f[0];
+                q2 = root->f[1];
+                q3 = root->f[2];
+                os << ";" << q1 << ";" << q2 << ";" << q3;
+            }
+
+            std::string brlen = "";
+            if (brln_mode == "g") {
+                if (q1 < (1.0 / 3.0)) {
+                    brlen = ";0";
+                }
+                else if (q1 == 1.0) {
+                    brlen = ";9";  // same as MP-EST
+                }
+                else {
+                    weight_t x = -1.0 * log(1.5 * (1.0 - q1));
+                    brlen = ";" + std::to_string(x);
+                }
+                os << brlen;
+            }
+            else if (brln_mode == "b") {
+                if (q1 < (1.0 / 3.0)) {
+                    brlen = ";0";
+                }
+                else if (q1 == 1.0) {
+                    brlen = ";9";  // same as MP-EST
+                }
+                else {
+                    weight_t y, x;
+                    int outcome;
+                    y = ((2.0 / 3.0) / (1.0 - q1)) - 1.0;
+                    x = toms743::wapr(y, 0, outcome, 0);
+                    if (outcome != 1)
+                        brlen = ";" + std::to_string(x);
+                }
+                os << brlen;
+            }
+            else {
+                os << ";NA";
+            }
+        }
+        else {
+            os << "NA;NA;NA;NA";
+        }
+
+        os << std::endl;
+    }
+
+    for (Node *child : root->children) {
+        write_table_row(child, os, brln_mode);
+    }
+}
+
+void SpeciesTree::write_table(std::ostream &os, std::string brln_mode) {
+    os << "NOTE: species tree contains A,B|C,D and q1 = freq(A,B|C,D)" << std::endl;
+    os << "A;B;C;D;q1;q2;q3;EN;BRLN" << std::endl;
+    write_table_row(root, os, brln_mode);
 }
 
 void SpeciesTree::root_at_clade(std::unordered_set<std::string> &clade_label_set) {
@@ -669,3 +799,6 @@ void SpeciesTree::put_back_root() {
     if (leaf_for_rooting != NULL)
         reroot_on_edge_above_node(leaf_for_rooting);
 }
+
+
+

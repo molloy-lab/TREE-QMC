@@ -13,14 +13,23 @@ TREE-QMC implements efficient (and brute force) algorithms for the **quartet wei
 
 [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) is utilized for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
 
+
 Tutorial
 --------
 We recommend working through [this tutorial](tutorial/README.md).
 
+Quick Tips
+----------
 If you are having strange problems, try removing the `\r` characters from the file before using TREE-QMC:
 ```
 cat file.txt | tr -d '\r' > newfile.txt
 ```
+
+Add the path to treeqmc to your bash profile for convenience.
+```
+export PATH=$PATH:"<path to treeqmc>"
+```
+
 
 Build
 -----

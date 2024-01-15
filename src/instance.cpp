@@ -9,8 +9,9 @@ Instance::Instance(int argc, char **argv) {
     output_file = "";
     mapping_file = "";
     stree_file = "";
+    table_file = "";
     root_str = "";
-    
+
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
     execute_mode = "0";  // use fast algorithm
     taxa_mode = "0";     // don't use shared taxon data structure
@@ -19,6 +20,7 @@ Instance::Instance(int argc, char **argv) {
     data_mode = "t";     // input data are trees i.e. newick strings
     brln_mode = "g";     // estimate branch lengths under MSC for gene trees
     contract = false;
+    char2tree = false;
 
     support_low = 0;
     support_high = 1.0;
@@ -66,8 +68,22 @@ Instance::Instance(int argc, char **argv) {
         exit(1);
     }
 
-    // for (Tree *t : input) std::cout << t->to_string() << std::endl;
     dict->update_singletons();
+
+    if (char2tree) {
+        std::cout << "Writing characters as trees" << std::endl;
+        //exit(0);
+        std::ofstream fout(output_file);
+        if (fout.fail()) {
+            for (Tree *t : input) std::cout << t->to_string_basic() << std::endl;
+        }
+        else {
+            for (Tree *t : input) fout << t->to_string() << std::endl;
+            fout.close();
+        }
+        exit(0);
+    }
+
     refine_trees();
     prepare_trees();
 
@@ -132,8 +148,18 @@ void Instance::output_solution() {
         output->put_back_root();
     }
 
+    if (table_file != "") {
+        std::cout << "Writing table" << std::endl;
+        std::ofstream fout(table_file);
+        if (fout.fail()) {
+            std::cout << "  WARNING: Unable to write to " << table_file << std::endl; 
+        } else {
+            output->write_table(fout, brln_mode);
+            fout.close();
+        }
+    }
+
     std::cout << "Writing species tree" << std::endl;
-    // Now check if output file already exists and otherwise write tree to std out 
     std::ifstream fin(output_file);
     if (!fin.fail()) {
         std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
@@ -178,8 +204,13 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "-i" || opt == "--input") {
             if (i < argc - 1) input_file = argv[++ i];
         }
-        else if (opt == "-o" || opt == "--output") {
-            if (i < argc - 1) output_file = argv[++ i];
+        else if (opt == "--chars") {
+            data_mode = "c";  // input data are multi-state characters
+            brln_mode = "n";  // don't estimate branch lengths!
+        }
+        else if (opt == "--bp") {
+            data_mode = "b";  // input data are 2-state characters
+            brln_mode = "b";  // estimate branch lengths under nWF+IS model
         }
         else if (opt == "-a" || opt == "--mapping") {
             if (i < argc - 1) mapping_file = argv[++ i];
@@ -191,16 +222,17 @@ int Instance::parse(int argc, char **argv) {
             score_mode = "1";
             if (i < argc - 1) stree_file = argv[++ i];
         }
+        else if (opt == "-o" || opt == "--output") {
+            if (i < argc - 1) output_file = argv[++ i];
+        }
         else if (opt == "--root") {
             if (i < argc - 1) root_str = argv[++ i];
         }
-        else if (opt == "--chars") {
-            data_mode = "c";   // input data are multi-state characters
-            brln_mode = "n";  // don't estimate branch lengths!
+        else if (opt == "--char2tree") {
+            char2tree = true;
         }
-        else if (opt == "--bp") {
-            data_mode = "b";  // input data are 2-state characters
-            brln_mode = "b";  // estimate branch lengths under nWF+IS model
+        else if (opt == "--writetable") {
+            if (i < argc - 1) table_file = argv[++ i];
         }
 
         // Handle weighting options
@@ -374,6 +406,7 @@ int Instance::parse(int argc, char **argv) {
     std::cout << "input file: " << input_file << std::endl;
     if (mapping_file != "") std::cout << "mapping file: " << mapping_file << std::endl;
     if (stree_file != "") std::cout << "species tree file: " << stree_file << std::endl;
+    if (table_file != "") std::cout << "table file: " << table_file << std::endl;
 
     // Output file
     if (output_file == "")
@@ -583,13 +616,17 @@ void Instance::input_matrix() {
     while (cmat->size() > 0) {
         cmat->pop_newick(newick);
         if (newick != "") {
+            //std::cout << newick << std::endl;
             Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
+            //std::cout << t->to_string_basic() << std::endl;
+            //exit(1);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
         }
         i++;
     }
+
 
     std::cout << "Found" << std::endl;
     std::cout << "    " << input.size() << " informative characters\n";

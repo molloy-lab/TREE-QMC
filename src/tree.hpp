@@ -100,6 +100,7 @@ class Tree {
         //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);
+        void get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set);
         void get_depth(Node *root, index_t depth);
         //for weighted quartets:
         void clear_wstates(Node *root);
@@ -140,6 +141,7 @@ class SpeciesTree : public Tree {
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
         std::string to_string_annotated(std::string brln_mode);
+        void write_table(std::ostream &os, std::string brln_mode);
     private:
         index_t artifinyms;
         std::string mode, qfreq_mode;
@@ -152,6 +154,7 @@ class SpeciesTree : public Tree {
         Node *artificial2node(Node *root, index_t artificial);
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> input);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
+        void write_table_row(Node *root, std::ostream &os, std::string brln_mode);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

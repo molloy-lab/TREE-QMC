@@ -84,10 +84,10 @@ Node *Tree::build_tree(const std::string &newick,
         if (sep != std::string::npos) {
             leaf_label = newick.substr(0, sep);
             length = newick.substr(sep + 1, std::string::npos);
-            //std::cout << "Found leaf node " << label << ' ' << length << std::endl;
+            //std::cout << "Found leaf node " << leaf_label << ' ' << length << std::endl;
         } else {
             leaf_label = newick.substr(0, std::string::npos);
-            //std::cout << "Found leaf node " << label << std::endl;
+            //std::cout << "Found leaf node " << leaf_label << std::endl;
         }
 
         // Map leaf label if possible
@@ -168,7 +168,6 @@ std::string Tree::display_tree(Node *root) {
     s[s.size() - 1] = ')';
     return s + std::to_string((double) root->support) + ":" + std::to_string((double) root->length);
 }
-
 
 std::string Tree::display_tree_basic(Node *root) {
     if (root->children.size() == 0) 
@@ -655,6 +654,13 @@ void Tree::get_leaves(Node *root, std::vector<Node *> *leaves) {
         leaves->push_back(root);
     for (Node *child : root->children) 
         get_leaves(child, leaves);
+}
+
+void Tree::get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set) {
+    if (root->children.size() == 0) 
+        leaf_set->insert(root);
+    for (Node *child : root->children)
+        get_leaf_set(child, leaf_set);
 }
 
 void Tree::get_depth(Node *root, index_t depth) {
