@@ -50,7 +50,7 @@ The `--support` option can be specified to annotate the branches of the species 
 	-i avian_uce_trees_3679.tre \
 	-o annotated-treeqmc-hybrid.tre
 ```
-Lastly, the `--writetable <output file name>` option can be included in the command above to additionally write the branch support information and support values written to a table.
+Tip: Add `--writetable annotated-table.txt` to the command above if you would like the branch information and quartete support values written to a table.
 
 Contracting low support branches (instead of quartet weighting)
 ---

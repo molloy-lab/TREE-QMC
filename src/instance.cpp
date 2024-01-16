@@ -170,17 +170,18 @@ void Instance::output_solution() {
     if (!fin.fail()) {
         std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
         output_file = "";
+        fin.close();
     }
-    fin.close();
 
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
-            if (rootonly)
+            if (rootonly) {
                 fout << output->to_string() << std::endl;
-            else 
+	    } else {
                 fout << output->to_string_annotated(brln_mode) << std::endl;
-            fout.close();
+	    }
+	    fout.close();
             return;
         }
         std::cout << "  WARNING: Unable to write to " << output_file << ", writing to stdout" << std::endl;

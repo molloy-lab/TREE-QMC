@@ -216,7 +216,6 @@ size_t Tree::refine_tree(Node *root) {
 
 void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, weight_t threshold) {
     //assert(root->children.size() == 0 || root->children.size() == 2);
-    if (weight_mode == "f") return;
 
     weight_t s = root->support;
 
@@ -229,7 +228,8 @@ void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weigh
 
     // If not weighting by branch support, set support values to 1
     // do for fast mode as well because will be used for support estimation
-    if (weight_mode == "n" || weight_mode == "l")
+    // this is already done in instance.cpp
+    if (weight_mode == "n" || weight_mode == "f" || weight_mode == "l")
         if (s > 0) s = 1;
 
     // Save these values
@@ -675,6 +675,7 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
     std::queue<Node*> queue;
     Node *node;
     index_t ni, ci, n_leaves = 0, n_nodes = 0;
+    std::unordered_map<index_t, index_t> ugh;
 
     // Prepare for postorder traversal and count
     nodes.push_back(root);
@@ -686,6 +687,8 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
         postorder_nodes.push_back(node);
 
         if (node->is_leaf()) n_leaves++;
+
+	ugh.insert({node->index, n_nodes});
         n_nodes++;
     }
 
@@ -697,18 +700,16 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
         node = postorder_nodes.back();
         postorder_nodes.pop_back();
 
-        ni = node->index;
-        if (ni < 0) ni = abs(ni) + n_leaves;
+        ni = ugh[node->index];
 
         // Update counts
         if (node->is_leaf()) {
-            if (clade.find(ni) != clade.end())
+            if (clade.find(node->index) != clade.end())
                 n_og_below[ni]++;
             n_lv_below[ni]++;
         } else {
             for (Node* child : node->children) {
-                ci = child->index;
-                if (ci < 0) ci = abs(ci) + n_leaves;
+                ci = ugh[child->index];
                 n_og_below[ni] += n_og_below[ci];
                 n_lv_below[ni] += n_lv_below[ci];
             }
@@ -729,8 +730,7 @@ Node* Tree::find_node_for_split(std::unordered_set<index_t> &clade) {
             queue.push(child);
 
         // Check if clade is split across root
-        ni = node->index;
-        if (ni < 0) ni = abs(ni) + n_leaves;
+        ni = ugh[node->index];
         if (n_og_below[ni] == 0) {
             if ((n_leaves - n_lv_below[ni]) == clade.size()) {
                 return node;

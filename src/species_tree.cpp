@@ -29,7 +29,7 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
     fin.close();
 
     if (dict->size() > tracker) {
-        std::cout << "\nERROR: Species tree has more taxa than input!" << std::endl;
+        std::cout << "\nERROR: Species tree is on a different taxon set than input!" << std::endl;
         exit(1);
     }
 
