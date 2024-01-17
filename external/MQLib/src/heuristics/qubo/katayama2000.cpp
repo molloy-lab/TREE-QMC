@@ -1,3 +1,4 @@
+#include <limits>
 #include <algorithm>
 #include <iostream>
 #include "heuristics/qubo/katayama2000.h"

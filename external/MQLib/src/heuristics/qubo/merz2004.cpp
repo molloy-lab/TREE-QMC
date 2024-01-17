@@ -1,3 +1,4 @@
+#include <limits>
 #include <algorithm>
 #include <iostream>
 #include "heuristics/qubo/merz2004.h"
