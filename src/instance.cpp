@@ -170,18 +170,17 @@ void Instance::output_solution() {
     if (!fin.fail()) {
         std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
         output_file = "";
-        fin.close();
     }
+    fin.close();
 
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
-            if (rootonly) {
+            if (rootonly)
                 fout << output->to_string() << std::endl;
-	    } else {
+            else 
                 fout << output->to_string_annotated(brln_mode) << std::endl;
-	    }
-	    fout.close();
+            fout.close();
             return;
         }
         std::cout << "  WARNING: Unable to write to " << output_file << ", writing to stdout" << std::endl;
@@ -208,6 +207,9 @@ int Instance::parse(int argc, char **argv) {
     int ndefaultparam = 0;
     bool help = false;
 
+
+    // TODO: Maybe use argparse streamline e.g.
+    // https://github.com/p-ranav/argparse/blob/master/include/argparse/argparse.hpp
     index_t i = 1;
     while (i < argc) {
         std::string opt(argv[i]);
@@ -226,30 +228,60 @@ int Instance::parse(int argc, char **argv) {
             brln_mode = "b";  // estimate branch lengths under nWF+IS model
         }
         else if (opt == "-a" || opt == "--mapping") {
-            if (i < argc - 1) mapping_file = argv[++ i];
+            if (i < argc - 1) {
+                mapping_file = argv[++ i];
+            }
+            else {
+                std::cout << "\nERROR: No mapping file specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
         }
         else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
-            if (i < argc - 1) stree_file = argv[++ i];
+            if (i < argc - 1) {
+                stree_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No species tree file specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "-r" || opt == "--rootonly") {
             rootonly = true;
-            if (i < argc - 1) stree_file = argv[++ i];
+            if (i < argc - 1) {
+                stree_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No species tree file specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "-o" || opt == "--output") {
             if (i < argc - 1) output_file = argv[++ i];
         }
         else if (opt == "--root") {
-            if (i < argc - 1) root_str = argv[++ i];
+            if (i < argc - 1) {
+                root_str = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No root specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "--char2tree") {
             char2tree = true;
         }
         else if (opt == "--writetable") {
-            if (i < argc - 1) table_file = argv[++ i];
+            if (i < argc - 1) {
+                table_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No table file specified" << std::endl;
+                return 2;
+            }
         }
 
         // Handle weighting options
@@ -404,14 +436,15 @@ int Instance::parse(int argc, char **argv) {
         i ++;
     }
 
+    if (input_file == "") {
+        std::cout << "\nERROR: No input file specified" << std::endl;
+        return 2;   
+    }
+
     // Report settings and check that they make sense
     std::cout << std::endl << "SETTINGS:" << std::endl;
 
     // Input files
-    if (input_file == "") {
-        std::cout << "input file not found" << std::endl;
-        return 2;   
-    }
     std::cout << "input file: " << input_file << std::endl;
     if (mapping_file != "") std::cout << "mapping file: " << mapping_file << std::endl;
     if (stree_file != "") std::cout << "species tree file: " << stree_file << std::endl;
