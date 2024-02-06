@@ -71,7 +71,7 @@ class Tree {
         weight_t total_weight();
     protected:
         Node *root;
-        //Node *leaf_for_rooting;
+        Node *pcs_node;
         std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t pseudonym();
@@ -148,7 +148,8 @@ class SpeciesTree : public Tree {
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
         std::string to_string_annotated(std::string brln_mode);
-        void write_table(std::ostream &os, std::string brln_mode);
+        void write_support_table(std::ostream &os, std::string brln_mode);
+        void write_pcs_table(std::vector<Tree *> &input, std::string &qfreq_mode, std::ostream &os);
     private:
         index_t artifinyms;
         std::string mode, qfreq_mode;
@@ -159,9 +160,9 @@ class SpeciesTree : public Tree {
         Node *reroot(Node *root, std::unordered_set<index_t> &visited);
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
-        void get_qfreq_around_branch(Node *root, std::vector<Tree *> input);
+        void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
-        void write_table_row(Node *root, std::ostream &os, std::string brln_mode);
+        void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

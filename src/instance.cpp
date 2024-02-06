@@ -22,6 +22,7 @@ Instance::Instance(int argc, char **argv) {
     contract = false;
     char2tree = false;
     rootonly = false;
+    pcsonly = false;
 
     support_low = 0;
     support_high = 1.0;
@@ -135,6 +136,8 @@ SpeciesTree *Instance::get_solution() {
 }
 
 void Instance::output_solution() {
+    if (execute_mode == "2" || execute_mode == "3") return;
+
     std::cout << "Printing species tree" << std::endl;
     std::cout << output->to_string_basic() << std::endl;
 
@@ -143,28 +146,54 @@ void Instance::output_solution() {
         output->root_at_clade(outgroup_taxon_set);
         std::cout << output->to_string_basic() << std::endl;  // want to write for root only
     }
-    /*else {
-        output->put_back_root();
-    }*/
 
-    if (execute_mode == "2" || execute_mode == "3") return;
+    std::string qfreq_mode = "w";
+    if (weight_mode == "n" || weight_mode == "f")
+        qfreq_mode = "n";
 
+    // compute pcs for specified branch, then exit
+    if (pcsonly) {
+        std::cout << "Writing PCS" << std::endl;
+
+        if (output_file != "") {
+            std::ifstream fin(output_file);
+            if (!fin.fail()) {
+                std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+                output_file = "";
+            }
+            fin.close();
+        }
+
+        if (output_file != "") {
+            std::ofstream fout(output_file);
+            if (!fout.fail()) {
+                output->write_pcs_table(input, qfreq_mode, fout);
+                fout.close();
+            }
+            else {
+                std::cout << "  WARNING: Unable to write to " << output_file << ", writing to stdout" << std::endl; 
+                output_file = "";
+            }
+        }
+
+        if (output_file == "") output->write_pcs_table(input, qfreq_mode, std::cout);
+
+        return;
+    }
+
+    // if not pcs, write species tree
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
-
-        std::string qfreq_mode = "w";
-        if (weight_mode == "n" || weight_mode == "f")
-            qfreq_mode = "n";
         output->annotate(input, qfreq_mode);
     }
 
     if (table_file != "") {
-        std::cout << "Writing table" << std::endl;
+        std::cout << "Writing support to table" << std::endl;
         std::ofstream fout(table_file);
         if (fout.fail()) {
             std::cout << "  WARNING: Unable to write to " << table_file << std::endl; 
         } else {
-            output->write_table(fout, brln_mode);
+            output->write_support_table(fout, brln_mode);
             fout.close();
         }
     }
@@ -176,7 +205,6 @@ void Instance::output_solution() {
         output_file = "";
     }
     fin.close();
-
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
@@ -255,6 +283,16 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "-r" || opt == "--rootonly") {
             rootonly = true;
+            if (i < argc - 1) {
+                stree_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No species tree file specified" << std::endl;
+                return 2;
+            }
+        }
+        else if (opt == "--pcsonly") {
+            pcsonly = true;
             if (i < argc - 1) {
                 stree_file = argv[++ i];
             }
