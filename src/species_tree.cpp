@@ -614,9 +614,9 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::string &qfreq
             }
 
             os << i << ","
-               << localf0[i] / localqs[i] << ","
-               << localf1[i] / localqs[i] << ","
-               << localf2[i] / localqs[i] << ","
+               << localf0[i] << ","
+               << localf1[i] << ","
+               << localf2[i] << ","
                << localqs[i] << "\n";
         }
 
