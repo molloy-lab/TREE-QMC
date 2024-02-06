@@ -11,6 +11,7 @@ Tree::Tree(const std::string &newick,
     pseudonyms = 0;
     this->dict = dict;
     this->support_default = support_default;
+    this->pcs_node = NULL;
     root = build_tree(newick, indiv2taxon);
 }
 
@@ -141,9 +142,14 @@ Node *Tree::build_tree(const std::string &newick,
                 support = branch.substr(0, std::string::npos);
                 //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
-            if (support.size() > 0) root->support = std::stod(support);
+            if (support.size() > 0) {
+                if (support == "PCS")
+                    pcs_node = root;
+                else
+                    root->support = std::stod(support);
+            }
             else root->support = support_default;  // allows user to change default support
-        } 
+        }
         //else {
         //    std::cout << "Found root" << std::endl;
         //}
@@ -783,10 +789,6 @@ void Tree::reroot_on_edge_above_node(Node *node) {
         // Move branch length over root
         sibl = node->get_sibling();
         sibl->length += node->length;
-        // could also move swapping support here but
-        // problem is whether you want to do it on first node on stack
-        // support should be equal on these branches if rooted at clade
-        // otherwise there can't be support
 
         // Get next root
         next_root = stack.top();
@@ -805,6 +807,7 @@ void Tree::reroot_on_edge_above_node(Node *node) {
         old_root->f[1] = next_root->f[1];
         old_root->f[2] = next_root->f[2];
         old_root->support = next_root->support;
+        if (next_root == pcs_node) pcs_node = old_root;
 
         // Make node the new root so next root is below it
         node->add_child(old_root);
