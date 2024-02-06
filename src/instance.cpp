@@ -89,6 +89,10 @@ Instance::Instance(int argc, char **argv) {
     refine_trees();
     prepare_trees();
 
+    for (Tree *t : input) {
+        t->total_weight();
+    }
+
     if (verbose > "0") {
         subproblem_csv.open(output_file + "_subproblems.csv");
         subproblem_csv << "ID,PARENT,DEPTH,SIZE,ARTIFICIAL,SUBSET";

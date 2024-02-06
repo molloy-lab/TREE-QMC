@@ -68,6 +68,7 @@ class Tree {
         void test(Taxa &subset);
         Node* find_node(index_t index);
         Node* get_root();
+        weight_t total_weight();
     protected:
         Node *root;
         //Node *leaf_for_rooting;
@@ -82,6 +83,7 @@ class Tree {
     private:
         weight_t support_default;
         index_t pseudonyms;
+        weight_t total_quartet_weight;
         std::unordered_map<index_t, index_t> indices;
         void clear_states(Node *root);
         void build_states(Node *root, Taxa &subset);
@@ -131,6 +133,10 @@ class Tree {
         weight_t get_qfreq(std::unordered_map<index_t, index_t> quad);
         weight_t freq_(Node *root);
         void clear_wstates_(Node *root);
+        void build_wstates_s(Node *root);
+        void build_ssinglet_s(Node *root);
+        weight_t freq_s(Node *root);
+        weight_t total_weight_bf();
 };
 
 class SpeciesTree : public Tree {
