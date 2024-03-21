@@ -3,11 +3,13 @@ TREE-QMC
 
 TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
 
-TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
-
-Lastly, TREE-QMC has some convenient features. 
-+ It can be used to estimate a species tree from **low-homoplasy characters**, i.e., it can be run in `bp` mode described in [Springer et al., *J Heredity* 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). The characters need **not** be bialleic. 
+However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122). It also has some convenient features. 
++ It can be used to estimate a species tree from **low-homoplasy characters**, i.e., it can be run in `bp` mode described in [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). The characters need **not** be bialleic. 
 + It can be used for computing **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
+
+Tutorials
+--------
+Check out the [tutorial for gene trees](tutorial/gene-trees/README.md) and the [tutorial for character matrices](tutorial/characters/README.md).
 
 Acknowledgements
 ----------------
@@ -52,10 +54,6 @@ For convenience, add treeqmc to your shell profile. For bash, open `~/.bash_prof
 ```
 export PATH=$PATH:"<path to treeqmc>"
 ```
-
-Tutorial
---------
-Check out [this tutorial](tutorial/README.md).
 
 Options
 -------

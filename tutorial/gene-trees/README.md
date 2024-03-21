@@ -22,7 +22,7 @@ g++ -std=c++11 -O2 \
 
 3. Go to tutorial directory.
 ```
-cd tutorial
+cd tutorial/gene-trees
 ```
 
 4. Run TREE-QMC on the [example input data](avian_uce_trees_3679.tre). The example data file contains the best maximum likelihood (ML) trees estimated for 3,679 UCEs with RAxML (note that branch support was estimated with rapid bootstrapping). This file comes from the [Avian Phylogenomics Project](https://doi.org/10.1186/s13742-014-0038-1).
@@ -33,7 +33,7 @@ Weighting quartets by branch support and branch length (hybrid)
 ---
 Weighting quartets by branch support and branch length (hybrid mode) was originally proposed in [Weighted ASTRAL](https://doi.org/10.1093/molbev/msac215), referred to as **wASTRAL-h**. This approach can also be used with QTREE-QMC by using the `--hybrid` flag, along with one of the preset options to specify the type of branch support in the input. Try using the following command:
 ```
-../treeqmc \
+../../treeqmc \
 	--hybrid \
 	--bootstrap \
 	--root STRCA,TINMA \
@@ -43,7 +43,7 @@ Weighting quartets by branch support and branch length (hybrid mode) was origina
 which specifies the input gene trees have bootstrap support values and the species tree should be rooted at the clade containing `TINMA,STRCA` if possible. 
 The `--support` option can be specified to annotate the branches of the species tree with quartet support. Alternatively, quartet support can be computed for a fixed species tree with the command:
 ```
-../treeqmc \
+../../treeqmc \
 	--hybrid \
 	--bootstrap \
 	--root STRCA,TINMA \
@@ -57,7 +57,7 @@ Contracting low support branches (instead of quartet weighting)
 ---
 Contracting branches with low support is recommended when running [ASTRAL-III](https://doi.org/10.1186/s12859-018-2129-y). This approach can also be used with TREE-QMC, either by contracting branches in advance of running TREE-QMC *or* by using the `--contract <threshold>` flag. Try using the command:
 ```
-../treeqmc \
+../../treeqmc \
 	--bootstrap \
 	--contract 0.10 \
 	--root STRCA,TINMA \
@@ -69,7 +69,7 @@ Using the faster algorithm
 ---
 The faster TREE-QMC algorithm (no weighting) can invoked with the command:
 ```
-../treeqmc \
+../../treeqmc \
 	--fast \
 	--root STRCA,TINMA \
 	-i avian_uce_trees_3679.tre
