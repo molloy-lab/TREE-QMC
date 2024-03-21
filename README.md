@@ -28,7 +28,7 @@ g++ -std=c++11 -O2 \
     -o treeqmc \
     src/*.cpp external/toms743/toms743.cpp \
     external/MQLib/bin/MQLib.a -lm \
-    -DVERSION=\"$(cat version.txt)\"
+    -DVERSION=\"$(cat build_number.txt)\"
 ```
 
 Usage
