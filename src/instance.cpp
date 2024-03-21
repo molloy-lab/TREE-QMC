@@ -305,6 +305,7 @@ int Instance::parse(int argc, char **argv) {
             }
         }
         else if (opt == "--char2tree") {
+            data_mode = "c";  // input data are multi-state characters
             char2tree = true;
         }
         else if (opt == "--writetable") {
