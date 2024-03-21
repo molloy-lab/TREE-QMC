@@ -37,7 +37,7 @@ cd tutorial/characters
 ```
 This command builds a species tree from the quartets induced by each character; see [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076). If both `--support` and `--bp`  options are used, branch lengths will be computed using the MLE method described in [Molloy, Gatesy, Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). 
 
-**IMPORTANT: `BP` mode is for low-homoplasy bilallelic character matrices; however, you can run these analyses for multi-allelic characters (e.g., nucleotides) by replacing `--bp` by `--chars` in the command above.**
+**IMPORTANT: `BP` mode is for low-homoplasy bilallelic character matrices; however, you can run these analyses for multi-allelic characters (e.g., nucleotides) by replacing `--bp` with `--chars` in the command above.**
 
 TREE-QMC-BP recovers the same species tree topology as [Cloutier et al., *Syst Biol*, 2019](https://doi.org/10.1093/sysbio/syz019), who estimated the species tree from gene trees using MP-EST (see the model tree below).
 
@@ -46,10 +46,10 @@ TREE-QMC-BP recovers the same species tree topology as [Cloutier et al., *Syst B
 </p>
 
 The placement of Rhea in this species tree is debated. 
-The quartet suport for this branch is `'q1=0.499331` (with `f1=18.650000` and `EN=37.350000`), which means that about half of characters with information about the placement of Rhea support making it sister to Kiwi+Emu+Cassowary. However, the low `EN` suggests that there is limited signal in the character matrix for resolving this branch.
-The `--pcsonly` flag can be used to explore this futher by providing the quartet support for the placement of Rhea of **each** character.
+The quartet suport for this branch is `'q1=0.499331` (with `f1=18.650000` and `EN=37.350000`), which means that about half of the quartets around the focal branch support Rhea being sister to Kiwi+Emu+Cassowary. However, the low `EN` suggests that there is limited signal in the character matrix for resolving this branch.
+The `--pcsonly` flag can be used to explore this futher by providing the quartet support for the placement of Rhea for **each** character.
 
-5. The goal of **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539), is to evaluate the quartet support for **each** character (or gene tree) in resolving a specific branch in the species tree. TREE-QMC can be used to compute PCS by providing an additional input: a species tree with `PCS` flagging the branch of interest; see [`species-tree-for-pcs.tre`](species-tree-for-pcs.tre) and [`unresolved-species-tree-for-pcs.tre`](unresolved-species-tree-for-pcs.tre). The command for running TREE-QMC in `PCS` mode is 
+5. The goal of **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539), is to evaluate the quartet support of **each** character (or gene tree) for resolving a focal branch in the species tree. TREE-QMC can be used to compute PCS by providing an additional input: a species tree with `PCS` flagging the focal branch; see [`species-tree-for-pcs.tre`](species-tree-for-pcs.tre) and [`unresolved-species-tree-for-pcs.tre`](unresolved-species-tree-for-pcs.tre). The command for running TREE-QMC in `PCS` mode is 
 
 ```
 ../../treeqmc \
@@ -59,15 +59,15 @@ The `--pcsonly` flag can be used to explore this futher by providing the quartet
     -o pcs-bp-4345ratites.tsv
 ```
 
-The output shown is below (plus annotations (`#`) for each row with the tree it supports).
-The four possible trees related to placement of Rhea are as follows:
+The output shown of TREE-QMC is below (plus our annotations indicated by `#`).
+The four possible trees related to placement of Rhea are 
 * `t1 = A,B|C,D = Rhea,Kiwi+Emu+Cassowary|Tinamou,Chicken+Ostrich` (matches input species trees)
 * `t2 = A,C|B,D = Rhea,Tinamou|Kiwi+Emu+Cassowary,Chicken+Ostrich`
 * `t3 = Rhea,Chicken+Ostrich|Kiwi+Emu+Cassowary,Tinamou`
 * `t4 = A,C,C,D = Rhea,Kiwi+Emu+Cassowary,Tinamou,Chicken+Ostrich` (no quartet / polytomy)
 
-Thus, there are at most `|x| * |y| * |z| * |w| = 2 * 5 * 4 * 2 = 80` quartets with information about the placement of Rhea (although a character will induce fewer quartets if there are missing data).
-Because each character contains can induce multiple quartets, it can split its vote between `t1`, `t2`, `t3`, or `t4`. Overall, the PCS analysis finds 61 characters (out of 4345 characters) that support at least one of `t1`, `t2`, and `t3`. If polytomies (`t4`) are ignored, 31 characters (51%) have quartets supporting only `t1`, 14 characters (23%) have quartets supporting only `t2`, and 16 characters (26%) have quartets supporting only `t3`. This is close to the estimates above for the branch (note `f1` above is computed by dividing column `f_xy|zw` by column `totalf` and then summing the result).
+Thus, there are at most `|x| * |y| * |z| * |w| = 2 * 5 * 4 * 2 = 80` quartets that inform the resolution of the focal branch  (although a character can induce fewer quartets if there are missing data).
+Because each character can induce multiple quartets, it can split its vote between `t1`, `t2`, `t3`, or `t4`. Overall, the PCS analysis finds 61 characters (out of 4345 characters) support at least one of `t1`, `t2`, and `t3`. If polytomies (`t4`) are ignored, 31 characters (51%) support only `t1`, 14 characters (23%) support `t2`, and 16 characters (26%) support `t3` (note the number of quartets contributed by each of these characters can differ). This PCS analysis is close to the estimates above for the branch (note `f1` above is computed by dividing column `f_xy|zw` by column `totalf` and then summing the result).
 
 ```
 # x = rheAme,rhePen
