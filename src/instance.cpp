@@ -567,7 +567,9 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
 
-            std::cout << "contract support threshold: " << (double)support_threshold << std::endl;
+            std::cout << "contract support threshold: " << (double)support_threshold << " ("
+                      << (double)(support_low + ((support_high - support_low) * support_threshold)) 
+                      << " pre-transform)" << std::endl;
 
             if (support_threshold < 0 || support_threshold > 1) {
                 std::cout << "\nERROR: Support threshold must be between 0 and 1 (it's applied after support values are mapped to this interval)" << std::endl;
