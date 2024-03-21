@@ -679,7 +679,7 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::s
 }
 
 std::string compute_branch_length_msc_gt(weight_t q1) {
-    if (q1 < (1.0 / 3.0))
+    if (q1 <= (1.0 / 3.0))
         return "0";
 
     if (q1 == 1.0)
@@ -691,7 +691,7 @@ std::string compute_branch_length_msc_gt(weight_t q1) {
 }
 
 std::string compute_branch_length_msc_bp(weight_t q1) {
-    if (q1 < (1.0 / 3.0))
+    if (q1 <= (1.0 / 3.0))
         return "0";
 
     if (q1 == 1.0)

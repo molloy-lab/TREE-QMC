@@ -708,7 +708,7 @@ void Instance::input_matrix() {
 
 
     std::cout << "Found" << std::endl;
-    std::cout << "    " << input.size() << " informative characters out of " << pos << "\n";
+    std::cout << "    " << input.size() << " informative characters out of " << pos - 1 << "\n";
     std::cout << "    " << dict->size() << " taxa\n";
 
     if (mintax != maxtax && taxa_mode == "1") {
