@@ -602,13 +602,13 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::s
 
     os << "# x = ";
     for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
-    os << "\b\n# y = ";
+    os << "\b \n# y = ";
     for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
-    os << "\b\n# z = ";
+    os << "\b \n# z = ";
     for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
-    os << "\b\n# w = ";
+    os << "\b \n# w = ";
     for (Node* leaf : wprime) os << dict->index2label(leaf->index) << ",";
-    os << "\b\n";
+    os << "\b \n";
 
     if ((qfreq_mode == "n") || (qfreq_mode == "f")) {
         // Processing for normal (unweighted) quartet frequencies

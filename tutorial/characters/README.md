@@ -70,10 +70,10 @@ Thus, there are at most `|x| * |y| * |z| * |w| = 2 * 5 * 4 * 2 = 80` quartets wi
 Because each character contains can induce multiple quartets, it can split its vote between `t1`, `t2`, `t3`, or `t4`. Overall, the PCS analysis finds 61 characters (out of 4345 characters) that support at least one of `t1`, `t2`, and `t3`. If polytomies (`t4`) are ignored, 31 characters (51%) have quartets supporting only `t1`, 14 characters (23%) have quartets supporting only `t2`, and 16 characters (26%) have quartets supporting only `t3`. This is close to the estimates above for the branch (note `f1` above is computed by dividing column `f_xy|zw` by column `totalf` and then summing the result).
 
 ```
-# x = rheAme,rhePen,
-# y = aptHaa,aptOwe,aptRow,casCas,droNov,
-# z = cryCin,tinGut,eudEle,notPer,
-# w = strCam,galGal,
+# x = rheAme,rhePen
+# y = aptHaa,aptOwe,aptRow,casCas,droNov
+# z = cryCin,tinGut,eudEle,notPer
+# w = strCam,galGal
 id	position	f_xy|zw	f_xz|yw	f_xw|yz	f_xyzw	totalf
 3340	3341	30	0	0	0	30 # t1
 3341	3342	40	0	0	0	40 # t1
