@@ -879,7 +879,7 @@ void SpeciesTree::write_support_table_row(Node *root, std::ostream &os, std::str
 }
 
 void SpeciesTree::write_support_table(std::ostream &os, std::string brln_mode) {
-    os << "NODE\tTREE\tQUARTET\tSKIP\tQFREQ\nEN\tQSUPP\tBRLEN\n";
+    os << "NODE\tTREE\tQUARTET\tSKIP\tQFREQ\tEN\tQSUPP\tBRLEN\n";
     write_support_table_row(root, os, brln_mode);
 }
 
