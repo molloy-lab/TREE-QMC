@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <queue>
 #include <stack>
+#include <deque>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6
@@ -61,6 +62,9 @@ const std::string help_info =
 "        Root species tree in file and then exit\n"
 "[(--supportonly) <species tree file>]\n"
 "        Compute quartet support for species tree in file and then exit\n\n"
+"[(--pcsonly) <species tree file>]\n"
+"        Compute partitioned coalescent support (PCS) for specified branch in\n"
+"        species tree in file (anotate branch with PCS) and then exit\n\n"
 "Output Options:\n"
 "[(-o|--output) <output file>]\n"
 "        File for writing output species tree (default: stdout)\n"

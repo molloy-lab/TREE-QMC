@@ -68,9 +68,10 @@ class Tree {
         void test(Taxa &subset);
         Node* find_node(index_t index);
         Node* get_root();
+        weight_t total_weight();
     protected:
         Node *root;
-        //Node *leaf_for_rooting;
+        Node *pcs_node;
         std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t pseudonym();
@@ -82,6 +83,7 @@ class Tree {
     private:
         weight_t support_default;
         index_t pseudonyms;
+        weight_t total_quartet_weight;
         std::unordered_map<index_t, index_t> indices;
         void clear_states(Node *root);
         void build_states(Node *root, Taxa &subset);
@@ -131,6 +133,10 @@ class Tree {
         weight_t get_qfreq(std::unordered_map<index_t, index_t> quad);
         weight_t freq_(Node *root);
         void clear_wstates_(Node *root);
+        void build_wstates_s(Node *root);
+        void build_ssinglet_s(Node *root);
+        weight_t freq_s(Node *root);
+        weight_t total_weight_bf();
 };
 
 class SpeciesTree : public Tree {
@@ -138,14 +144,15 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         ~SpeciesTree();
-        void annotate(std::vector<Tree *> input, std::string mode);
+        void annotate(std::vector<Tree *> input, std::string & qfreq_mode);
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
         std::string to_string_annotated(std::string brln_mode);
-        void write_table(std::ostream &os, std::string brln_mode);
+        void write_support_table(std::ostream &os, std::string brln_mode);
+        void write_pcs_table(std::vector<Tree *> &input, std::vector<std::size_t> &positions, std::string &qfreq_mode, std::ostream &os);
     private:
         index_t artifinyms;
-        std::string mode, qfreq_mode;
+        std::string mode;
         unsigned long int iter_limit;
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -153,9 +160,9 @@ class SpeciesTree : public Tree {
         Node *reroot(Node *root, std::unordered_set<index_t> &visited);
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
-        void get_qfreq_around_branch(Node *root, std::vector<Tree *> input);
+        void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
-        void write_table_row(Node *root, std::ostream &os, std::string brln_mode);
+        void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

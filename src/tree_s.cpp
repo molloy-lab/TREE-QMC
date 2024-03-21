@@ -106,3 +106,77 @@ weight_t Tree::freq_(Node *root) {
     }
     return f;
 }
+
+void Tree::build_wstates_s(Node *root) {
+    root->size = 0;
+    root->ssinglet = init(root->size + 1);
+    root->ssinglet_ = init(root->size + 1);
+    for (index_t k = 0; k < 2; k ++) {
+        root->mdoublet[k] = init(root->size + 1);
+        root->mdoublet_[k] = init(root->size + 1);
+        root->sdoublet[k] = new weight_t*[root->size + 1];
+        for (index_t i = 0; i <= root->size; i ++) 
+            root->sdoublet[k][i] = init(root->size + 1);
+        root->sdoublet_[k] = new weight_t*[root->size + 1];
+        for (index_t i = 0; i <= root->size; i ++) 
+            root->sdoublet_[k][i] = init(root->size + 1);
+    }
+    for (Node *child : root->children) 
+        build_wstates_s(child);
+}
+
+void Tree::build_ssinglet_s(Node *root) {
+    if (root->children.size() == 0) {
+        for (index_t i = 0; i <= root->size; i ++)
+            root->ssinglet[i] = 0;
+        root->ssinglet[0] ++;
+    }
+    else {
+        for (Node *child : root->children) 
+            build_ssinglet_s(child);
+        for (index_t i = 0; i <= root->size; i ++) {
+            root->ssinglet[i] = 
+                root->children[0]->ssinglet[i] * root->children[0]->length_ + 
+                root->children[1]->ssinglet[i] * root->children[1]->length_;
+        }
+    }
+}
+
+weight_t Tree::total_weight() {
+    build_wstates_s(root);
+    build_ssinglet_s(root);
+    build_ssinglet_(root);
+    build_sdoublet(root);
+    build_sdoublet_(root);
+    total_quartet_weight = freq_s(root) / 2;
+    // std::cout << "test qs: " << total_quartet_weight << ' ' << total_weight_bf() << std::endl;
+    clear_wstates_(root);
+    return total_quartet_weight;
+}
+
+weight_t Tree::freq_s(Node *root) {
+    weight_t f = 0;
+    if (root->children.size() != 0) {
+        for (Node *child : root->children) 
+            f += freq_s(child);
+        Node *left = root->children[0], *right = root->children[1];
+        weight_t s[2] = {0, 0};
+        for (index_t k = 0; k < 2; k ++) {
+            s[k] += left->ssinglet[0] * left->length_ * right->ssinglet[0] * right->length_ * root->sdoublet_[k][0][0];
+            s[k] += left->sdoublet[k][0][0] * left->support_[k] * right->ssinglet[0] * right->length_ * root->ssinglet_[0];
+            s[k] += left->ssinglet[0] * left->length_ * right->sdoublet[k][0][0] * right->support_[k] * root->ssinglet_[0];
+        }
+        f += s[1] - s[0];
+    }
+    return f;
+}
+
+weight_t Tree::total_weight_bf() {
+    std::unordered_map<quartet_t, weight_t> q;
+    get_wquartets(&q);
+    weight_t s = 0;
+    for (auto elem : q) {
+        s += elem.second;
+    }
+    return s;
+}
