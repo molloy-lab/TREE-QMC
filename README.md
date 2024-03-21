@@ -5,6 +5,10 @@ TREE-QMC is a quartet-based method for estimating species trees directly from ge
 
 TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122).
 
+Lastly, TREE-QMC has some convenient features. 
++ It can be used to estimate a species tree from **low-homoplasy characters**, i.e., it can be run in `bp` mode described in [Springer et al., *J Heredity* 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). The characters need **not** be bialleic. 
++ It can be used for computing **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
+
 Acknowledgements
 ----------------
 TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). TREE-QMC contributes fast algorithms for constructing the quartet graph directly from the input trees, rather than explicitly enumerating all quartets or sampling quartets.
