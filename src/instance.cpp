@@ -74,7 +74,6 @@ Instance::Instance(int argc, char **argv) {
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
-        //exit(0);
         std::ofstream fout(output_file);
         if (fout.fail()) {
             for (Tree *t : input) std::cout << t->to_string_basic() << std::endl;
@@ -89,10 +88,6 @@ Instance::Instance(int argc, char **argv) {
     // TODO: Add suppress uniforcations!
     refine_trees();
     prepare_trees();
-
-    for (Tree *t : input) {
-        t->total_weight();
-    }
 
     if (verbose > "0") {
         subproblem_csv.open(output_file + "_subproblems.csv");
@@ -147,10 +142,6 @@ void Instance::output_solution() {
         std::cout << output->to_string_basic() << std::endl;  // want to write for root only
     }
 
-    std::string qfreq_mode = "w";
-    if (weight_mode == "n" || weight_mode == "f")
-        qfreq_mode = "n";
-
     // compute pcs for specified branch, then exit
     if (pcsonly) {
         std::cout << "Writing PCS" << std::endl;
@@ -167,7 +158,7 @@ void Instance::output_solution() {
         if (output_file != "") {
             std::ofstream fout(output_file);
             if (!fout.fail()) {
-                output->write_pcs_table(input, qfreq_mode, fout);
+                output->write_pcs_table(input, positions, weight_mode, fout);
                 fout.close();
             }
             else {
@@ -176,7 +167,7 @@ void Instance::output_solution() {
             }
         }
 
-        if (output_file == "") output->write_pcs_table(input, qfreq_mode, std::cout);
+        if (output_file == "") output->write_pcs_table(input, positions, weight_mode, std::cout);
 
         return;
     }
@@ -184,7 +175,7 @@ void Instance::output_solution() {
     // if not pcs, write species tree
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
-        output->annotate(input, qfreq_mode);
+        output->annotate(input, weight_mode);
     }
 
     if (table_file != "") {
@@ -208,20 +199,20 @@ void Instance::output_solution() {
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
-            if (rootonly)
-                fout << output->to_string() << std::endl;
-            else 
+            if (score_mode == "1")
                 fout << output->to_string_annotated(brln_mode) << std::endl;
+            else 
+                fout << output->to_string_basic() << std::endl;
             fout.close();
             return;
         }
         std::cout << "  WARNING: Unable to write to " << output_file << ", writing to stdout" << std::endl;
     }
 
-    if (rootonly)
-        std::cout << output->to_string() << std::endl;
-    else
+    if (score_mode == "1")
         std::cout << output->to_string_annotated(brln_mode) << std::endl;
+    else
+        std::cout << output->to_string_basic() << std::endl;
 }
 
 
@@ -472,7 +463,8 @@ int Instance::parse(int argc, char **argv) {
             }
         }
         else {
-            std::cout << "WARNING: Ignoring unrecognized option: " << opt << std::endl;
+            std::cout << "ERROR: Unrecognized option: " << opt << std::endl;
+            exit(1);
         }
 
         i ++;
@@ -595,39 +587,41 @@ int Instance::parse(int argc, char **argv) {
         support_default = 1.0;
     }
 
-    // Process normalization mode
-    std::cout << "normalization for artifical taxa mode: n" + normal_mode;
-    if (taxa_mode == "1") std::cout << " (shared)";
-    std::cout << std::endl;
-    if (normal_mode != "2")
-        std::cout << "  WARNING: --norm_atax 2 is recommended" << std::endl;
+    // Print options for tree building
+    if (stree_file == "") {
+        // Process normalization mode
+        std::cout << "normalization for artifical taxa mode: n" + normal_mode;
+        if (taxa_mode == "1") std::cout << " (shared)";
+        std::cout << std::endl;
+        if (normal_mode != "2")
+            std::cout << "  WARNING: --norm_atax 2 is recommended" << std::endl;
 
-    // Process execution mode
-    if (execute_mode == "0") {
-        std::cout << "execution mode: efficient" << std::endl;
-    }
-    else if (execute_mode == "1") {
-        std::cout << "execution mode: brute force" << std::endl;
-    }
-    else if (execute_mode == "2") {
-        std::cout << "execution mode: compute weighted quartets, then exit" << std::endl;
-        std::cout << "good edges will be saved in: " << output_file << "_quartets.txt" << std::endl;
-    }
-    else if (execute_mode == "3") {
-        std::cout << "execution mode: compute good and bad edges, then exit" << std::endl;
-        std::cout << "good edges will be saved in: " << output_file << "_good_edges.txt" << std::endl;
-        std::cout << "bad edges will be saved in: " << output_file << "_bad_edges.txt" << std::endl;
-    }
-    else {
-        DEBUG_MODE = true;
-        execute_mode = "0";
-        std::cout << "execution mode: efficient with brute force validation" << std::endl;
-    }
+        // Process execution mode
+        if (execute_mode == "0") {
+            std::cout << "execution mode: efficient" << std::endl;
+        }
+        else if (execute_mode == "1") {
+            std::cout << "execution mode: brute force" << std::endl;
+        }
+        else if (execute_mode == "2") {
+            std::cout << "execution mode: compute weighted quartets, then exit" << std::endl;
+            std::cout << "good edges will be saved in: " << output_file << "_quartets.txt" << std::endl;
+        }
+        else if (execute_mode == "3") {
+            std::cout << "execution mode: compute good and bad edges, then exit" << std::endl;
+            std::cout << "good edges will be saved in: " << output_file << "_good_edges.txt" << std::endl;
+            std::cout << "bad edges will be saved in: " << output_file << "_bad_edges.txt" << std::endl;
+        }
+        else {
+            DEBUG_MODE = true;
+            execute_mode = "0";
+            std::cout << "execution mode: efficient with brute force validation" << std::endl;
+        }
 
-    // Print remaining options
-    std::cout << "random seed for refinement: " << refine_seed << std::endl;
-    std::cout << "random seed for max-cut: " << cut_seed << std::endl;
-    std::cout << "max-cut heuristic iteration limit: " << iter_limit << std::endl;
+        std::cout << "random seed for refinement: " << refine_seed << std::endl;
+        std::cout << "random seed for max-cut: " << cut_seed << std::endl;
+        std::cout << "max-cut heuristic iteration limit: " << iter_limit << std::endl;
+    }
 
     std::cout << std::endl;
 
@@ -649,19 +643,22 @@ void Instance::input_trees() {
     std::string newick;
     int mintax = INDEX_WIDTH;
     int maxtax = 0;
-    index_t i = 1;
+    std::size_t pos = 1;
     while (std::getline(fin, newick)) {
         // TODO: change to function that checks if newick string is valid, before proceeding
         if (newick.find(";") != std::string::npos) {
             Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
-            if (t->size() > 3)
+            if (t->size() > 3) {
                 input.push_back(t);
-            else
-                std::cout << "  WARNING: Input tree on line " << i << " has fewer than 4 species so ignoring" << std::endl;
+                if (pcsonly) positions.push_back(pos);
+            }
+            else {
+                std::cout << "  WARNING: Input tree on line " << pos << " has fewer than 4 species so ignoring" << std::endl;
+            }
+            pos++;
         }
-        i++;
     }
 
     std::cout << "Found" << std::endl;
@@ -693,27 +690,24 @@ void Instance::input_matrix() {
 
     CharMat *cmat = new CharMat(input_file);
 
-    std::string newick;
     int mintax = INDEX_WIDTH;
     int maxtax = 0;
-    index_t i = 1;
+    std::size_t pos = 1;
     while (cmat->size() > 0) {
-        cmat->pop_newick(newick);
+        std::string newick = cmat->pop_newick();
         if (newick != "") {
-            //std::cout << newick << std::endl;
             Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
-            //std::cout << t->to_string_basic() << std::endl;
-            //exit(1);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
+            if (pcsonly) positions.push_back(pos);
         }
-        i++;
+        pos++;
     }
 
 
     std::cout << "Found" << std::endl;
-    std::cout << "    " << input.size() << " informative characters\n";
+    std::cout << "    " << input.size() << " informative characters out of " << pos << "\n";
     std::cout << "    " << dict->size() << " taxa\n";
 
     if (mintax != maxtax && taxa_mode == "1") {

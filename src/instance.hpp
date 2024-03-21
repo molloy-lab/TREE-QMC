@@ -15,6 +15,7 @@ class Instance {
         std::string get_execution_mode();
     private:
         std::vector<Tree *> input;
+        std::vector<std::size_t> positions;
         Dict *dict;
         SpeciesTree *output;
         std::unordered_set<std::string> outgroup_taxon_set;

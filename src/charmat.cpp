@@ -9,7 +9,6 @@ CharMat::CharMat(std::string input_file) {
     std::string line;
     std::getline(fin, line);
     fin.seekg(0, std::ios::beg);  // roll back to beginning
-    
 
     if (line[0] == '>')
         read_fasta(fin);
@@ -23,12 +22,12 @@ CharMat::CharMat(std::string input_file) {
 
 CharMat::~CharMat() {}
 
-void CharMat::pop_newick(std::string &newick) {
-    std::string split;
+std::string CharMat::pop_newick() {
+    std::string split, newick;
     std::size_t ntax, ntax_done, ntax_found, ntax_notmiss, test;
     char c;
 
-    split = splits_.back();
+    split = splits_.front();
     ntax = split.size();
 
     if (ntax != labels_.size()) {
@@ -114,10 +113,13 @@ void CharMat::pop_newick(std::string &newick) {
     if (test < 2) newick = "";
     if (ntax_notmiss < 4) newick = "";
 
-    //std::cout << split << " vs " << newick << std::endl << std::endl;
+    //if (newick != "")
+    //    std::cout << split << " vs " << newick; // << std::endl;
 
     // Pop split
-    splits_.pop_back();
+    splits_.pop_front();
+
+    return newick;
 }
 
 std::size_t CharMat::size() {

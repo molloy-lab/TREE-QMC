@@ -8,10 +8,10 @@ class CharMat {
         CharMat(std::string input_file);
         ~CharMat();
         std::size_t size();
-        void pop_newick(std::string &newick);
+        std::string pop_newick();
 	private:
-        std::vector<std::string> splits_;  // actually characters...
-        std::vector<std::string> labels_;
+        std::deque<std::string> splits_;  // actually characters...
+        std::deque<std::string> labels_;
         void read_phylip(std::istream &is);
         void read_fasta(std::istream &is);
         void read_nexus(std::istream &is);

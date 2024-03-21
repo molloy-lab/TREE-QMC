@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <queue>
 #include <stack>
+#include <deque>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6
