@@ -215,9 +215,6 @@ void Instance::output_solution() {
         std::cout << output->to_string_basic() << std::endl;
 }
 
-
-//#define VERSION "3.0.0"
-
 int Instance::parse(int argc, char **argv) {
     std::cout << "TREE-QMC version " << VERSION << std::endl;
 
