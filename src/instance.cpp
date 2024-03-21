@@ -175,6 +175,7 @@ void Instance::output_solution() {
     // if not pcs, write species tree
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
+        output->refine();
         output->annotate(input, weight_mode);
     }
 
