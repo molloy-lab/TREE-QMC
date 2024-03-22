@@ -1,34 +1,17 @@
 TREE-QMC-BP Tutorial
 ---
 
-1. Clone the repository.
+1. Clone the TREE-QMC Github repository and build TREE-QMC following the instructions in the [README](../../README.md).
+
+2. Go to tutorial directory.
 ```
-git clone https://github.com/molloy-lab/TREE-QMC.git
+cd tutorial/gene-trees
 ```
 
-2. Build wTREE-QMC and go to tutorial directory.
-```
-git clone https://github.com/molloy-lab/TREE-QMC.git
-cd TREE-QMC/external/MQLib
-make
-cd ../..
-g++ -std=c++11 -O2 \
-    -I external/MQLib/include -I external/toms743 \
-    -o treeqmc \
-    src/*.cpp external/toms743/toms743.cpp \
-    external/MQLib/bin/MQLib.a -lm \
-    -DVERSION=\"$(cat version.txt)\"
-```
-
-3. Go to tutorial directory.
-```
-cd tutorial/characters
-```
-
-4. Run TREE-QMC-BP on the [example input data](4345ratites.nex). The nexus file contains presence/absence patterns for CR1 retrotransposon insertions from [Cloutier et al., *Syst Biol*, 2019](https://doi.org/10.1093/sysbio/syz019), plus the 44 additional characters found by [Simmons et al., *Mol Phy Evol*, 2022](https://doi.org/10.1016/j.ympev.2021.107344). The command for running TREE-QMC in `BP` mode is
+3. Run TREE-QMC-BP on the [example input data](4345ratites.nex). The nexus file contains presence/absence patterns for CR1 retrotransposon insertions from [Cloutier et al., *Syst Biol*, 2019](https://doi.org/10.1093/sysbio/syz019), plus the 44 additional characters found by [Simmons et al., *Mol Phy Evol*, 2022](https://doi.org/10.1016/j.ympev.2021.107344). The command for running TREE-QMC in `BP` mode is
 
 ```
-../../treeqmc \
+../../tree-qmc \
     --bp \
     --root galGal \
     --support \
@@ -49,10 +32,10 @@ The placement of Rhea in this species tree is debated.
 The quartet suport for this branch is `'q1=0.499331` (with `f1=18.650000` and `EN=37.350000`), which means that about half of the quartets around the focal branch support Rhea being sister to Kiwi+Emu+Cassowary. However, the low `EN` suggests that there is limited signal in the character matrix for resolving this branch.
 The `--pcsonly` flag can be used to explore this futher by providing the quartet support for the placement of Rhea for **each** character.
 
-5. The goal of **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539), is to evaluate the quartet support of **each** character (or gene tree) for resolving a focal branch in the species tree. TREE-QMC can be used to compute PCS by providing an additional input: a species tree with `PCS` flagging the focal branch; see [`species-tree-for-pcs.tre`](species-tree-for-pcs.tre) and [`unresolved-species-tree-for-pcs.tre`](unresolved-species-tree-for-pcs.tre). The command for running TREE-QMC in `PCS` mode is 
+4. The goal of **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539), is to evaluate the quartet support of **each** character (or gene tree) for resolving a focal branch in the species tree. TREE-QMC can be used to compute PCS by providing an additional input: a species tree with `PCS` flagging the focal branch; see [`species-tree-for-pcs.tre`](species-tree-for-pcs.tre) and [`unresolved-species-tree-for-pcs.tre`](unresolved-species-tree-for-pcs.tre). The command for running TREE-QMC in `PCS` mode is 
 
 ```
-../../treeqmc \
+../../tree-qmc \
     --bp \
     --pcsonly species-tree-for-pcs.tre \
     -i 4345ratites.nex \

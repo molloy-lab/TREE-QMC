@@ -1,6 +1,8 @@
 TREE-QMC
 ========
 
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
+
 TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
 
 However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122). It also has some convenient features. 
@@ -31,7 +33,7 @@ make
 cd ../..
 g++ -std=c++11 -O2 \
     -I external/MQLib/include -I external/toms743 \
-    -o treeqmc \
+    -o tree-qmc \
     src/*.cpp external/toms743/toms743.cpp \
     external/MQLib/bin/MQLib.a -lm \
     -DVERSION=\"$(cat version.txt)\"
@@ -41,18 +43,22 @@ Usage
 -----
 To run TREE-QMC, use command:
 ```
-./treeqmc -i <input file>
+./tree-qmc -i <input file>
 ```
+
 
 Tips
 ----
-If you are having strange problems, try removing the `\r` characters from the input files and trying again:
+
+#1. For convenience, add the directory containing the `tree-qmc` binary to your `PATH` variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>tree-qmc`. For bash, this can be done by adding
+```
+export PATH=$PATH:"path to tree-qmc binary"
+```
+to `~/.bash_profile` file (or `~/.bashrc` file).
+
+#2. If you are having strange problems, try removing the `\r` characters from the input files and trying again:
 ```
 cat file.txt | tr -d '\r' > newfile.txt
-```
-For convenience, add treeqmc to your shell profile. For bash, open `~/.bash_profile` and add
-```
-export PATH=$PATH:"<path to treeqmc>"
 ```
 
 Options
@@ -60,14 +66,19 @@ Options
 
 To see the TREE-QMC usage options, use command:
 ```
-./treeqmc -h
+./tree-qmc -h
 ```
 
 The output help message should be
 ```
+TREE-QMC version 3.0.0
+COMMAND: ./tree-qmc -h 
 =================================== TREE-QMC ===================================
 BASIC USAGE:
-./treeqmc (-i|--input) <input file>
+tree-qmc (-i|--input) <input file>
+
+**If the directory containing the tree-qmc binary is not part of $PATH, replace
+eplace tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**
 
 Help Options:
 [-h|--help]
@@ -81,6 +92,7 @@ Input Options:
         Missing states are N, -, and ?
 [(--bp)]
         Input are binary characters i.e. bipartitions
+        Missing states are N, -, and ?
 [(-a|-mapping) <mapping file>]
         File with individual/leaf names (1st col) mapped to species (2nd col)
 [(--root) <list of species separated by commas>]
@@ -89,6 +101,10 @@ Input Options:
         Root species tree in file and then exit
 [(--supportonly) <species tree file>]
         Compute quartet support for species tree in file and then exit
+
+[(--pcsonly) <species tree file>]
+        Compute partitioned coalescent support (PCS) for specified branch in
+        species tree in file (anotate branch with PCS) and then exit
 
 Output Options:
 [(-o|--output) <output file>]
@@ -129,7 +145,8 @@ Advanced Options:
 [(-x|--max) <float>]
         Maximum value of input branch support (default: 1.0)
 [(-d|--default) <float>]
-        Default value of input branch support when not provided (default: 0.0)
+        Default branch support if not provided as input (default: 0.0)
+        Default branch length if not provided as input is always 0.0
 [(--norm_atax) <integer>]
         Normalization scheme for artificial taxa; see paper for details
         -n 0: none
@@ -162,7 +179,7 @@ Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
 If you use TREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.
+  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.
 
   and
 
