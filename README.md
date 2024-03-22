@@ -71,8 +71,6 @@ To see the TREE-QMC usage options, use command:
 
 The output help message should be
 ```
-TREE-QMC version 3.0.0
-COMMAND: ./tree-qmc -h 
 =================================== TREE-QMC ===================================
 BASIC USAGE:
 tree-qmc (-i|--input) <input file>
