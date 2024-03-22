@@ -144,6 +144,8 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         ~SpeciesTree();
+        void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
+        void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
         void annotate(std::vector<Tree *> input, std::string & qfreq_mode);
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();

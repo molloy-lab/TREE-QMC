@@ -525,6 +525,19 @@ void SpeciesTree::get_qfreq_around_branch(Node *root, std::vector<Tree *> &input
     }
 }
 
+
+void SpeciesTree::print_leaves(std::vector<Node *> &leaves, std::ostream &os) {
+    if (leaves.size() == 0) return;
+    os << dict->index2label(leaves[0]->index);
+    for (std::size_t i = 1; i < leaves.size(); i++) os << "," << dict->index2label(leaves[i]->index);
+}
+
+void SpeciesTree::print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os) {
+    std::vector<Node*> leaves;
+    std::copy(leaf_set.begin(), leaf_set.end(), std::back_inserter(leaves));
+    print_leaves(leaves, os);
+}
+
 void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::size_t> &positions, std::string &qfreq_mode, std::ostream &os) {
     if (pcs_node == NULL) {
         std::cout << "ERROR: Did not find node in species tree for computing PCS" << std::endl;
@@ -601,14 +614,14 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::s
         localf2.push_back(t->get_qfreq(quad) / 2);
 
     os << "# x = ";
-    for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
-    os << "\b \n# y = ";
-    for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
-    os << "\b \n# z = ";
-    for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
-    os << "\b \n# w = ";
-    for (Node* leaf : wprime) os << dict->index2label(leaf->index) << ",";
-    os << "\b \n";
+    print_leaves(x, os);
+    os << "\n# y = ";
+    print_leaves(y, os);
+    os << "\n# z = ";
+    print_leaves(z, os);
+    os << "\n# w = ";
+    print_leaf_set(wprime, os);
+    os << "\n";
 
     if ((qfreq_mode == "n") || (qfreq_mode == "f")) {
         // Processing for normal (unweighted) quartet frequencies
@@ -803,17 +816,18 @@ void SpeciesTree::write_support_table_row(Node *root, std::ostream &os, std::str
 
     if (ok) {
         // Get taxa around branch
-        std::unordered_set<Node *> x, y, z, w;
+        std::vector<Node *> x, y, z;
+        std::unordered_set<Node *> w;
         Node *mysib = root->get_sibling();
 
-        get_leaf_set(root->children[0], &x);    // get leaves below left child
-        get_leaf_set(root->children[1], &y);    // get leaves below right child
+        get_leaves(root->children[0], &x);    // get leaves below left child
+        get_leaves(root->children[1], &y);    // get leaves below right child
         if (root->parent->parent == NULL) {
             // At root's left child
-            get_leaf_set(mysib->children[0], &z);
+            get_leaves(mysib->children[0], &z);
             get_leaf_set(mysib->children[1], &w);
         } else {
-            get_leaf_set(mysib, &z);            // get leaves below sibling
+            get_leaves(mysib, &z);            // get leaves below sibling
             get_leaf_set(this->root, &w);       // get all leaves in tree and take complement
             for (Node *leaf : x) w.erase(leaf);
             for (Node *leaf : y) w.erase(leaf);
@@ -841,36 +855,48 @@ void SpeciesTree::write_support_table_row(Node *root, std::ostream &os, std::str
 
         // Write row for t1 = x,y|z,w'
         os << "N" << root->index << "\tt1\t{";
-        for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
-        os << "\b}#{";
-        for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
-        os << "\b}\tNA\t" << f1 << "\t" << en << "\t" << q1 << "\t" << brlen << std::endl;
+        print_leaves(z, os);
+        //for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaves(x, os);
+        //for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
+        os << "}#{";
+        print_leaves(y, os);
+        //for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaf_set(w, os);
+        //for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
+        os << "}\tNA\t" << f1 << "\t" << en << "\t" << q1 << "\t" << brlen << std::endl;
 
         // Write row for t2 = x,z|y,w'
         os << "N" << root->index << "\tt2\t{";
-        for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
-        os << "\b}#{";
-        for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
-        os << "\b}\tNA\t" << f2 << "\t" << en << "\t" << q2 << "\tNA" << std::endl;
+        print_leaves(y, os);
+        //for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaves(x, os);
+        //for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
+        os << "}#{";
+        print_leaves(z, os);
+        //for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaf_set(w, os);
+        //for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
+        os << "}\tNA\t" << f2 << "\t" << en << "\t" << q2 << "\tNA" << std::endl;
 
         // Write row for t3 = x,w'|y,z
         os << "N" << root->index << "\tt3\t{";
-        for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
-        os << "\b}#{";
-        for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
-        os << "\b}|{";
-        for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
-        os << "\b}\tNA\t" << f3 << "\t" << en << "\t" << q3 << "\tNA" << std::endl;
+        print_leaves(y, os);
+        //for (Node* leaf : y) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaves(x, os);
+        //for (Node* leaf : x) os << dict->index2label(leaf->index) << ",";
+        os << "}#{";
+        print_leaf_set(w, os);
+        //for (Node* leaf : w) os << dict->index2label(leaf->index) << ",";
+        os << "}|{";
+        print_leaves(z, os);
+        //for (Node* leaf : z) os << dict->index2label(leaf->index) << ",";
+        os << "}\tNA\t" << f3 << "\t" << en << "\t" << q3 << "\tNA" << std::endl;
     }
 
     for (Node *child : root->children) {
