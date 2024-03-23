@@ -147,14 +147,14 @@ Advanced Options:
         Default branch length if not provided as input is always 0.0
 [(--norm_atax) <integer>]
         Normalization scheme for artificial taxa; see paper for details
-        -n 0: none
-        -n 1: uniform
-        -n 2: non-uniform (default)
+        --norm_atax 0: none
+        --norm_atax 1: uniform
+        --norm_atax 2: non-uniform (default)
 [(-e|--execution) <execution mode>]
-        -x 0: run efficient algorithm (default)
-        -x 1: run brute force algorithm for testing
-        -x 2: compute weighted quartets, then exit
-        -x 3: compute good and bad edges, then exit
+        -e 0: run efficient algorithm (default)
+        -e 1: run brute force algorithm for testing
+        -e 2: compute weighted quartets, then exit
+        -e 3: compute good and bad edges, then exit
 [(-v|--verbose) <verbose mode>]
         -v 0: write no subproblem information (default)
         -v 1: write CSV with subproblem information (subproblem ID, parent
