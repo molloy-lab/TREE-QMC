@@ -50,8 +50,8 @@ class Tree {
         Tree();
         Tree(const std::string &newick,
              Dict *dict, 
-             const std::unordered_map<std::string, std::string> &indiv2taxon,
-             weight_t support_default);
+             const std::unordered_map<std::string, std::string> &indiv2taxon, 
+             weight_t support_low, weight_t support_default);
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
@@ -81,9 +81,9 @@ class Tree {
         Node* find_node_for_split(std::unordered_set<index_t> &clade);
         void reroot_on_edge_above_node(Node *node);
     private:
-        weight_t support_default;
-        index_t pseudonyms;
+        weight_t support_low, support_default;
         weight_t total_quartet_weight;
+        index_t pseudonyms;
         std::unordered_map<index_t, index_t> indices;
         void clear_states(Node *root);
         void build_states(Node *root, Taxa &subset);

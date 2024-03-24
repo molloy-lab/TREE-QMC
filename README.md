@@ -139,12 +139,12 @@ Advanced Options:
         -w f: none fast
               Refines polytomies arbitrarily so faster algorithm can be used
 [(-n|--min) <float>]
-        Minimum value of input branch support (default: 0.0)
+        Minimum value of input branch support
 [(-x|--max) <float>]
-        Maximum value of input branch support (default: 1.0)
+        Maximum value of input branch support
 [(-d|--default) <float>]
-        Default branch support if not provided as input (default: 0.0)
-        Default branch length if not provided as input is always 0.0
+        Default branch support to use if branch input tree is missing support
+        Default branch length is 0.0
 [(--norm_atax) <integer>]
         Normalization scheme for artificial taxa; see paper for details
         --norm_atax 0: none
@@ -185,4 +185,3 @@ If you use TREE-QMC in your work, please cite:
   and accurate species tree estimation from gene trees, Genome Research,
   http:doi.org/10.1101/gr.277629.122.
 ================================================================================
-```

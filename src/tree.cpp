@@ -7,9 +7,10 @@ Tree::Tree() {
 Tree::Tree(const std::string &newick,
            Dict *dict,
            const std::unordered_map<std::string, std::string> &indiv2taxon,
-           weight_t support_default) {
+           weight_t support_low, weight_t support_default) {
     pseudonyms = 0;
     this->dict = dict;
+    this->support_low = support_low;
     this->support_default = support_default;
     this->pcs_node = NULL;
     root = build_tree(newick, indiv2taxon);
@@ -148,7 +149,9 @@ Node *Tree::build_tree(const std::string &newick,
                 else
                     root->support = std::stod(support);
             }
-            else root->support = support_default;  // allows user to change default support
+            else root->support = this->support_default;  // allows user to change default support
+                                                         // useful because default is support min for iqtree abayes
+                                                         // but is max for other use cases
         }
         //else {
         //    std::cout << "Found root" << std::endl;
@@ -206,7 +209,8 @@ size_t Tree::refine_tree(Node *root) {
         index_t i = rand() % root->children.size(), j = i;
         while (j == i) j = rand() % root->children.size();
         Node *new_root = new Node(pseudonym());
-        new_root->support = 0.0;  //Node *new_root = new Node(pseudonym(), true);
+        new_root->support = this->support_low;  // polytomies always set to min support value
+        //Node *new_root = new Node(pseudonym(), true);
         total ++;
         new_root->children.push_back(root->children[i]);
         new_root->children.push_back(root->children[j]);

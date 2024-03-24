@@ -24,7 +24,7 @@ Instance::Instance(int argc, char **argv) {
     rootonly = false;
     pcsonly = false;
 
-    support_low = 0;
+    support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
@@ -578,7 +578,7 @@ int Instance::parse(int argc, char **argv) {
         }
     }
     else {
-        if (nweightparam > 1 || nminparam > 0 || nmaxparam > 0 || ndefaultparam > 0) {
+        if (nweightparam > 0 || nminparam > 0 || nmaxparam > 0 || ndefaultparam > 0) {
             if (data_mode == "b")
                 std::cout << "  WARNING: Running in bipartition mode so ignoring any weight or support options" << std::endl;
             else
@@ -650,7 +650,7 @@ void Instance::input_trees() {
     while (std::getline(fin, newick)) {
         // TODO: change to function that checks if newick string is valid, before proceeding
         if (newick.find(";") != std::string::npos) {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             if (t->size() > 3) {
@@ -699,7 +699,7 @@ void Instance::input_matrix() {
     while (cmat->size() > 0) {
         std::string newick = cmat->pop_newick();
         if (newick != "") {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
