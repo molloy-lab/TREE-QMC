@@ -10,7 +10,7 @@ class Node {
     friend class SpeciesTree;
     public:
         Node(index_t index);
-        //Node(index_t index, bool isfake);
+        Node(index_t index, bool isfake);
         ~Node();
         void new_states(index_t size);
         void delete_states();
@@ -26,7 +26,7 @@ class Node {
         std::vector<Node *> children;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
-        //bool isfake;
+        bool isfake;
 
         weight_t /* **doublet, */ *singlet;
         // std::map<index_t, weight_t> doublet;
@@ -56,7 +56,7 @@ class Tree {
         std::string to_string();
         std::string to_string_basic();
         size_t refine();
-        void prepare(std::string weight_mode, weight_t low, weight_t high, weight_t threshold);
+        void prepare(std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
         index_t size();
         std::unordered_map<index_t, index_t> &get_indices();
         weight_t ***build_graph(Taxa &subset);
@@ -99,7 +99,7 @@ class Tree {
                          const std::unordered_map<std::string, std::string> &indiv2taxon);
         Node *build_subtree_from(Node *root);
         size_t refine_tree(Node *root);
-        void prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, weight_t threshold);
+        void prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
         //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);

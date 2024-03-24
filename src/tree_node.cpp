@@ -6,16 +6,16 @@ Node::Node(index_t index) {
     length = 0;  
     parent = NULL;
     size = -1;
-    //isfake = false;
+    isfake = false;
 }
 
-/*Node::Node(index_t index, bool isfake) {
+Node::Node(index_t index, bool isfake) {
     this->index = index;
     support = length = 0;
     parent = NULL;
     size = -1;
     this->isfake = isfake;
-}*/
+}
 
 Node::~Node() {
     for (Node *child : children) 

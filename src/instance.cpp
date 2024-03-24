@@ -588,6 +588,8 @@ int Instance::parse(int argc, char **argv) {
         support_low = 0.0;
         support_high = 1.0;
         support_default = 1.0;
+        support_threshold = 0.0;
+        contract = false;
     }
 
     // Print options for tree building
@@ -743,8 +745,10 @@ void Instance::refine_trees() {
 }
 
 void Instance::prepare_trees() {
-    for (Tree *t : input) 
-        t->prepare(weight_mode, support_low, support_high, support_threshold);
+    for (Tree *t : input) {
+        t->prepare(weight_mode, support_low, support_high, contract, support_threshold);
+        // std::cout << t->to_string() << std::endl;
+    }
 }
 
 void Instance::prepare_root_taxa() {

@@ -40,9 +40,9 @@ size_t Tree::refine() {
     return count;
 }
 
-void Tree::prepare(std::string weight_mode, weight_t low, weight_t high, weight_t threshold) {
+void Tree::prepare(std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold) {
     //std::cout << display_tree(root) << std::endl;
-    prepare_tree(root, weight_mode, low, high, threshold);
+    prepare_tree(root, weight_mode, low, high, contract, threshold);
 }
 
 index_t Tree::size() {
@@ -208,9 +208,8 @@ size_t Tree::refine_tree(Node *root) {
     while (root->children.size() > 2) {
         index_t i = rand() % root->children.size(), j = i;
         while (j == i) j = rand() % root->children.size();
-        Node *new_root = new Node(pseudonym());
-        new_root->support = this->support_low;  // polytomies always set to min support value
-        //Node *new_root = new Node(pseudonym(), true);
+        Node *new_root = new Node(pseudonym(), true);
+        new_root->support = this->support_low;
         total ++;
         new_root->children.push_back(root->children[i]);
         new_root->children.push_back(root->children[j]);
@@ -224,23 +223,39 @@ size_t Tree::refine_tree(Node *root) {
     return total;
 }
 
-void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, weight_t threshold) {
+void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold) {
     //assert(root->children.size() == 0 || root->children.size() == 2);
 
     weight_t s = root->support;
+    bool isfake = root->isfake;
 
-    // Map support to 0 and 1 interval
-    if (s < low || s > high) s = low;
-        s = (s - low) / (high - low);
-
-    // Contract low support branches by setting support to 0
-    if (s < threshold) s = 0;
-
-    // If not weighting by branch support, set support values to 1
-    // do for fast mode as well because will be used for support estimation
-    // this is already done in instance.cpp
-    if (weight_mode == "n" || weight_mode == "f" || weight_mode == "l")
-        if (s > 0) s = 1;
+    if (weight_mode == "f") {
+        // No other support value is possible
+        s = 1.0;
+    } else {
+        if (weight_mode == "h" || weight_mode == "s" || contract) {
+            // Map support to 0 and 1 interval
+            if (s < low || s > high) s = low;
+            s = (s - low) / (high - low);
+        }
+        if (weight_mode == "n" || weight_mode == "l") {
+            if (isfake) {
+                s = 0.0;
+            } else if (contract) {
+                if (s < threshold) s = 0.0;
+                else s = 1.0;
+            } else {
+                s = 1.0;
+            }
+        }
+        else {
+            if (isfake) {
+                s = 0.0;
+            } else if (contract) {
+                if (s < threshold) s = 0.0;
+            }
+        }
+    }
 
     // Save these values
     root->support = s;
@@ -248,14 +263,17 @@ void Tree::prepare_tree(Node *root, std::string weight_mode, weight_t low, weigh
     root->support_[1] = 1;
 
     // Handle length values
-    if (weight_mode == "h" || weight_mode == "l")
+    if (weight_mode == "h" || weight_mode == "l") {
         root->length_ = exp(- root->length);
-    else
-        root->length_ = 1;
+    }
+    else {
+        root->length = 0.0;
+        root->length_ = 1.0;
+    }
 
     // Continue
     for (Node *child : root->children)
-        prepare_tree(child, weight_mode, low, high, threshold);
+        prepare_tree(child, weight_mode, low, high, contract, threshold);
 }
 
 void Tree::clear_states(Node *root) {
