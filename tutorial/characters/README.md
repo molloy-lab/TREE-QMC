@@ -5,7 +5,7 @@ TREE-QMC-BP Tutorial
 
 2. Go to tutorial directory.
 ```
-cd tutorial/gene-trees
+cd tutorial/characters
 ```
 
 3. Run TREE-QMC-BP on the [example input data](4345ratites.nex). The nexus file contains presence/absence patterns for CR1 retrotransposon insertions from [Cloutier et al., *Syst Biol*, 2019](https://doi.org/10.1093/sysbio/syz019), plus the 44 additional characters found by [Simmons et al., *Mol Phy Evol*, 2022](https://doi.org/10.1016/j.ympev.2021.107344). The command for running TREE-QMC in `BP` mode is
