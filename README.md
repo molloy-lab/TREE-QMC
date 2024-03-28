@@ -177,7 +177,7 @@ Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
 If you use TREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/weighted-TREE-QMC.
+  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.
 
   and
 
