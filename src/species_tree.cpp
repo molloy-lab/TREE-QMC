@@ -155,6 +155,16 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
     // std::cout << artifinyms << std::endl;
 }
 
+SpeciesTree::SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
+    this->dict = dict;
+    this->artifinyms = dict->max_size();
+    this->mode = mode;
+    this->iter_limit = iter_limit;
+    this->root = NULL;
+    Taxa subset(dict, mode);
+    root = construct_stree(input_quartets, subset, -1, 0);
+}
+
 SpeciesTree::~SpeciesTree() {
     
 }
@@ -306,7 +316,7 @@ Node *SpeciesTree::construct_stree(std::unordered_map<quartet_t, weight_t> &quar
                         quartet_t temp = join(indices);
                         if (quartetsB.find(temp) == quartetsB.end()) 
                             quartetsB[temp] = 0;
-                        quartetsB[temp] += elem.second / A.size();
+                        quartetsB[temp] += elem.second / (mode[0] == '0' ? 1.0 : A.size());
                         break;
                     }
                     case 2: {
@@ -321,7 +331,7 @@ Node *SpeciesTree::construct_stree(std::unordered_map<quartet_t, weight_t> &quar
                         quartet_t temp = join(indices);
                         if (quartetsA.find(temp) == quartetsA.end()) 
                             quartetsA[temp] = 0;
-                        quartetsA[temp] += elem.second / B.size();
+                        quartetsA[temp] += elem.second / (mode[0] == '0' ? 1.0 : B.size());
                         break;
                     }
                     case 4: {
