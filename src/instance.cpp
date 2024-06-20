@@ -188,7 +188,10 @@ void Instance::output_solution() {
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
         output->refine();
-        output->annotate(input, weight_mode);
+        if (data_mode == "q") 
+            output->annotate(quartets, weight_mode);
+        else 
+            output->annotate(input, weight_mode);
     }
 
     if (table_file != "") {

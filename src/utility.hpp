@@ -35,6 +35,7 @@ class Matrix {
 
 quartet_t join(index_t *quartet);
 index_t *split(quartet_t quartet);
+void split(index_t *indices, quartet_t quartet);
 bool s2d(std::string s, weight_t *r);
 bool s2ul(std::string s, unsigned long int *r);
 weight_t *init(index_t size);

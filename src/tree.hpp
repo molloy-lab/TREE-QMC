@@ -147,7 +147,8 @@ class SpeciesTree : public Tree {
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
-        void annotate(std::vector<Tree *> input, std::string & qfreq_mode);
+        void annotate(std::vector<Tree *> &input, std::string & qfreq_mode);
+        void annotate(std::unordered_map<quartet_t, weight_t> &quartets, std::string & qfreq_mode);
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
         std::string to_string_annotated(std::string brln_mode);
@@ -164,6 +165,7 @@ class SpeciesTree : public Tree {
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
+        void get_qfreq_around_branch(Node *root, std::unordered_map<quartet_t, weight_t> &quartets, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
 };
