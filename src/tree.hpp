@@ -75,6 +75,7 @@ class Tree {
         std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t pseudonym();
+        void set_pseudonym(index_t pseudonyms);
         std::string display_tree(Node *root);
         std::string display_tree_basic(Node *root);
         std::string display_tree_index(Node *root);
@@ -84,6 +85,7 @@ class Tree {
         weight_t support_low, support_default;
         weight_t total_quartet_weight;
         index_t pseudonyms;
+        std::vector<index_t> avail_pseudonyms;
         std::unordered_map<index_t, index_t> indices;
         void clear_states(Node *root);
         void build_states(Node *root, Taxa &subset);
@@ -103,6 +105,7 @@ class Tree {
         //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);
+        void get_internal_nodes(Node *root, std::vector<Node *> *nodes);
         void get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set);
         void get_depth(Node *root, index_t depth);
         //for weighted quartets:
@@ -141,9 +144,10 @@ class Tree {
 
 class SpeciesTree : public Tree {
     public:
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, SpeciesTree *rst);
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
-        SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
-        SpeciesTree(std::string stree_file, Dict *dict);
+        SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit);
+        SpeciesTree(std::string stree_file, Dict *dict, index_t mode);
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
@@ -154,6 +158,7 @@ class SpeciesTree : public Tree {
         std::string to_string_annotated(std::string brln_mode);
         void write_support_table(std::ostream &os, std::string brln_mode);
         void write_pcs_table(std::vector<Tree *> &input, std::vector<std::size_t> &positions, std::string &qfreq_mode, std::ostream &os);
+        std::vector<Node *> decompose(Taxa &subset, std::vector<Taxa> &subsets);
     private:
         index_t artifinyms;
         std::string mode;
@@ -168,6 +173,9 @@ class SpeciesTree : public Tree {
         void get_qfreq_around_branch(Node *root, std::unordered_map<quartet_t, weight_t> &quartets, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
+        void traverse(Node *root, std::unordered_set<Node *> &visited, Taxa *subset, bool is_root);
+        void compose(Node *root, std::vector<Node *> &subtrees, std::unordered_map<index_t, Node *> &index2tree, std::unordered_set<Node *> &visited, index_t parent_index);
+
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

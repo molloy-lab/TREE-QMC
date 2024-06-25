@@ -43,8 +43,8 @@ class Taxa {
         weight_t get_weight(Node *root);
     private:
         std::vector<Node *> leaves, roots;
-        Node **index2node;
-        // std::unordered_map<index_t, Node*> index2node;
+        // Node **index2node;
+        std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t singletons;
         std::string mode;

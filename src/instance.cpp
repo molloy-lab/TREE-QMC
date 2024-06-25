@@ -9,6 +9,7 @@ Instance::Instance(int argc, char **argv) {
     output_file = "";
     mapping_file = "";
     stree_file = "";
+    rstree_file = "";
     table_file = "";
     root_str = "";
 
@@ -36,6 +37,7 @@ Instance::Instance(int argc, char **argv) {
 
     dict = NULL;
     output = NULL;
+    rst = NULL;
 
     int outcome = parse(argc, argv);
 
@@ -81,6 +83,9 @@ Instance::Instance(int argc, char **argv) {
     }
 
     dict->update_singletons();
+    if (rstree_file != "") {
+        rst = new SpeciesTree(rstree_file, dict, 1);
+    }
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
@@ -115,6 +120,7 @@ Instance::~Instance() {
     for (Tree *t : input) delete t;
     delete output;
     delete dict;
+    delete rst;
 }
 
 long long Instance::solve() {
@@ -125,9 +131,11 @@ long long Instance::solve() {
     auto start = std::chrono::high_resolution_clock::now();
 
     if (stree_file != "") {
-        output = new SpeciesTree(stree_file, dict);
-    } if (data_mode == "q") {
-        output = new SpeciesTree(quartets, dict, mode, iter_limit, output_file);
+        output = new SpeciesTree(stree_file, dict, 0);
+    } else if (rstree_file != "") {
+        output = new SpeciesTree(input, dict, mode, iter_limit, rst);
+    } else if (data_mode == "q") {
+        output = new SpeciesTree(quartets, dict, mode, iter_limit);
     } else {
         output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
     }
@@ -274,6 +282,15 @@ int Instance::parse(int argc, char **argv) {
             }
             else {
                 std::cout << "\nERROR: No quartet format specified" << std::endl;
+                return 2;
+            }
+        }
+        else if (opt == "--restrict") {
+            if (i < argc - 1) {
+                rstree_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No species tree file specified" << std::endl;
                 return 2;
             }
         }

@@ -17,6 +17,10 @@ Tree::Tree(const std::string &newick,
 }
 
 Tree::~Tree() {
+    std::vector<Node *> nodes;
+    get_internal_nodes(root, &nodes);
+    for (Node *node : nodes) 
+        avail_pseudonyms.push_back(node->index);
     // TODO: Do we need to check this?
     delete root;
 }
@@ -74,7 +78,16 @@ weight_t ***Tree::build_graph(Taxa &subset) {
 }
 
 index_t Tree::pseudonym() {
+    if (avail_pseudonyms.size() > 0) {
+        index_t i = avail_pseudonyms[avail_pseudonyms.size() - 1];
+        avail_pseudonyms.pop_back();
+        return i;
+    }
     return - (++ pseudonyms);
+}
+
+void Tree::set_pseudonym(index_t pseudonyms) {
+    this->pseudonyms = pseudonyms;
 }
 
 Node *Tree::build_tree(const std::string &newick,
@@ -186,7 +199,7 @@ std::string Tree::display_tree_basic(Node *root) {
     for (Node * node : root->children) 
         s += display_tree_basic(node) + ",";
     s[s.size() - 1] = ')';
-    return s;
+    return s; //+ dict->index2label(root->index);
 }
 
 std::string Tree::display_tree_index(Node *root) {
@@ -196,7 +209,7 @@ std::string Tree::display_tree_index(Node *root) {
     for (Node * node : root->children) 
         s += display_tree_index(node) + ",";
     s[s.size() - 1] = ')';
-    return s;
+    return s + std::to_string(root->index);
 }
 
 size_t Tree::refine_tree(Node *root) {
@@ -683,6 +696,13 @@ void Tree::get_leaves(Node *root, std::vector<Node *> *leaves) {
         leaves->push_back(root);
     for (Node *child : root->children) 
         get_leaves(child, leaves);
+}
+
+void Tree::get_internal_nodes(Node *root, std::vector<Node *> *nodes) {
+    if (root->children.size() != 0) 
+        nodes->push_back(root);
+    for (Node *child : root->children) 
+        get_internal_nodes(child, nodes);
 }
 
 void Tree::get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set) {

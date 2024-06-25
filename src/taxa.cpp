@@ -21,8 +21,8 @@ Taxa::Taxa(Dict *dict, std::string mode) {
     this->mode = mode;
     this->normal = mode[0];
     this->shared = mode[2];
-    index2node = new Node*[dict->max_size()];
-    std::memset(index2node, 0, sizeof(Node *) * dict->max_size());
+    // index2node = new Node*[dict->max_size()];
+    // std::memset(index2node, 0, sizeof(Node *) * dict->max_size());
     for (index_t i = 0; i < dict->size(); i ++) {
         Node *node = new Node(i);
         index2node[i] = node;
@@ -34,28 +34,30 @@ Taxa::Taxa(Dict *dict, std::string mode) {
 }
 
 Taxa::Taxa(const Taxa &taxa) {
-    this->updated = false;
+    updated = false;
     singletons = taxa.singletons;
     mode = taxa.mode;
     normal = taxa.normal;
     shared = taxa.shared;
     dict = taxa.dict;
-    index2node = new Node*[dict->max_size()];
-    std::memset(index2node, 0, sizeof(Node *) * dict->max_size());
-    for (index_t i = 0; i < dict->max_size(); i ++) {
-        if (taxa.index2node[i] == NULL) continue;
+    // index2node = new Node*[dict->max_size()];
+    // std::memset(index2node, 0, sizeof(Node *) * dict->max_size());
+    for (auto elem : taxa.index2node) {
+        index_t i = elem.first;
+        Node *old_node = elem.second;
         Node *new_node = new Node(i);
         index2node[i] = new_node;
-        new_node->r_index = taxa.index2node[i]->r_index;
-        new_node->singleton = taxa.index2node[i]->singleton;
+        new_node->r_index = old_node->r_index;
+        new_node->singleton = old_node->singleton;
     }
-    for (index_t i = 0; i < dict->max_size(); i ++) {
-        if (index2node[i] == NULL) continue;
+    for (auto elem : taxa.index2node) {
+        index_t i = elem.first;
+        Node *old_node = elem.second;
         Node *new_node = index2node[i];
-        if (taxa.index2node[i]->parent == NULL) 
+        if (old_node->parent == NULL) 
             new_node->parent = NULL;
         else 
-            new_node->parent = index2node[taxa.index2node[i]->parent->index];
+            new_node->parent = index2node[old_node->parent->index];
     }
     for (Node *root : taxa.roots) 
         roots.push_back(index2node[root->index]);
@@ -64,10 +66,9 @@ Taxa::Taxa(const Taxa &taxa) {
 }
 
 Taxa::~Taxa() {
-    for (index_t i = 0; i < dict->max_size(); i ++) {
-        if (index2node[i] != NULL) delete index2node[i];
-    }
-    delete [] index2node;
+    for (auto elem : index2node) 
+        delete elem.second;
+    //delete [] index2node;
 }
 
 void Taxa::struct_update(std::vector<index_t> &subset, index_t artificial) {

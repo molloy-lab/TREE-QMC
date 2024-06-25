@@ -2,7 +2,7 @@
 #include "graph.hpp"
 #include "toms743.hpp"
 
-SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
+SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict, index_t mode) {
     this->dict = dict;
     this->artifinyms = dict->max_size();
     this->root = NULL;
@@ -44,10 +44,11 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict) {
     // TODO: Add suppress uniforcations!
 
     // Refined polytomies
-    int total = refine_tree(root);
-    if (total > 0)
-        std::cout << "    " << total << " polytomies" << std::endl;
-
+    if (mode == 0) {
+        int total = refine_tree(root);
+        if (total > 0)
+            std::cout << "    " << total << " polytomies" << std::endl;
+    }
 }
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
@@ -155,7 +156,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
     // std::cout << artifinyms << std::endl;
 }
 
-SpeciesTree::SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
+SpeciesTree::SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit) {
     this->dict = dict;
     this->artifinyms = dict->max_size();
     this->mode = mode;
@@ -390,6 +391,10 @@ Node *SpeciesTree::reroot_stree(Node *root, index_t artificial) {
     std::unordered_set<index_t> visited;
     visited.insert(new_root->index);
     Node *new_tree = reroot(new_root, visited);
+    std::vector<Node *> nodes;
+    get_internal_nodes(root, &nodes);
+    for (Node *node : nodes) 
+        avail_pseudonyms.push_back(node->index);
     delete root;
     return new_tree;
 }
