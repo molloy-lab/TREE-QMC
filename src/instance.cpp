@@ -67,10 +67,21 @@ Instance::Instance(int argc, char **argv) {
     dict = new Dict;
     if (data_mode == "t") input_trees();
     else if (data_mode == "q") input_quartets();
+    else if (data_mode == "c") input_clades();
     else input_matrix();
+
+    if (rstree_file != "") {
+        rst = new SpeciesTree(rstree_file, dict, 1);
+    }
     
     if (data_mode == "q") {
         if (quartets.size() == 0) {
+            std::cout << "\nERROR: Nothing read from input" << std::endl;
+            exit(1);
+        }
+    }
+    else if (data_mode == "c") {
+        if (clade_names.size() == 0) {
             std::cout << "\nERROR: Nothing read from input" << std::endl;
             exit(1);
         }
@@ -83,9 +94,6 @@ Instance::Instance(int argc, char **argv) {
     }
 
     dict->update_singletons();
-    if (rstree_file != "") {
-        rst = new SpeciesTree(rstree_file, dict, 1);
-    }
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
@@ -136,6 +144,8 @@ long long Instance::solve() {
         output = new SpeciesTree(input, dict, mode, iter_limit, rst);
     } else if (data_mode == "q") {
         output = new SpeciesTree(quartets, dict, mode, iter_limit);
+    } else if (data_mode == "c") {
+        output = new SpeciesTree(clades, clade_names, dict);
     } else {
         output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
     }
@@ -200,6 +210,7 @@ void Instance::output_solution() {
             output->annotate(quartets, weight_mode);
         else 
             output->annotate(input, weight_mode);
+        std::cout << output->quartet_score() << std::endl;
     }
 
     if (table_file != "") {
@@ -284,6 +295,9 @@ int Instance::parse(int argc, char **argv) {
                 std::cout << "\nERROR: No quartet format specified" << std::endl;
                 return 2;
             }
+        }
+        else if (opt == "--clades") {
+            data_mode = "c";
         }
         else if (opt == "--restrict") {
             if (i < argc - 1) {
@@ -511,7 +525,6 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "ERROR: Unrecognized option: " << opt << std::endl;
             exit(1);
         }
-
         i ++;
     }
 
@@ -697,6 +710,7 @@ void Instance::input_trees() {
         // TODO: change to function that checks if newick string is valid, before proceeding
         if (newick.find(";") != std::string::npos) {
             Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
+            
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             if (t->size() > 3) {
@@ -707,6 +721,7 @@ void Instance::input_trees() {
                 std::cout << "  WARNING: Input tree on line " << pos << " has fewer than 4 species so ignoring" << std::endl;
             }
             pos++;
+
         }
     }
 
@@ -765,6 +780,46 @@ void Instance::input_matrix() {
     }
 }
 
+void Instance::input_clades() {
+    std::ifstream fin(input_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
+        exit(1);
+    }
+    std::string line;
+    index_t j = 0;
+    while (std::getline(fin, line)) {
+        j ++;
+        std::vector<std::string> words;
+        std::size_t pos = 0;
+        while ((pos = line.find(" ")) != std::string::npos) {
+            std::string word = line.substr(0, pos);
+            if (word.size() != 0) words.push_back(word);
+            line.erase(0, pos + 1);
+        }
+        line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
+        if (line.size() != 0) words.push_back(line);
+        if (words.size() < 2) {
+            std::cout << "\nWARNING: Invalid clade; input truncated at line " << j << std::endl;
+            exit(1);
+        }
+        clade_names.push_back(words[0]);
+        std::vector<index_t> clade;
+        for (index_t i = 1; i < words.size(); i ++) {
+            std::string label;
+            auto itr = indiv2taxon.find(words[i]);
+            if (itr == indiv2taxon.end())
+                label = words[i];
+            else
+                label = itr->second;
+            clade.push_back(dict->label2index(label));
+        }
+        clades.push_back(clade);
+    }
+    fin.close();
+}
+
 void Instance::refine_trees() {
     srand(refine_seed);
 
@@ -802,6 +857,7 @@ void Instance::prepare_root_taxa() {
     std::ifstream fin(root_str);
     if (!fin.fail()) {
         while (std::getline(fin, taxon)) {
+            taxon.erase(std::remove(taxon.begin(), taxon.end(), '\r'), taxon.end());
             if (taxon != "")
                 outgroup_taxon_set.insert(taxon);
         }
@@ -856,6 +912,7 @@ void Instance::prepare_indiv2taxon_map() {
     else {
         indiv = line.substr(0, sep);
         taxon = line.substr(sep + 1, std::string::npos);
+        taxon.erase(std::remove(taxon.begin(), taxon.end(), '\r'), taxon.end());
         indiv2taxon.insert({indiv, taxon});
     }
 
@@ -868,7 +925,9 @@ void Instance::prepare_indiv2taxon_map() {
         else {
             indiv = line.substr(0, sep);
             taxon = line.substr(sep + 1, std::string::npos);
+            taxon.erase(std::remove(taxon.begin(), taxon.end(), '\r'), taxon.end());
             indiv2taxon.insert({indiv, taxon});
+            //std::cout << indiv << " " << taxon << std::endl;
         }
     }
 

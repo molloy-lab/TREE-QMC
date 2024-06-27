@@ -1,6 +1,125 @@
 #include "tree.hpp"
 #include "graph.hpp"
 
+SpeciesTree::SpeciesTree(std::vector<std::vector<index_t>> &clades, std::vector<std::string> &names, Dict *dict) {
+    this->dict = dict;
+    this->root = NULL;
+    index_t row = dict->size(), col = clades.size();
+    index_t **matrix = new index_t*[row];
+    for (index_t i = 0; i < row; i ++) {
+        matrix[i] = new index_t[col];
+        for (index_t j = 0; j < col; j ++) 
+            matrix[i][j] = 0;
+    }
+    for (index_t j = 0; j < col; j ++) {
+        for (index_t i : clades[j]) 
+            matrix[i][j] = 1;
+    }
+    for (index_t i = 0; i < col; i ++) {
+        for (index_t j = i + 1; j < col; j ++) {
+            index_t k = 0;
+            for (k = 0; matrix[k][i] == matrix[k][j]; k ++) ;
+            if (matrix[k][i] < matrix[k][j]) {
+                for (k = 0; k < row; k ++) {
+                    index_t temp = matrix[k][i];
+                    matrix[k][i] = matrix[k][j];
+                    matrix[k][j] = temp;
+                }
+                std::string temps = names[i];
+                names[i] = names[j];
+                names[j] = temps;
+                std::vector<index_t> tempc = clades[i];
+                clades[i] = clades[j];
+                clades[j] = tempc;
+            }
+        }
+    }
+    index_t **lower = new index_t*[row];
+    for (index_t i = 0; i < row; i ++) {
+        lower[i] = new index_t[col];
+        for (index_t j = 0; j < col; j ++) 
+            lower[i][j] = -2;
+    }
+    for (index_t i = 0; i < row; i ++) {
+        index_t prev = -1;
+        for (index_t j = 0; j < col; j ++) {
+            if (matrix[i][j] == 1) {
+                lower[i][j] = prev;
+                prev = j;
+            }
+        }
+    }
+    bool compatible = true;
+    index_t *max = new index_t[col];
+    for (index_t j = 0; j < col; j ++) {
+        max[j] = -2;
+        for (index_t i = 0; i < row; i ++) {
+            if (max[j] < lower[i][j]) 
+                max[j] = lower[i][j];
+        }
+        //std::cout << max[j] << " ";
+        for (index_t i = 0; i < row; i ++) {
+            if (matrix[i][j] == 1 && lower[i][j] != max[j]) 
+                compatible = false;
+        }
+    }
+    if (! compatible) {
+        std::cout << "\nWARNING: Incompatible clades" << std::endl;
+        exit(1);
+    }
+    else {
+        std::cout << "Input clades are compatible" << std::endl;
+        std::cout << "Building perfect phylogeny" << std::endl;
+    }
+    //std::unordered_map<index_t, std::string> index2clade;
+    root = new Node(pseudonym());
+    std::vector<Node *> internal;
+    for (index_t j = 0; j < col; j ++) {
+        Node *node = new Node(pseudonym());
+        internal.push_back(node);
+        //index2clade[node->index] = names[j];
+        //std::cout << names[j] << " " << node->index << std::endl;
+    }
+    for (index_t j = 0; j < col; j ++) {
+        Node *parent = max[j] == -1 ? root : internal[max[j]];
+        internal[j]->parent = parent;
+        parent->children.push_back(internal[j]);
+    }
+    for (index_t i = 0; i < row; i ++) {
+        index_t j;
+        for (j = col - 1; matrix[i][j] == 0; j --) ;
+        Node *node = internal[j];
+        Node *new_node = new Node(i);
+        node->children.push_back(new_node);
+        new_node->parent = node;
+    }
+    root = simplify(root);
+    for (index_t i = 0; i < row; i ++) 
+        delete [] matrix[i];
+    delete [] matrix;
+    for (index_t i = 0; i < row; i ++) 
+        delete [] lower[i];
+    delete [] lower;
+}
+
+Node *SpeciesTree::simplify(Node *root) {
+    if (root->children.size() == 1) {
+        Node *child = root->children[0];
+        root->children.clear();
+        avail_pseudonyms.push_back(root->index);
+        delete root;
+        child->parent = NULL;
+        return simplify(child);
+    }
+    else {
+        for (index_t i = 0; i < root->children.size(); i ++) {
+            root->children[i] = simplify(root->children[i]);
+            root->children[i]->parent = root;
+        }
+        return root;
+    }
+}
+
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, SpeciesTree *rst) {
     this->dict = dict;
     this->artifinyms = dict->max_size();
@@ -50,15 +169,10 @@ void SpeciesTree::compose(Node *root, std::vector<Node *> &subtrees, std::unorde
 }
 
 std::vector<Node *> SpeciesTree::decompose(Taxa &subset, std::vector<Taxa> &subsets) {
-    std::unordered_set<Node *> visited;
-    traverse(root, visited, NULL, true);
     std::vector<Node *> internal;
-    for (Node *node : visited) {
-        if (node->children.size() != 0)
-            internal.push_back(node);
-    }
+    get_internal_nodes(root, &internal);
     for (Node *node : internal) {
-        visited.clear();
+        std::unordered_set<Node *> visited;
         visited.insert(node);
         Taxa new_subset(subset);
         traverse(node, visited, &new_subset, true);

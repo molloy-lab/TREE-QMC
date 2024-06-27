@@ -41,14 +41,34 @@ SpeciesTree::SpeciesTree(std::string stree_file, Dict *dict, index_t mode) {
     std::cout << "Found" << std::endl;
     std::cout << "    " << size() << " taxa" << std::endl;
 
-    // TODO: Add suppress uniforcations!
-
     // Refined polytomies
     if (mode == 0) {
         int total = refine_tree(root);
         if (total > 0)
             std::cout << "    " << total << " polytomies" << std::endl;
     }
+    else if (mode == 1) {
+        std::unordered_set<index_t> indices;
+        std::vector<Node *> leaves;
+        get_leaves(root, &leaves);
+        for (Node *leaf : leaves) {
+            indices.insert(leaf->index);
+        }
+        Node *new_root = new Node(pseudonym());
+        new_root->children.push_back(root);
+        root->parent = new_root;
+        root = new_root;
+        for (index_t i = 0; i < dict->size(); i ++) {
+            if (indices.find(i) == indices.end()) {
+                Node *node = new Node(i);
+                root->children.push_back(node);
+                node->parent = root;
+            }
+        }
+    }
+
+    // TODO: Add suppress uniforcations!
+    root = simplify(root);
 }
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
@@ -905,6 +925,17 @@ std::string SpeciesTree::display_tree_annotated(Node *root, std::string brln_mod
                  ";q3=" + std::to_string(q3) +
                  ";EN=" + std::to_string(en) +
                  "]\'" + brlen;
+}
+
+weight_t SpeciesTree::quartet_score(Node *root) {
+    weight_t sum = root->f[0];
+    for (Node *child : root->children) 
+        sum += quartet_score(child);
+    return sum;
+}
+
+weight_t SpeciesTree::quartet_score() {
+    return quartet_score(root);
 }
 
 void SpeciesTree::write_support_table_row(Node *root, std::ostream &os, std::string brln_mode) {

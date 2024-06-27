@@ -37,6 +37,10 @@ std::string Tree::to_string_basic() {
     return display_tree_basic(root) + ";";
 }
 
+std::string Tree::to_string_index() {
+    return display_tree_index(root) + ";";
+}
+
 size_t Tree::refine() {
     bool flag = root->children.size() == 3;
     size_t count = refine_tree(root);

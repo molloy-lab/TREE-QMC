@@ -24,6 +24,8 @@ class Instance {
         std::string input_file, output_file, mapping_file, stree_file, rstree_file, table_file;
         std::string root_str, quartet_format;
         std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode;
+        std::vector<std::string> clade_names;
+        std::vector<std::vector<index_t>> clades;
         unsigned long int refine_seed, cut_seed, iter_limit;
         weight_t support_low, support_high, support_default, support_threshold;
         bool contract, char2tree, rootonly, pcsonly;
@@ -35,6 +37,7 @@ class Instance {
         void prepare_trees();
         void refine_trees();
         void input_quartets();
+        void input_clades();
 };
 
 extern std::ofstream subproblem_csv;

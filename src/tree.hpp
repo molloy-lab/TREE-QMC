@@ -55,6 +55,7 @@ class Tree {
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
+        std::string to_string_index();
         size_t refine();
         void prepare(std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
         index_t size();
@@ -148,6 +149,7 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit);
         SpeciesTree(std::string stree_file, Dict *dict, index_t mode);
+        SpeciesTree(std::vector<std::vector<index_t>> &clades, std::vector<std::string> &names, Dict *dict);
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
@@ -159,6 +161,7 @@ class SpeciesTree : public Tree {
         void write_support_table(std::ostream &os, std::string brln_mode);
         void write_pcs_table(std::vector<Tree *> &input, std::vector<std::size_t> &positions, std::string &qfreq_mode, std::ostream &os);
         std::vector<Node *> decompose(Taxa &subset, std::vector<Taxa> &subsets);
+        weight_t quartet_score();
     private:
         index_t artifinyms;
         std::string mode;
@@ -175,7 +178,8 @@ class SpeciesTree : public Tree {
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
         void traverse(Node *root, std::unordered_set<Node *> &visited, Taxa *subset, bool is_root);
         void compose(Node *root, std::vector<Node *> &subtrees, std::unordered_map<index_t, Node *> &index2tree, std::unordered_set<Node *> &visited, index_t parent_index);
-
+        Node *simplify(Node *root);
+        weight_t quartet_score(Node *root);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;

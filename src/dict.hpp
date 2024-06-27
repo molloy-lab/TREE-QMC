@@ -14,7 +14,9 @@ class Dict {
         }
 
         std::string index2label(index_t index) {
-            if (index < 0 || index >= singletons) 
+            if (index < 0)
+                return "P" + std::to_string(- index);
+            if (index >= singletons) 
                 return "A" + std::to_string(index);
             return i2l[index];
         }
