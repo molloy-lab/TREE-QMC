@@ -3,11 +3,14 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER, based on the Quartet Max Cut (QMC) framework of Snir and Rao.
 
-However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122). It also has some convenient features. 
-+ It can be used to estimate a species tree from **low-homoplasy characters**, i.e., it can be run in `bp` mode described in [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). The characters need **not** be bialleic. 
-+ It can be used for computing **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
+To learn more about the TREE-QMC and weighted TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122) and [Han & Molloy, *bioRxiv*, 2024](https://doi.org/10.1101/2024.09.27.615467), respectively. 
+
+TREE-QMC also implements some convenient features:
++ TREE-QMC allows multi-labeled trees (i.e., MUL-trees) as input.
++ TREE-QMC allows character data as input; in particular, it can be used to estimate species trees under the neutral Wright-Fisher model with MLE branch lengths, referred to as `bp` mode in [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). Although species trees can also be constructed from multi-state characters we do not make guarantees about performance.
++ TREE-QMC computes **Partitioned Coalescence Support (PCS)**, specifically Quartet Quadrapartition Support (QQS) values, around a focal branch, as described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
 
 Tutorials
 --------
@@ -176,12 +179,13 @@ Advanced Options:
 Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)
         or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
-If you use TREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.
-
-  and
+If you use TREE-QMC or weighted TREE-QMC in your work, please cite:
 
   Han and Molloy, 2023, Improving quartet graph construction for scalable
   and accurate species tree estimation from gene trees, Genome Research,
   http:doi.org/10.1101/gr.277629.122.
+
+  Han and Molloy, 2024, Improved robustness to gene tree incompleteness, 
+  estimation errors, and systematic homology errors with weighted TREE-QMC, 
+  bioRxiv, https://doi.org/10.1101/2024.09.27.615467.
 ================================================================================

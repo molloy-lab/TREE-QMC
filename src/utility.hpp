@@ -136,11 +136,12 @@ const std::string help_info =
 "        Do NOT use unless there are NO missing data!!!\n\n"
 "Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)\n"
 "        or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)\n\n"
-"If you use TREE-QMC in your work, please cite:\n"
-"  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.\n\n"
-"  and\n\n"
+"If you use TREE-QMC or weighted TREE-QMC in your work, please cite:\n\n"
 "  Han and Molloy, 2023, Improving quartet graph construction for scalable\n"
 "  and accurate species tree estimation from gene trees, Genome Research,\n"
-"  http:doi.org/10.1101/gr.277629.122.\n"
+"  http:doi.org/10.1101/gr.277629.122.\n\n"
+"  Han and Molloy, 2024, Improved robustness to gene tree incompleteness,\n" 
+"  estimation errors, and systematic homology errors with weighted TREE-QMC,\n" 
+"  bioRxiv, https://doi.org/10.1101/2024.09.27.615467.\n"
 "================================================================================\n\n";
 #endif
