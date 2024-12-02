@@ -34,13 +34,48 @@ git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC/external/MQLib
 make
 cd ../..
-g++ -std=c++11 -O2 \
+g++ -std=c++17 -O2 \
     -I external/MQLib/include -I external/toms743 \
+    -I external/parlaylib/include \
     -o tree-qmc \
+    -pthread -mcx16 -march=native \
     src/*.cpp external/toms743/toms743.cpp \
     external/MQLib/bin/MQLib.a -lm \
     -DVERSION=\"$(cat version.txt)\"
 ```
+Sample Tutorial Data
+-----
+This folder contains the sample output of the sequential tree-qmc algorithm. The examples we used are 
+- tutorial/characters section 3 
+```
+cd tutorial/characters
+../../tree-qmc \
+    --bp \
+    --root galGal \
+    --support \
+    -i 4345ratites.nex \
+    -o treeqmc-bp-4345ratites.tre
+```
+- tutorial/characters section 4
+```
+cd tutorial/characters
+../../tree-qmc \
+    --bp \
+    --pcsonly species-tree-for-pcs.tre \
+    -i 4345ratites.nex \
+    -o pcs-bp-4345ratites.tsv
+```
+- tutorial/gene-tree hybrid mode
+```
+cd tutorial/gene-trees
+../../tree-qmc \
+	--hybrid \
+	--bootstrap \
+	--root STRCA,TINMA \
+	-i avian_uce_trees_3679.tre \
+	-o treeqmc-hybrid.tre
+```
+
 
 Usage
 -----
