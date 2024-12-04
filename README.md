@@ -30,10 +30,11 @@ Build
 -----
 To build TREE-QMC, use commands:
 ```
-git clone https://github.com/molloy-lab/TREE-QMC.git
+git clone https://github.com/ParAlg/TREE-QMC.git
 cd TREE-QMC/external/MQLib
 make
 cd ../..
+git submodule update --recursive --init
 g++ -std=c++17 -O2 \
     -I external/MQLib/include -I external/toms743 \
     -I external/parlaylib/include \
