@@ -1,0 +1,1025 @@
+Running on avian_uce_trees_3679.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/avian_uce_trees_3679.tre -o avian_uce_trees_3679.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/avian_uce_trees_3679.tre
+output file: avian_uce_trees_3679.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    3679 trees
+    48 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 91 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+   91 subproblems computed.
+Printing species tree
+(((((((((GEOFO,TAEGU),CORBR),MANVI),ACACH),(MELUN,NESNO)),FALPE),CARCR),(((((HALLE,HALAL),CATAU),TYTAL),((((MERNU,PICPU),BUCRH),APAVI),LEPDI)),COLST)),((((((GALGA,MELGA),ANAPL),(STRCA,TINMA)),(PODCR,PHORU)),(((PTEGU,MESUN),COLLI),((CHLUN,TAUER),CUCCA))),(((((((PYGAD,APTFO),FULGL),(((EGRGA,PELCR),NIPNI),PHACA)),GAVST),(EURHE,PHALE)),((CHAPE,CALAN),CAPCA)),((OPHHO,CHAVO),BALRE))));
+Writing species tree
+Parlay time: Execution time: : 34.2004
+
+Running on 1_best_cds5756.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/1_best_cds5756.tre -o 1_best_cds5756.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/1_best_cds5756.tre
+output file: 1_best_cds5756.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    5756 trees
+    125 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 245 subproblems:
+    0 subproblems computed.
+    1 subproblems computed.
+Printing species tree
+(mnrnvhlln,ptlnrhync,grntllpct,crvsmndld,crvsbrchy,strnsvlgr,cthrsstlt,fcdllbcll,prnllstrp,cmrhynchs,gespzfrts,junchymls,zntrchlbc,mlspzmldm,serinscnr,erythrrgl,tnpyggttt,lnchrstrt,hrndrstcr,stchyrsrf,zstrpsbrb,psdpdcshm,parusmajr,cynstscrl,pittasrdd,empdnxtrl,mncsvtlln,corappltr,chrxphlnc,lpdthrxcr,nplmchrys,columbalv,ptgnsfsct,atlntsrgr,blrcrglrm,nippnnppn,lptsmsdsc,antrstmsc,rhynchtsj,erypyghls,nyctbsgrn,ptrclsgtt,cathartsr,pdrgsstrg,cuclscnrs,opsthcmsh,brhnsbstr,chrdrsvcf,lmslppncb,cldrspygm,cldrspgnx,turnixvlx,rsstrdcty,mlpsttcsn,amazncllr,nstrntbls,strgpshbr,sttrnscrp,mstrnsncl,phlcrcrxc,egrttgrzt,agthlsbnn,hmprcncmt,chatrplgc,calyptenn,upupaepps,hlcynsngl,merpsnbcs,erystmsgl,pslpgnhmc,pcdspbscn,galbulade,pdcpscrst,carmcrstt,phncptrsr,accptrnss,hltslbcll,hltslccph,aqlchryst,phthnlptr,colsstrts,allgtrmss,strthcmls,apteryxrw,aptryxhst,apteryxwn,rheaamrcn,tnmsgttts,ansrbrchy,ansrcydms,ansrcygnd,anspltyrh,aythyflgl,ansrnssmp,chauntrqt,alctrlthm,penelpplt,cllpplsqm,clnsvrgnn,bmbsclthr,gallsglls,chryslphs,phsnsclch,mlgrsgllp,ctrnxjpnc,numdmlgrs,gavistllt,frgtmgnfc,chlmydtsm,flmrsglcl,plcnscrsp,ciconimgr,thlssrchc,aptndytsf,pygsclsdl,falcchrrg,flcprgrns,tytoalblb,athncnclr,bcrsrhncr,apldrmvtt,trcrythrl,acnthsttc,pipraflcd,pavcrstts);
+Writing species tree
+Parlay time: Execution time: : 148.2792
+
+Running on butterfly_bs.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/butterfly_bs.tre -o butterfly_bs.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/butterfly_bs.tre
+output file: butterfly_bs.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    1930 trees
+    203 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 401 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  120 subproblems computed.
+  130 subproblems computed.
+  140 subproblems computed.
+  150 subproblems computed.
+  160 subproblems computed.
+  170 subproblems computed.
+  180 subproblems computed.
+  190 subproblems computed.
+  200 subproblems computed.
+  210 subproblems computed.
+  220 subproblems computed.
+  230 subproblems computed.
+  240 subproblems computed.
+  250 subproblems computed.
+  260 subproblems computed.
+  270 subproblems computed.
+  280 subproblems computed.
+  290 subproblems computed.
+  300 subproblems computed.
+  310 subproblems computed.
+  320 subproblems computed.
+  330 subproblems computed.
+  340 subproblems computed.
+  350 subproblems computed.
+  360 subproblems computed.
+  370 subproblems computed.
+  380 subproblems computed.
+  390 subproblems computed.
+  400 subproblems computed.
+  401 subproblems computed.
+Printing species tree
+(((((((((((((((((((((((((Noctuoidea_Noctuidae_Noctuinae_Agrotis_infusa_WHANIsrmTMATRAAPEI__46,Noctuoidea_Noctuidae_Noctuinae_Striacosta_albicosta_Striacosta),Noctuoidea_Noctuidae_Noctuinae_Mythimna_separata),Noctuoidea_Noctuidae_Amphipyrinae_Sesamia_inferens),((Noctuoidea_Noctuidae_Heliothinae_Heliothis_virescens_Hv,Noctuoidea_Noctuidae_Heliothinae_Helicoverpa_zea_Hz2),(Noctuoidea_Noctuidae_Noctuinae_Spodoptera_exigua_Noctuoidea,Noctuoidea_Noctuidae_Noctuinae_Spodoptera_frugiperda))),Noctuoidea_Noctuidae_Amphipyrinae_Amphipyra_pyramidea_INShauTAVRAAPEI__16),Noctuoidea_Euteliidae_Anigraea_sp_SW130103),(((((Noctuoidea_Erebidae_Arctiinae_Phragmatobia_fuliginosa_INShauTBDRAAPEI__31,Noctuoidea_Erebidae_Arctiinae_Arctia_plantaginis_ERR1466856),Noctuoidea_Erebidae_Arctiinae_Melese_sp_FG120095),(Noctuoidea_Erebidae_Arctiinae_Amata_phegea_INShauTAERAAPEI__8,Noctuoidea_Erebidae_Arctiinae_Auriculoceryx_pterodactyliformis_RINSinlTDRRAAPEI__36)),(Noctuoidea_Erebidae_Calpinae_Phyllodes_eyndhovii_RINSinlTDNRAAPEI__171,Noctuoidea_Erebidae_Calpinae_Eudocima_salaminia_SW130232)),(Noctuoidea_Erebidae_Lymantriinae_Euproctis_chrysorrhoea,Noctuoidea_Erebidae_Lymantriinae_Lymantria_dispar_Ly3))),Noctuoidea_Nolidae_Nolinae_Manoba_major_SW130224),(Noctuoidea_Notodontidae_Nystaleinae_Notoplusia_minuta_FG120015,Noctuoidea_Notodontidae_Notodontinae_Pheosia_gnoma_INSqiqTBHRAAPEI__71)),(((((((((((Bombycoidea_Sphingidae_Macroglossinae_Xylophanes_tersa_Xter2,Bombycoidea_Sphingidae_Macroglossinae_Hyles_euphorbiae_INSinlTAYRAAPEI__56),Bombycoidea_Sphingidae_Macroglossinae_Darapsa_myron_Dara),Bombycoidea_Sphingidae_Macroglossinae_Macroglossum_pyrrhosticta_MacrH),Bombycoidea_Sphingidae_Macroglossinae_Enyo_lugubris_elug1),Bombycoidea_Sphingidae_Macroglossinae_Hemaris_diffinis_HEMA2),(((Bombycoidea_Sphingidae_Sphinginae_Sphinx_pinastri_INShauTAZRAAPEI__20,Bombycoidea_Sphingidae_Sphinginae_Ceratomia_undulosa_cunda3),Bombycoidea_Sphingidae_Sphinginae_Manduca_sexta),((Bombycoidea_Sphingidae_Smerinthinae_Parum_colligata_V005T,Bombycoidea_Sphingidae_Smerinthinae_Smerinthus_saliceti_AZ130010T),Bombycoidea_Sphingidae_Smerinthinae_Adhemarius_daphne_FG120049B))),((((Bombycoidea_Saturniidae_Saturniinae_Actias_luna_acti2,Bombycoidea_Saturniidae_Saturniinae_Saturnia_pyri_INShkeTACRAAPEI__87),Bombycoidea_Saturniidae_Saturniinae_Attacus_atlas_Attac),(Bombycoidea_Saturniidae_Ceratocampinae_Eacles_sp_FG120096B,Bombycoidea_Saturniidae_Hemileucinae_Hemileuca_maia_BuckH)),Bombycoidea_Saturniidae_Oxyteninae_Therinia_lactucina_FG120016)),(Bombycoidea_Bombycidae_Bombyx_mori_BMORI,Bombycoidea_Bombycidae_Colla_micacea_FG120013)),Bombycoidea_Endromidae_Mustilizans_dierli_RINSinlTDURAAPEI__43),(((Bombycoidea_Eupterotidae_Eupterotinae_Ganisa_similis_RINSinlTDMRAAPEI__136,Bombycoidea_Eupterotidae_Eupterotinae_Eupterote_muluana_SW13020T),Bombycoidea_Brahmaeidae_Brahmaea_hearseyi_RINSinlTDQRAAPEI__35),Bombycoidea_Bombycidae_Apatelodes_pithala_FG120036B)),((Lasiocampoidea_Lasiocampidae_Macromphaliinae_Artace_sp_FG120070B,Lasiocampoidea_Lasiocampidae_Macromphaliinae_Tolype_notialis_Tol),Lasiocampoidea_Lasiocampidae_Dendrolimus_pini_INSlupTBORAAPEI__36))),(((((((Geometroidea_Geometridae_Ennominae_Ectropis_obliqua,Geometroidea_Geometridae_Ennominae_Biston_betularia_Bb),Geometroidea_Geometridae_Ennominae_Macaria_distribuaria_GNV120029),(Geometroidea_Geometridae_Geometrinae_Nemoria_lixaria_GNV120032,Geometroidea_Geometridae_Geometrinae_Chlorosea_margaretaria_Chl)),Geometroidea_Geometridae_Larentiinae_Operophtera_brumata),Geometroidea_Geometridae_Sterrhinae_Idaea_sp_Id),(Geometroidea_Uraniidae_Epipleminae_Calledapteryx_dryopterata_Cal,Geometroidea_Uraniidae_Uraniinae_Lyssa_zampa_RINSinlTDLRAAPEI__126)),(Geometroidea_Epicopeiidae_Epicopeia_hainseii_Epc3,Geometroidea_Sematuridae_Sematurinae_Mania_lunus_INSerlTAWRABPEI__19))),(((((Drepanoidea_Drepanidae_Thyatirinae_Pseudothyatira_cymatophoroides_Pc,Drepanoidea_Drepanidae_Thyatirinae_Thyatira_batis_INSnfrTBCRAAPEI__17),Drepanoidea_Drepanidae_Cyclidiinae_Cyclidia_substigmaria_Dcy),(Drepanoidea_Drepanidae_Drepaninae_Tridrepana_flava_SW130064,Drepanoidea_Drepanidae_Drepaninae_Macrauzata_submontana_RINSinlTDPRAAPEI__34)),Drepanoidea_Doidae_Doa_sp_Do2),Drepanoidea_Cimeliidae_Axia_margarita_Ax)),(Mimallonoidea_Mimallonidae_Menevia_lantona_INSerlTBRRAAPEI__75,Mimallonoidea_Mimallonidae_Lacosoma_chiridota_Mim)),((((Pyraloidea_Crambidae_Crambinae_Catoptria_oregonicus_Cr4,Pyraloidea_Crambidae_Crambinae_Catoptria_falsella_INSlupTAXRAAPEI__11),(Pyraloidea_Crambidae_Crambinae_Chilo_suppressalis,Pyraloidea_Crambidae_Crambinae_Myelobia_sp_FG120071B)),((Pyraloidea_Crambidae_Spilomelinae_Cnaphalocrocis_medinalis_SRR64791,Pyraloidea_Pyralidae_Spilomelinae_Spilomela_sp_INSerlTAIRAAPEI__75),Pyraloidea_Crambidae_Spilomelinae_Cirrhochrista_sp_RINSinlTDSRAAPEI__37)),((Pyraloidea_Pyralidae_Phycitinae_Plodia_interpunctella,Pyraloidea_Pyralidae_Amyelois_transitella_Pyraloidea),Pyraloidea_Pyralidae_Galleriinae_Galleria_melonella_Gal))),((((Gelechioidea_Cosmopterigidae_Cosmopteriginae_Hyposmocoma_kahamanoa_RINysjTAAABRAAPEI__215,Gelechioidea_Autostichidae_Autostichinae_Autosticha_sp_RINSinlTDTRAAPEI__41),(Gelechioidea_Gelechiidae_Dichomeridinae_Dichomeris_punctidiscella_Dch,Gelechioidea_Gelechiidae_Gelechiinae_Tuta_absoluta)),Gelechioidea_Depressariidae_Psilocorsis_reflexella_Psi),Gelechioidea_Depressariidae_Stenomatinae_Antaeotricha_schlaegeri_Ant)),((((Thyridoidea_Thyrididae_Canaea_sp_RINSinlTDVRAAPEI__44,Thyridoidea_Thyrididae_Striglinae_Striglina_suzukii_Ssk),Thyridoidea_Thyrididae_Pseudothyris_sepulchralis_GNV139006),Thyridoidea_Thyrididae_Siculodinae_Zeuzerodes_maculata_FG120079),Calliduloidea_Callidulidae_Callidulinae_Pterodecta_felderi_INSerlTABRAAPEI__84)),(((Pterophoroidea_Pterophoridae_Pterophorinae_Pterophorus_pentadactyla_INSlupTBTRAAPEI__44,Pterophoroidea_Pterophoridae_Pterophorinae_Emmelina_monodactyla_Emm),Pterophoroidea_Pterophoridae_Pterophorinae_Lantanophaga_pusillidactyla_GNV120027),Alucitoidea_Alucitidae_Alucita_desmodactyla_ANIsrmTAAORAAPEI__215)),((((((Papilionoidea_Pieridae_Coliadinae_Colias_croceus_INShkeTBFRAAPEI__79,Papilionoidea_Pieridae_Coliadinae_Phoebis_sennae),((Papilionoidea_Pieridae_Pierinae_Hebomoia_glaucippe_BRF140003,Papilionoidea_Pieridae_Pierinae_Anthocharis_cardamines_INSnfrTAYRAAPEI__13),Papilionoidea_Pieridae_Pierinae_Ascia_monuste_BRF140001)),(((((Papilionoidea_Nymphalidae_Satyrinae_Bicyclus_anynana_INShkeTATRAAPEI__56,Papilionoidea_Nymphalidae_Satyrinae_Pararge_aegeria_INSfrgTADRAAPEI__22),Papilionoidea_Nymphalidae_Satyrinae_Maniola_jurtina),(((Papilionoidea_Nymphalidae_Nymphalinae_Junonia_coenia,Papilionoidea_Nymphalidae_Nymphalinae_Melitaea_cinxia),Papilionoidea_Nymphalidae_Nymphalinae_Polygonia_c*album_INSfrgTAJRAAPEI__20),Papilionoidea_Nymphalidae_Heliconiinae_Heliconius_melpomene_Papilionoidea)),Papilionoidea_Nymphalidae_Danainae_Danaus_plexippus_DPLEX),((((Papilionoidea_Lycaenidae_Polyommatinae_Hemiargus_ceraunus_GNV120025,Papilionoidea_Lycaenidae_Polyommatinae_Polyommatus_icarus_INShauTBGRAAPEI__35),Papilionoidea_Lycaenidae_Theclinae_Calycopis_cecrops_Papilionoidea),Papilionoidea_Lycaenidae_Theclinae_Cigaritis_takanonis_Papilionoidea),(Papilionoidea_Riodinidae_Riodininae_Semomesia_capanea_FG120077,Papilionoidea_Riodinidae_Riodininae_Mycastor_nealces_INSerlTBMRAAPEI__57)))),((((Papilionoidea_Hesperiidae_Hesperiinae_Thymelicus_sylvestris,Papilionoidea_Hesperiidae_Hesperiinae_Lerema_accius),Papilionoidea_Hesperiidae_Megathyminae_Megathymus_yuccae_GNV139000),Papilionoidea_Hesperiidae_Hesperiinae_Hylephila_phyleus_GNV120020),Papilionoidea_Hesperiidae_Eudamiinae_Urbanus_proteus_INSerlTBFRAAPEI__36)),(Papilionoidea_Hedylidae_Macrosoma_hedylaria_FG120122,Papilionoidea_Hedylidae_Macrosoma_sp_RINSinlTEBRAAPEI__71)),(((Papilionoidea_Papilionidae_Papilioninae_Papilio_machaon_Papilionoidea,Papilionoidea_Papilionidae_Papilioninae_Papilio_glaucus_SRR850324),Papilionoidea_Papilionidae_Papilioninae_Parides_eurimedes_INSjdsTAJRAAPEI__36),Papilionoidea_Papilionidae_Parnassiinae_Luehdorfia_chinensis))),((((Sesioidea_Sesiidae_Sesiinae_Podosesia_syringae_Podo,Sesioidea_Sesiidae_Sesiinae_Bembecia_ichneumoniformis_INSlupTBGRAAPEI__20),Sesioidea_Sesiidae_Sesiinae_Vitacea_polistiformis_Vit),(((Cossoidea_Cossidae_Zeuzerinae_Psychonoctua_personalis_Ppr2,Cossoidea_Cossidae_Zeuzerinae_Morpheis_pyracmon_INSerlTAQRAAPEI__118),((((Sesioidea_Castniidae_Castniinae_Synemon_plana_Cul,Sesioidea_Castniidae_Castniinae_Telchin_licus_SRR1204999),Cossoidea_Cossidae_Archaeoses_polygrapha_Arc),(Cossoidea_Cossidae_Cossinae_Prionoxystus_robiniae_Prob2,Cossoidea_Cossidae_Cossinae_Culama_sp_Cul2)),Cossoidea_Cossidae_Hypoptinae_Givira_mucida_Giv2)),Cossoidea_Cossidae_Cossulinae_Spinulata_maruga_Mar)),(((Zygaenoidea_Megalopygidae_Megalopyge_crispata_Lag,Zygaenoidea_Megalopygidae_Trosia_sp_INSerlTAFRAAPEI__62),(Zygaenoidea_Limacodidae_Demonarosa_rufotessellata_RINSinlTDXRAAPEI__56,Zygaenoidea_Dalceridae_Dalcerinae_Dalcera_abrasa_FG120035)),(Zygaenoidea_Zygaenidae_Zygaeninae_Zygaena_fausta_INSjdsTAWRAAPEI__39,Zygaenoidea_Lacturidae_Lactura_subfervens_Sub)))),((((Tortricoidea_Tortricidae_Olethreutinae_Grapholita_dimorpha_SRR803483,Tortricoidea_Tortricidae_Olethreutinae_Cydia_pomonella_Cyd),Tortricoidea_Tortricidae_Olethreutinae_Phaecasiophora_niveiguttana_Cro),Immoidea_Immidae_Imma_tetrascia_Imm),Choreutoidea_Choreutidae_Choreutinae_Hemerophila_diva_Cor5)),Urodoidea_Urodidae_Urodus_decens_Ur2),((((((((Gracillarioidea_Gracillariidae_Acrocercopinae_Acrocercops_transecta,Gracillarioidea_Gracillariidae_Phyllocnistinae_Phyllocnistis_citrella_Pcit2),Gracillarioidea_Gracillariidae_Lithocolletinae_Cameraria_ohridella_INSeqtTDMRAAPEI__95),Gracillarioidea_Gracillariidae_Ornixolinae_Philodoria_sp_CJ260),Gracillarioidea_Gracillariidae_Gracillariinae_Caloptilia_triadicae_calo),Gracillarioidea_Bucculatricidae_Bucculatrix_cristatella_ANIsrmTAASRAAPEI__220),(Yponomeutoidea_Plutellidae_Plutella_xylostella,Yponomeutoidea_Yponomeutidae_Yponomeutinae_Yponomeuta_evonymellus_INShauTBFRAAPEI__34)),Gracillarioidea_Roeslerstammiidae_Amphithera_heteroleuca_INSpmbTAHRAAPEI__206),Yponomeutoidea_Lyonetiidae_Cemiostominae_Leucoptera_coffeella_RINysjTAAAARAAPEI__214)),((Tineoidea_Tineidae_Harmacloninae_Harmaclona_sp_RINSinlTDYRAAPEI__57,Tineoidea_Tineidae_Tineinae_Tineola_bisselliella_INSswpTACRAAPEI__13),Tineoidea_Dryadaulidae_Dryadaula_visaliella_Dry)),Tineoidea_Psychidae_Oiketicinae_Thyridopteryx_ephemeraeformis_Tep2),(((((((((((((((Trichoptera_Polycentropodidae_Polycentropodinae_Plectrocnemia_sp,Trichoptera_Psychomyiidae_Psychomyiinae_Psychomyia_flavida),(Trichoptera_Stenopsychidae_Stenopsychodes_sp,Trichoptera_Philopotamidae_Philopotaminae_Philopotamus_ludificatus_Philopotamus)),Trichoptera_Hydropsychidae_Arctopsychinae_Arctopsyche_palpata),(((Trichoptera_Leptoceridae_Leptocerinae_Nectopsyche_candida,Trichoptera_Helicopsychidae_Helicopsyche_borealis),Trichoptera_Phryganeidae_Phryganeinae_Ptilostomis_semifasciata),Trichoptera_Hydroptilidae_Ptilocolepinae_Palaeagapetus_nearcticus_RINSramTAARAAPEI__209_zz)),((((Siphonaptera_Pulicidae_Archaeopsyllini_Ctenocephalides_felis,Siphonaptera_Ceratophyllidae_Ceratophyllinae_Ceratophyllus_gallinae),(Mecoptera_Boreidae_Boreus_hyemalis,Mecoptera_Bittacidae_Bittacus_pilicornis_)),((Diptera_Drosophilidae_Drosophilinae_Drosophila_melanogaster,Diptera_Tachinidae_Tachininae_Triarthria_setipennis),Diptera_Culicidae_Anophelinae_Anopheles_gambiae)),Coleoptera_Tenebrionidae_Tenebrioninae_Tribolium_castaneum_TCAST)),Micropterigoidea_Micropterigidae_Micropterix_calthella_Mica__N),Agathiphagoidea_Agathiphagidae_Agathiphaga_queenslandensis_Aga3),Heterobathmioidea_Heterobathmiidae_Heterobathmia_sp_Hsp),((Neopseustoidea_Neopseustidae_Neopseustinae_Neopseustis_meyricki_RINSinlTEERAAPEI__79,Neopseustoidea_Acanthopteroctetidae_Acanthopteroctetes_unifascia_Aca4),Eriocranioidea_Eriocraniidae_Dyseriocrania_subpurpurella_INSbusTBDRAAPEI__79)),(((Hepialoidea_Hepialidae_Phymatopus_californicus_Phm,Hepialoidea_Hepialidae_Triodia_sylvina_INSnfrTAVRAAPEI__9),Hepialoidea_Hepialidae_Cibyra_sp_FG120028B),Lophocoronoidea_Lophocoronidae_Lophocorona_astipica_Loas)),((Nepticuloidea_Nepticulidae_Nepticulinae_Enteucha_acetosae_Enac2,Nepticuloidea_Nepticulidae_Nepticulinae_Stigmella_atricapitella_ANIsrmTAAWRAAPEI__225),Nepticuloidea_Opostegidae_Oposteginae_Pseudopostega_cf.quadristrigella_Pqd)),((Adeloidea_Prodoxidae_Tegeticula_yuccasella_Tyu4,Adeloidea_Adelidae_Adelinae_Nemophora_degeerella_INShauTABRAAPEI__93),Andesianoidea_Andesianidae_Andesiana_lamellata_RINSinlTEARAAPEI__62)),(Palaephatoidea_Palaephatidae_Palaephatus_nielseni_Pro43D,Palaephatoidea_Palaephatidae_Palaephatus_luteolus_Pal)),((Tischerioidea_Tischeriidae_Tischeria_quercitella_Ts2,Tischerioidea_Tischeriidae_Coptotriche_citrinipennella_INSpmbTAIRAAPEI__207),(Palaephatoidea_Palaephatidae_Ptyssoptera_sp_Ptys,Palaephatoidea_Palaephatidae_Metaphatus_ochraceus_Met4))),Tineoidea_Meessiidae_Meessiinae_Eudarcia_simulatricella_Euds));
+Writing species tree
+Parlay time: Execution time: : 396.7347
+
+Running on zhang_cetacean.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/zhang_cetacean.tre -o zhang_cetacean.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/zhang_cetacean.tre
+output file: zhang_cetacean.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    3191 trees
+    98 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 191 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  120 subproblems computed.
+  130 subproblems computed.
+  140 subproblems computed.
+  150 subproblems computed.
+  160 subproblems computed.
+  170 subproblems computed.
+  180 subproblems computed.
+  190 subproblems computed.
+  191 subproblems computed.
+Printing species tree
+((((((((((((((Mper,Mpni),Mden),Mste),MgraAUS),Mhec),((Mbow,Mcar),MlayAUS)),(((Mmir,Meur),Mgin),Mbid)),(Hamp,Hpla9120)),Zcav),Tshe),(Barn,Bbai76728)),((((((((((Bede66737,BedeAUS),Bbor),Bmus49099),((Bphy_baits,Bphy),Mnov)),Erob133443),(Bacu,BbonAUS)),Cmar59905),(((Egla13086,Ejap43864),EausAUS),Bmys)),((((((Oari,Phod),Orle),Gaar),(Btau,Treu2)),(((Vpac,Cbac),Ecab),Sscr)),(Clib,Hippo))),((Kbre,Ksim),Pmac))),((Igeo,Pbla7349),Lvex)),((((((((((((((Dcap108471,Dcap79929),(DdelSJR,Ddeltrop4525)),((Lhos30470,Lhos452),(((Slon16012,Slon24923),Scly1726),Scly1724))),Scoe),(((Sfro7784,Sfro7782),(Satt18473,Satt38219)),Tadu79924)),Ttru),Schi),Sflu9837),((((((Gmel,Gmac39091),(Fatt,Pele)),Pcra123188),Ggri),(Sbre18437,Sbre116871)),(Obre,Ohei))),((((Chea7320,Laus),Ccom40),(Lobl,Lobs)),(Lbor,LperAUS))),Lalb),Oorc),Lacu),(((((Pspi,Pdio),Ppho),Npho),Pdal),(Dleu,Mmon))));
+Writing species tree
+Parlay time: Execution time: : 106.9407
+
+Running on 1_best_intron4871.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/1_best_intron4871.tre -o 1_best_intron4871.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/1_best_intron4871.tre
+output file: 1_best_intron4871.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    4871 trees
+    125 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 245 subproblems:
+    0 subproblems computed.
+    1 subproblems computed.
+Printing species tree
+(ciconimgr,nippnnppn,phncptrsr,phlcrcrxc,pdrgsstrg,phthnlptr,carmcrstt,strgpshbr,nstrntbls,amazncllr,mlpsttcsn,lptsmsdsc,cathartsr,apldrmvtt,opsthcmsh,pcdspbscn,colsstrts,pdcpscrst,mstrnsncl,gavistllt,athncnclr,nyctbsgrn,plcnscrsp,aptndytsf,pygsclsdl,columbalv,ptgnsfsct,sttrnscrp,cldrspygm,cldrspgnx,rsstrdcty,turnixvlx,chrdrsvcf,brhnsbstr,lmslppncb,atlntsrgr,chlmydtsm,cuclscnrs,apteryxwn,apteryxrw,aptryxhst,strthcmls,tnmsgttts,rheaamrcn,alctrlthm,chauntrqt,penelpplt,numdmlgrs,gallsglls,chryslphs,phsnsclch,mlgrsgllp,clnsvrgnn,cllpplsqm,ansrnssmp,ansrbrchy,ansrcydms,ansrcygnd,aythyflgl,anspltyrh,egrttgrzt,ptrclsgtt,blrcrglrm,antrstmsc,trcrythrl,agthlsbnn,calyptenn,hmprcncmt,chatrplgc,upupaepps,erystmsgl,hlcynsngl,merpsnbcs,galbulade,bcrsrhncr,erypyghls,rhynchtsj,thlssrchc,chrxphlnc,corappltr,mncsvtlln,lpdthrxcr,nplmchrys,empdnxtrl,pittasrdd,mnrnvhlln,ptlnrhync,grntllpct,crvsbrchy,crvsmndld,psdpdcshm,cynstscrl,parusmajr,strnsvlgr,cthrsstlt,fcdllbcll,serinscnr,cmrhynchs,gespzfrts,zntrchlbc,junchymls,mlspzmldm,tnpyggttt,erythrrgl,lnchrstrt,prnllstrp,hrndrstcr,stchyrsrf,zstrpsbrb,acnthsttc,frgtmgnfc,flmrsglcl,falcchrrg,flcprgrns,tytoalblb,aqlchryst,hltslccph,hltslbcll,accptrnss,pipraflcd,pslpgnhmc,ctrnxjpnc,bmbsclthr,pavcrstts,allgtrmss);
+Writing species tree
+Parlay time: Execution time: : 146.7112
+
+Running on avian14k_bs.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/avian14k_bs.tre -o avian14k_bs.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/avian14k_bs.tre
+output file: avian14k_bs.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    14446 trees
+    48 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 91 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+   91 subproblems computed.
+Printing species tree
+(((((GEOFO,TAEGU),CORBR),MANVI),ACACH),(((((((((((MELGA,GALGA),ANAPL),(TINMA,STRCA)),((PODCR,PHORU),(((PTEGU,MESUN),COLLI),((TAUER,CHLUN),CUCCA)))),((CALAN,CHAPE),CAPCA)),((((((APTFO,PYGAD),FULGL),(((EGRGA,PELCR),NIPNI),PHACA)),GAVST),(EURHE,PHALE)),((BALRE,CHAVO),OPHHO))),(((HALLE,HALAL),CATAU),TYTAL)),(((((MERNU,PICPU),BUCRH),APAVI),LEPDI),COLST)),CARCR),FALPE),(MELUN,NESNO)));
+Writing species tree
+Parlay time: Execution time: : 139.6808
+
+Running on CNEE_abayes_gene_trees_sorted.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/CNEE_abayes_gene_trees_sorted.tre -o CNEE_abayes_gene_trees_sorted.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/CNEE_abayes_gene_trees_sorted.tre
+output file: CNEE_abayes_gene_trees_sorted.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    12676 trees
+    15 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 25 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   25 subproblems computed.
+Printing species tree
+((((cryCin,tinGut),(eudEle,notPer)),anoDid),(((((aptHaa,aptOwe),(aptRow,aptMan)),(casCas,droNov)),(rheAme,rhePen)),(strCam,galGal)));
+Writing species tree
+Parlay time: Execution time: : 8.8708
+
+Running on zhang_papilionidae.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/zhang_papilionidae.tre -o zhang_papilionidae.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/zhang_papilionidae.tre
+output file: zhang_papilionidae.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+  WARNING: Input tree on line 348 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 3996 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 4474 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 4760 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5154 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5252 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5387 has fewer than 4 species so ignoring
+Found
+    6398 trees
+    61 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 117 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  117 subproblems computed.
+Printing species tree
+(((((((((((((Ornithoptera_priamus2,Ornithoptera_richmondia),Troides_plateni),Trogonoptera_brookiana),((Euryades_corethrus,Parides_ascanius),Cressida_cressida)),((Atrophaneura_dixoni,Byasa_alcinous),(Losaria_neptunus,Pachliopta_kotzebuea))),Pharmacophagus_antenor),Battus_polydamus),((((((((Papilio_machaon,Papilio_machaon_gb),Papilio_zelicaon),Papilio_Xuthus),Papilio_polytes_gb),Papilio_antimachus),Papilio_alexanor),((Papilio_glaucus_gb,Papilio_slateri),Papilio_thoas)),Meandrusa_sciron)),Teinopalpus_imperialis),(((((Mimoides_lysithaus,Protographium_marcellus),(Eurytides_dolicaon,Protesilaus_nuclesilaus)),(Graphium_androcles,Graphium_sarpedon)),Iphiclides_podalirius),Lamproptera_meges)),(((((Parnassius_honrati,Parnassius_smintheus),Parnassius_imperator),Parnassius_orleans),Hypermnestra_helios),((((Zerynthia_polyxena,Allancastria_cerisyi),Bhutanitis_mansfieldi),Sericinus_montela),(Archon_apollinus,Luehdorfia_japonica)))),Baronia_brevicornis),((((((((((((Heliconius_melpomene,Laparus_doris),Eueides_tales),Agraulis_vanillae),Dryas_iulia),((Junonia_coenia,Melitaea_cinxia),Polygonia_calbum)),(Bicyclus_anynana,Pararge_aegeria)),Danaus_plexippus),Calycopis_cecrops),Phoebis_sennae),Lerema_accius),Bombyx_mori),Choristoneura_fumiferana));
+Writing species tree
+Parlay time: Execution time: : 57.2199
+
+Running on 1kp-AA-genes-bayes.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/1kp-AA-genes-bayes.tre -o 1kp-AA-genes-bayes.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/1kp-AA-genes-bayes.tre
+output file: 1kp-AA-genes-bayes.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    410 trees
+    1178 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 2351 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  120 subproblems computed.
+  130 subproblems computed.
+  140 subproblems computed.
+  150 subproblems computed.
+  160 subproblems computed.
+  170 subproblems computed.
+  180 subproblems computed.
+  190 subproblems computed.
+  200 subproblems computed.
+  210 subproblems computed.
+  220 subproblems computed.
+  230 subproblems computed.
+  240 subproblems computed.
+  250 subproblems computed.
+  260 subproblems computed.
+  270 subproblems computed.
+  280 subproblems computed.
+  290 subproblems computed.
+  300 subproblems computed.
+  310 subproblems computed.
+  320 subproblems computed.
+  330 subproblems computed.
+  340 subproblems computed.
+  350 subproblems computed.
+  360 subproblems computed.
+  370 subproblems computed.
+  380 subproblems computed.
+  390 subproblems computed.
+  400 subproblems computed.
+  410 subproblems computed.
+  420 subproblems computed.
+  430 subproblems computed.
+  440 subproblems computed.
+  450 subproblems computed.
+  460 subproblems computed.
+  470 subproblems computed.
+  480 subproblems computed.
+  490 subproblems computed.
+  500 subproblems computed.
+  510 subproblems computed.
+  520 subproblems computed.
+  530 subproblems computed.
+  540 subproblems computed.
+  550 subproblems computed.
+  560 subproblems computed.
+  570 subproblems computed.
+  580 subproblems computed.
+  590 subproblems computed.
+  600 subproblems computed.
+  610 subproblems computed.
+  620 subproblems computed.
+  630 subproblems computed.
+  640 subproblems computed.
+  650 subproblems computed.
+  660 subproblems computed.
+  670 subproblems computed.
+  680 subproblems computed.
+  690 subproblems computed.
+  700 subproblems computed.
+  710 subproblems computed.
+  720 subproblems computed.
+  730 subproblems computed.
+  740 subproblems computed.
+  750 subproblems computed.
+  760 subproblems computed.
+  770 subproblems computed.
+  780 subproblems computed.
+  790 subproblems computed.
+  800 subproblems computed.
+  810 subproblems computed.
+  820 subproblems computed.
+  830 subproblems computed.
+  840 subproblems computed.
+  850 subproblems computed.
+  860 subproblems computed.
+  870 subproblems computed.
+  880 subproblems computed.
+  890 subproblems computed.
+  900 subproblems computed.
+  910 subproblems computed.
+  920 subproblems computed.
+  930 subproblems computed.
+  940 subproblems computed.
+  950 subproblems computed.
+  960 subproblems computed.
+  970 subproblems computed.
+  980 subproblems computed.
+  990 subproblems computed.
+ 1000 subproblems computed.
+ 1010 subproblems computed.
+ 1020 subproblems computed.
+ 1030 subproblems computed.
+ 1040 subproblems computed.
+ 1050 subproblems computed.
+ 1060 subproblems computed.
+ 1070 subproblems computed.
+ 1080 subproblems computed.
+ 1090 subproblems computed.
+ 1100 subproblems computed.
+ 1110 subproblems computed.
+ 1120 subproblems computed.
+ 1130 subproblems computed.
+ 1140 subproblems computed.
+ 1150 subproblems computed.
+ 1160 subproblems computed.
+ 1170 subproblems computed.
+ 1180 subproblems computed.
+ 1190 subproblems computed.
+ 1200 subproblems computed.
+ 1210 subproblems computed.
+ 1220 subproblems computed.
+ 1230 subproblems computed.
+ 1240 subproblems computed.
+ 1250 subproblems computed.
+ 1260 subproblems computed.
+ 1270 subproblems computed.
+ 1280 subproblems computed.
+ 1290 subproblems computed.
+ 1300 subproblems computed.
+ 1310 subproblems computed.
+ 1320 subproblems computed.
+ 1330 subproblems computed.
+ 1340 subproblems computed.
+ 1350 subproblems computed.
+ 1360 subproblems computed.
+ 1370 subproblems computed.
+ 1380 subproblems computed.
+ 1390 subproblems computed.
+ 1400 subproblems computed.
+ 1410 subproblems computed.
+ 1420 subproblems computed.
+ 1430 subproblems computed.
+ 1440 subproblems computed.
+ 1450 subproblems computed.
+ 1460 subproblems computed.
+ 1470 subproblems computed.
+ 1480 subproblems computed.
+ 1490 subproblems computed.
+ 1500 subproblems computed.
+ 1510 subproblems computed.
+ 1520 subproblems computed.
+ 1530 subproblems computed.
+ 1540 subproblems computed.
+ 1550 subproblems computed.
+ 1560 subproblems computed.
+ 1570 subproblems computed.
+ 1580 subproblems computed.
+ 1590 subproblems computed.
+ 1600 subproblems computed.
+ 1610 subproblems computed.
+ 1620 subproblems computed.
+ 1630 subproblems computed.
+ 1640 subproblems computed.
+ 1650 subproblems computed.
+ 1660 subproblems computed.
+ 1670 subproblems computed.
+ 1680 subproblems computed.
+ 1690 subproblems computed.
+ 1700 subproblems computed.
+ 1710 subproblems computed.
+ 1720 subproblems computed.
+ 1730 subproblems computed.
+ 1740 subproblems computed.
+ 1750 subproblems computed.
+ 1760 subproblems computed.
+ 1770 subproblems computed.
+ 1780 subproblems computed.
+ 1790 subproblems computed.
+ 1800 subproblems computed.
+ 1810 subproblems computed.
+ 1820 subproblems computed.
+ 1830 subproblems computed.
+ 1840 subproblems computed.
+ 1850 subproblems computed.
+ 1860 subproblems computed.
+ 1870 subproblems computed.
+ 1880 subproblems computed.
+ 1890 subproblems computed.
+ 1900 subproblems computed.
+ 1910 subproblems computed.
+ 1920 subproblems computed.
+ 1930 subproblems computed.
+ 1940 subproblems computed.
+ 1950 subproblems computed.
+ 1960 subproblems computed.
+ 1970 subproblems computed.
+ 1980 subproblems computed.
+ 1990 subproblems computed.
+ 2000 subproblems computed.
+ 2010 subproblems computed.
+ 2020 subproblems computed.
+ 2030 subproblems computed.
+ 2040 subproblems computed.
+ 2050 subproblems computed.
+ 2060 subproblems computed.
+ 2070 subproblems computed.
+ 2080 subproblems computed.
+ 2090 subproblems computed.
+ 2100 subproblems computed.
+ 2110 subproblems computed.
+ 2120 subproblems computed.
+ 2130 subproblems computed.
+ 2140 subproblems computed.
+ 2150 subproblems computed.
+ 2160 subproblems computed.
+ 2170 subproblems computed.
+ 2180 subproblems computed.
+ 2190 subproblems computed.
+ 2200 subproblems computed.
+ 2210 subproblems computed.
+ 2220 subproblems computed.
+ 2230 subproblems computed.
+ 2240 subproblems computed.
+ 2250 subproblems computed.
+ 2260 subproblems computed.
+ 2270 subproblems computed.
+ 2280 subproblems computed.
+ 2290 subproblems computed.
+ 2300 subproblems computed.
+ 2310 subproblems computed.
+ 2320 subproblems computed.
+ 2330 subproblems computed.
+ 2340 subproblems computed.
+ 2350 subproblems computed.
+ 2351 subproblems computed.
+Printing species tree
+((((((((((((((((((((((((((((((((((XMBA,WHNV),IYDF),PHCE),(FUMQ,PUCW)),((EQDA,FDMM),TAGM)),(FYUH,BAHE)),((((RTNA,GNPX),(UCNM,LRRR)),(((SNNC,EAAA),GETL),ATYL)),DMLT)),Mimgu_v2.0),(((((FROP,FAMO),VYDM),EJCM),OWAS),UMUL)),(((UTQR,XAYK),TKEK),((WOHL,EDXZ),ZRIN))),((PSHB,MQIV),GCFE)),((((NBMW,WEAC),AYIY),PCGJ),((JCMU,MXFG),HRUR))),GDZS),(((SIBR,XXYA),(XRLM,GRFT)),EJBY)),((((YKZB,PTBJ),GNRI),(YRHD,XISJ)),CLRW)),((RWKR,DTNC),DCCI)),COBX),(((KTAR,YZGX),TORX),MZLD)),((((((((VXKB,XQRV),(NAUM,EMBR)),((NHAG,QSLH),OQBM)),((IZNU,ERWT),ALUC)),CPOC),AHRN),((((((LQJY,NMDZ),UGJI),((Solly_iTAGv2.3,DLAI),(GHLP,DLJZ))),(AIOU,JNVS)),((LWCK,OSMU),BOLZ)),MKZR)),((((((((((OUER,IDGE),((ABEH,JWEY),MZOB)),MDJK),OEKO),NIGS),(DIHD,XVRU)),((HANM,SMUR),EMAL)),YQIJ),DKFZ),((((((((((JCLQ,YFQX),(YADI,DSUV)),JGYZ),EDEQ),MGVU),(QEHE,UOYN)),GGJD),HGSM),(KPUM,ECTD)),(((PCNH,KTWL),ZSGF),WQRD))))),QZZU),(GIPR,SZUO)),(((SXML,ASMV),DFYF),QACK)),((((((((((((((((((QXWF,HXCD),(ZCUA,JEPE)),NVSO),((UYED,JYMN),LYPZ)),(AQZD,YRBQ)),BIDT),UBLN),DUNJ),AFQQ),((((((MHYG,DESP),TEZA),XRCX),DOVJ),((OAGK,GUMF),DUQG)),BMSE)),((((KGJF,KFZY),FUPX),DDRL),(JNKW,RFSD))),(EYKJ,CFRN)),HUQC),IXVJ),((AUIP,GIOY),TPEM)),FXGI),(IZLO,IHPC)),(((((((((CWYJ,TQKZ),WEQK),AJFN),((EDBB,SUVN),OINM)),(NTEO,SALZ)),(MVSE,QIKZ)),SBZH),(((CAQZ,GSZA),(JTRM,FFFY)),(HLJG,ZJRC))),(CLNU,CLMX)))),(((((((((((PPPZ,WXVX),AVJK),(SERM,LRTN)),(QAUE,HUSX)),((UFHF,ADHK),(JPDJ,AXBO))),NGRR),((WRPP,BEFC),OXYP)),((((ODDO,DAAD),PTFA),VKJD),KVFU)),((FNEN,WVMY),YSRZ)),(JEXA,BNTL)),(((ZETY,QURC),VTLJ),((FWBF,BFJL),VUSY)))),(((((((((((((((BWRK,ZBPY),(EYRD,OHKC)),CUTE),(PDQH,HDSY)),(XSSD,WMLW)),(((((ONLQ,AAXJ),CBJR),SMMC),WGET),(FVXD,Betvu_v1.1))),(((((SHEZ,SKNL),OLES),FZQN),TJES),RXEN)),(((((((((((IWIS,GCYL),LDEL),CPLT),(KDCH,BYNZ)),LLQV),(UQCB,EZGR)),(CPKP,JLOV)),LKKX),CTYH),((((((((DVXD,EGOS),(VJPU,ZBTA)),JGAB),JAFJ),(SFKQ,AZBL)),(MRKX,BKQU)),GIWN),(((((HZTS,EDIT),GJNX),BERS),OMYK),BJKT))),(((RNBN,SCAO),NXTS),KJAA))),YNFJ),RUUB),CVDF),WQUF),(FYSJ,WOBD)),((((((((((((BHYC,AEPI),BVOF),((POZS,OODC),MYVH)),HNCF),(((TXMP,VXOD),KCPT),AXPJ)),(((((((((((IEPQ,KKDQ),GLVK),(LFOG,TDTF)),RZTJ),INQX),Poptr_v3.0),(((SIZE,ZIWB),EZZT),COAQ)),(NJLF,LPGY)),((((((XNLP,Manes_v4.1),VVPY),PAZJ),(PXYR,RHAU)),RVGH),(ZTLR,RPPC))),(YGAT,VNMY)),(((((FWCQ,OSIP),NFXV),BNDE),(CKDK,TVCU)),((HBUQ,ZBVT),XPBC)))),(IHCQ,MFEA)),(((((((((((((((((((BXBF,UVQL),LAPO),LJQF),GTSV),HABV),TZWR),((VMNH,IPWB),CSUV)),Arath_TAIR10),((UPZX,VDKG),(LVUS,QSKP))),RTTY),(UAXP,SWPE)),JOIS),DZTK),CRNC),((MYZV,HYZL),(Carpa_ASGPBv0.4,CZPV))),((((((OLXF,ZSAB),WYIG),Theca_v1.1),((WMUK,PKMO),KPTE)),ATFX),(PUDI,AWJM))),((((((RJIM,UVDC),(IKFD,QICX)),UHJR),(((FCCA,JSZD),YUOM),BCAA)),((HBHB,VFFP),WAXR)),OBTI)),(((TIUZ,THHD),YZVJ),JHCN)),WWKL)),((((((((((DZLN,GVCB),(HKMQ,CJGZ)),(((IDAU,ROLB),(BZDF,ZINQ)),((KBRW,YHLF),(IMZV,ARYD)))),(EQYT,SJAN)),(((AXNH,PMTB),JKNQ),(UJGI,TLCA))),FEDW),(YNUE,RJNQ)),(((FGDU,NEBM),(Eucgr_v1.1,AYMT)),(WWQZ,SWGX))),AJJE),((UDUT,KVAY),ZHMB))),((((((((((((((((KEGA,TVSH),Phavu_v1.0),SUAK),NXOH),(((HJMP,MYMP),KNMB),((JTQQ,PEZP),RMWJ))),VLNB),(CMFF,TTRG)),SLYR),ZSSR),(((GEHT,VHZV),QZXQ),(((PJSX,ZCDJ),XOOE),KZED))),((RKFX,JETM),RKLL)),OQHZ),OHAE),(((((UZWG,NHUA),HENI),SVVG),(((LWDA,CWZU),LNER),(INSP,DXQW))),TJLC)),(((((((((QIEH,BLVL),VCIN),EAVM),ZPKK),((Prupe_v1.0,NCVK),TJQY)),SXCE),(SQCF,XFFT)),((IANR,QNOC),DHAW)),((((((BJSW,AQGE),KYAD),((EDHN,XVJB),(WKCY,ACFP))),CQMG),((WVEF,EILE),ZHEE)),RBYC))),((OCTM,NNGU),AXAF))),(VYGG,PTLU)),(HDWF,YGCX))),EHNF)),(((((((((((DAYQ,CTSS),SLOI),ERIA),(CKKR,OOVX)),((UHBY,CIAC),YKFU)),FCBJ),SYHW),UWFU),(((((HQRJ,OMDH),YKQR),NUZN),FYTP),HTIP)),(((ZJUL,DRIL),KWGC),(TOKV,IUSR))),(((((RSPO,XGFU),(QKMG,BSEY)),VGVI),XKPS),(((SZPD,BBBA),Vitvi_Genoscope.12X),BGZG)))),XMQO),(QUTB,HAEU)),IWMW),SWOH),((((SIIK,RQUG),GRRW),VQFW),(FAKD,Nelnu_v1.0))),AALA),((((((((((RQNK,QCOU),BEKN),SSDU),IRAF),(XMVD,XHKT)),EVOD),(((UDHA,ZGQD),AUGV),NMGG)),((((UPOG,ZUHO),(GBVZ,Aquco_v1.1)),VGHH),(WFBF,YHFG))),CCID),QTJY)),((((((((((((((((((((((((((HFIK,FIKG),FOMH),((((JGGD,VYER),YRMA),LDRY),RWXW)),((((((VRGZ,JCXF),ULXR),QLMZ),ASZK),((RAPY,SRSQ),FIDQ)),FSQE)),LIRF),APTP),((VKVG,DBYD),BOGT)),((((((LLEN,VJED),NMAK),RFAD),EBWI),(BAJW,LXRN)),(((IRZA,IAYV),ROZZ),BAKF))),((((((((((WEJN,UGPM),SBLT),CKXF),IEHF),((IHJY,BWVJ),JEBK)),((((LJPN,VNAL),(FTRP,PWKQ)),IKWM),(((ZJOJ,IKIZ),URSB),PYDB))),(((XAXW,UYFR),YSBD),VZWX)),ZULJ),(((PVGP,OBUY),(RTLC,RSOF)),(JJZR,LLXJ))),Cyame_v1.0)),(((PQED,POOW),JKHA),QFND)),((((((((((((((((((((((((((((WRSL,JWGT),Volca_v2.0),(RNAT,RYJX)),ISPU),KUJU),(Chlre_v5.5,IHOI)),BCYF),JKKI),(QWRA,USIX)),IRYH),(XDLL,OFUE)),(((((((WDWX,ZDIZ),RHVC),UKUC),SYJM),ZFXU),(((PRIQ,QRTH),ZLQE),(KFEB,GUBD))),(((LNIL,ACRY),ZIVZ),(((MULF,VALZ),JRGZ),(TSBQ,GFUR))))),((((AJUW,LBRP),AOUJ),UTRE),RUIF)),FXHG),VIAU),(ENAU,MXDS)),(((((((XKWQ,XTON),VJDZ),(PZIF,MWAN)),OTQG),FOYQ),BZSH),DZPJ)),(((((RAWF,ISGT),(VFIV,JMUI)),IJMT),BAZF),(DVYE,SDPC))),(((((((((CQQP,OAEZ),OQON),(NQYP,LSHT)),KSFK),GJIY),(((LETF,CBNG),AJAU),JIWJ)),(ALZF,NSTT)),KADG),((((YDCQ,NATT),VHIJ),VBLH),(GYBH,JTIG)))),((((((EEJO,Chlva_v1.0),AKCR),BILC),JQFK),((MFYC,MNCB),PFUD)),((WCLV,WXRI),(((QYXY,ETGN),GXBM),((EATP,ZNUM),NKXU))))),(((HVNO,HHXJ),DUMA),FMVB)),(RRSV,PUAN)),AYPS),TGNL),JMTE),(MMKU,ISIM)),((((((Micpu_v3.0,QXSZ),(Ostlu_v2.0,MCPK)),XOAL),BTFM),EGNB),(TNAW,XIVI))),((HYHN,XJGM),XMCL))),((NNHQ,AZZW),KYIO)),(((FQLP,Klefl_v1.0),FPCO),BFIK)),(Chabr_v0.1,MWXT)),((VQBJ,QPDY),DRGY)),(((((((((((((((((((DFDS,GGWH),QWFV),(MNNM,ISHC)),GYRP),(((((STKJ,WDGV),(GBGT,MOYY)),MCHJ),WCQU),(RPRU,BHBK))),RQFE),HIDG),RPQV),YSQT),AEKF),DRFX),KEYW),XRTZ),SNOX),KMNX),FFGR),HAOX),((((RPGL,VAZE),YOXI),(((MFZO,NBYP),JOJQ),(HKZW,ZRMT))),(WDCW,WSJO))),TPHT)),(((((((((((((((((((((((TMAJ,QMWB),(VBMM,JADL)),(WSPM,MIRS)),((LNSF,EEMJ),TAVP)),(ZACW,IGUH)),QKQO),DHWX),WNGH),CMEQ),((XWHK,JMXW),BGXB)),ORKS),YWNF),((((VMXJ,RGKI),((GRKU,FFPD),NGTD)),(RDOO,ABCD)),BPSG)),ZQRI),((Phypa_v3.0,YEPO),KEFD)),AWOI),HRWG),((SZYG,ZTHV),HVBQ)),WOGB),((GOWD,RCBT),UHLI)),SKQD),(((((((((((IRBN,OFTV),YBQN),RTMU),WZYK),LGOW),HPXA),((KRUQ,UUHD),(TGKW,BNCU))),NRWZ),YFGP),(JHFI,PIUF)),(((((HMHL,JPYU),TFYI),(WJLO,ILBQ)),TXVB),HERT))),((((((DXOU,TCBC),UCRN),AKXB),((WCZB,WEEQ),FAJB)),(BSNI,TWUW)),ANON))),(((((CBAE,GAON),(GKAG,YHZW)),ZZEI),(((ENQF,WAFT),(XNXF,PQTO)),(UPMJ,ULKT))),((((((ZZOL,Selmo_v1.0),(LGDQ,ABIJ)),KJYC),((JKAA,ZYCD),ZFGK)),KUXM),(PKOX,PYHZ)))),(((((((((((((((((((((((CJNT,IXLH),GYFU),YLJA),ZQYU),UJWU),ORJE),OQWW),NWWI),(FQGQ,JBLI)),WGTU),RFRB),((((((XXHP,YOWV),(LHLE,RICC)),HNDZ),HEGQ),(((((((AFPO,URCP),UFJN),(HTFH,VITX)),FCHS),(YQEC,YJJY)),MROH),OCZL)),((BMIF,PSKY),KJZG))),MTGC),((((((DCDT,ZXJO),YCKE),(XDDT,GSXD)),((NDUV,SKYV),(WCLG,BMJR))),WQML),(((POPJ,FLTD),UJTT),PIVW))),((NOKI,YIXP),VVRN)),(((UWOD,PNZO),EWXK),GANB)),(CVEG,KIIX)),(PBUU,CQPW)),(QIAD,MEKP)),((UOMY,VIBO),RFMZ)),((UGNK,NHCM),DFHO)),(((EEAQ,BEGM),DJSE),(QVMR,ALVQ))),(JVSZ,CAPN))),(((((((((((((((JDQB,RMMV),IFLI),(AUDE,GKCZ)),((YYPE,OVIJ),ETCJ)),((((XMGP,QNGJ),(((BUWV,XQSG),CGDN),FRPM)),(AIGO,UEVI)),(VFYZ,NKIN))),((FHST,OXGJ),GMHZ)),(((QFAE,HBGV),NRXL),XIRK)),QSNJ),ZQVF),((((ZYAX,WWSS),(BTTS,YLPM)),NVGZ),((EFMS,HQOM),IAJW))),YFZK),((((((((VGSX,UUJS),(SCEB,XLGK)),(((ROWR,QHBI),IZGN),FMWZ)),HILW),MHGD),QCGM),((EGLZ,KLGF),((((CDFR,ZQWM),JZVE),(BBDD,JRNA)),OWFC))),(((MIXZ,ACWS),RSCE),XTZO))),(((((((MFTM,JBND),(DZQM,Pinta_v2.0)),IIOL),AWQB),NPRL),(IOVS,WVWN)),((((GAMH,AREG),AQFM),(VSRH,JUWL)),GGEA))),((TOXE,GTHK),VDAO)),((((GNQG,KAWQ),WLIC),XZUY),SGTW))),(Ambtr_v1.0.27,URDJ)),(PZRT,WTKZ)),((VZCI,NWMY),FZJL)),(((((((((((ABSS,BCGB),KAYP),WIGA),VYLQ),BSVG),KRJP),(WAIL,MAQO)),(FALI,WPHN)),((((YZRI,PSJT),DHPO),(WBOD,XQWC)),OBPL)),((((XSZI,MUNP),(CSSK,OPDF)),(QDVW,PAWA)),(WKSU,SJEV))),(WZFE,OSHQ))),(((((((((((((((((((((ZENX,VQYB),XUAB),BXAY),NNOK),(ZMGN,BPKH)),(WCOR,XBKS)),SOHV),((ROEI,Sorbi_v2.1),YPIC)),((RCAH,YLWW),(YXNR,EFCZ))),HATH),((RMVB,IADP),Orysa_v7.0)),WXNT),BSTR),(((WBIB,PWSG),XPAF),CIEA)),BYPY),(PPQR,BRUD)),((((LEMW,BDJQ),(TZNS,JNUB)),(((LSKK,UOEL),XHHU),Musac_v1.0)),(((HXJE,HWUP),Elagu_v2.0),NSPR))),((((((((((((((((((RQZP,HOKG),((XFJG,RCUX),UZXL)),TCYS),LSJW),MVRF),ONBE),FGRF),MUMD),((((ICNN,YBML),KXSK),(PLBZ,CMCY)),((SVTS,KOFB),IXEM))),((((((JDTY,DPFW),LDME),(DMIN,ZKPF)),TRRQ),(GJPF,KBXS)),PRFO)),((((BLAJ,JHUL),WTDE),FCEL),JVBR)),SART),LTZF),(KYNE,RDYY)),YJUG),EMJJ),(((((LELS,VTUS),XZME),MTHW),(JSAG,CNTZ)),THDM)),(((QNPH,NHIX),GDKK),((AFLV,OOSO),(THEW,MWYQ))))),(((QOXT,SILJ),((VVVV,DGXS),VBHQ)),OCWZ)),(((YMES,MFIN),Spipo_v2),((COCP,BYQM),DWZT))),MTII)),NPND));
+Writing species tree
+Parlay time: Execution time: : 2724.4468
+
+Running on swallowtail_bayes.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/swallowtail_bayes.tre -o swallowtail_bayes.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/swallowtail_bayes.tre
+output file: swallowtail_bayes.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+  WARNING: Input tree on line 348 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 3996 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 4474 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 4760 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5154 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5252 has fewer than 4 species so ignoring
+  WARNING: Input tree on line 5387 has fewer than 4 species so ignoring
+Found
+    6398 trees
+    61 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 117 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  117 subproblems computed.
+Printing species tree
+(((((((((((((Ornithoptera_priamus2,Ornithoptera_richmondia),Troides_plateni),Trogonoptera_brookiana),((Euryades_corethrus,Parides_ascanius),Cressida_cressida)),((Atrophaneura_dixoni,Byasa_alcinous),(Losaria_neptunus,Pachliopta_kotzebuea))),Pharmacophagus_antenor),Battus_polydamus),((((((((Papilio_machaon,Papilio_machaon_gb),Papilio_zelicaon),Papilio_Xuthus),Papilio_polytes_gb),Papilio_antimachus),Papilio_alexanor),((Papilio_glaucus_gb,Papilio_slateri),Papilio_thoas)),Meandrusa_sciron)),Teinopalpus_imperialis),(((((Mimoides_lysithaus,Protographium_marcellus),(Eurytides_dolicaon,Protesilaus_nuclesilaus)),(Graphium_androcles,Graphium_sarpedon)),Iphiclides_podalirius),Lamproptera_meges)),(((((Parnassius_honrati,Parnassius_smintheus),Parnassius_imperator),Parnassius_orleans),Hypermnestra_helios),((((Zerynthia_polyxena,Allancastria_cerisyi),Bhutanitis_mansfieldi),Sericinus_montela),(Archon_apollinus,Luehdorfia_japonica)))),Baronia_brevicornis),((((((((((((Heliconius_melpomene,Laparus_doris),Eueides_tales),Agraulis_vanillae),Dryas_iulia),((Junonia_coenia,Melitaea_cinxia),Polygonia_calbum)),(Bicyclus_anynana,Pararge_aegeria)),Danaus_plexippus),Calycopis_cecrops),Phoebis_sennae),Lerema_accius),Bombyx_mori),Choristoneura_fumiferana));
+Writing species tree
+Parlay time: Execution time: : 56.8410
+
+Running on 1kp-AA-genes-bs.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/1kp-AA-genes-bs.tre -o 1kp-AA-genes-bs.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/1kp-AA-genes-bs.tre
+output file: 1kp-AA-genes-bs.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    410 trees
+    1178 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 2351 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  120 subproblems computed.
+  130 subproblems computed.
+  140 subproblems computed.
+  150 subproblems computed.
+  160 subproblems computed.
+  170 subproblems computed.
+  180 subproblems computed.
+  190 subproblems computed.
+  200 subproblems computed.
+  210 subproblems computed.
+  220 subproblems computed.
+  230 subproblems computed.
+  240 subproblems computed.
+  250 subproblems computed.
+  260 subproblems computed.
+  270 subproblems computed.
+  280 subproblems computed.
+  290 subproblems computed.
+  300 subproblems computed.
+  310 subproblems computed.
+  320 subproblems computed.
+  330 subproblems computed.
+  340 subproblems computed.
+  350 subproblems computed.
+  360 subproblems computed.
+  370 subproblems computed.
+  380 subproblems computed.
+  390 subproblems computed.
+  400 subproblems computed.
+  410 subproblems computed.
+  420 subproblems computed.
+  430 subproblems computed.
+  440 subproblems computed.
+  450 subproblems computed.
+  460 subproblems computed.
+  470 subproblems computed.
+  480 subproblems computed.
+  490 subproblems computed.
+  500 subproblems computed.
+  510 subproblems computed.
+  520 subproblems computed.
+  530 subproblems computed.
+  540 subproblems computed.
+  550 subproblems computed.
+  560 subproblems computed.
+  570 subproblems computed.
+  580 subproblems computed.
+  590 subproblems computed.
+  600 subproblems computed.
+  610 subproblems computed.
+  620 subproblems computed.
+  630 subproblems computed.
+  640 subproblems computed.
+  650 subproblems computed.
+  660 subproblems computed.
+  670 subproblems computed.
+  680 subproblems computed.
+  690 subproblems computed.
+  700 subproblems computed.
+  710 subproblems computed.
+  720 subproblems computed.
+  730 subproblems computed.
+  740 subproblems computed.
+  750 subproblems computed.
+  760 subproblems computed.
+  770 subproblems computed.
+  780 subproblems computed.
+  790 subproblems computed.
+  800 subproblems computed.
+  810 subproblems computed.
+  820 subproblems computed.
+  830 subproblems computed.
+  840 subproblems computed.
+  850 subproblems computed.
+  860 subproblems computed.
+  870 subproblems computed.
+  880 subproblems computed.
+  890 subproblems computed.
+  900 subproblems computed.
+  910 subproblems computed.
+  920 subproblems computed.
+  930 subproblems computed.
+  940 subproblems computed.
+  950 subproblems computed.
+  960 subproblems computed.
+  970 subproblems computed.
+  980 subproblems computed.
+  990 subproblems computed.
+ 1000 subproblems computed.
+ 1010 subproblems computed.
+ 1020 subproblems computed.
+ 1030 subproblems computed.
+ 1040 subproblems computed.
+ 1050 subproblems computed.
+ 1060 subproblems computed.
+ 1070 subproblems computed.
+ 1080 subproblems computed.
+ 1090 subproblems computed.
+ 1100 subproblems computed.
+ 1110 subproblems computed.
+ 1120 subproblems computed.
+ 1130 subproblems computed.
+ 1140 subproblems computed.
+ 1150 subproblems computed.
+ 1160 subproblems computed.
+ 1170 subproblems computed.
+ 1180 subproblems computed.
+ 1190 subproblems computed.
+ 1200 subproblems computed.
+ 1210 subproblems computed.
+ 1220 subproblems computed.
+ 1230 subproblems computed.
+ 1240 subproblems computed.
+ 1250 subproblems computed.
+ 1260 subproblems computed.
+ 1270 subproblems computed.
+ 1280 subproblems computed.
+ 1290 subproblems computed.
+ 1300 subproblems computed.
+ 1310 subproblems computed.
+ 1320 subproblems computed.
+ 1330 subproblems computed.
+ 1340 subproblems computed.
+ 1350 subproblems computed.
+ 1360 subproblems computed.
+ 1370 subproblems computed.
+ 1380 subproblems computed.
+ 1390 subproblems computed.
+ 1400 subproblems computed.
+ 1410 subproblems computed.
+ 1420 subproblems computed.
+ 1430 subproblems computed.
+ 1440 subproblems computed.
+ 1450 subproblems computed.
+ 1460 subproblems computed.
+ 1470 subproblems computed.
+ 1480 subproblems computed.
+ 1490 subproblems computed.
+ 1500 subproblems computed.
+ 1510 subproblems computed.
+ 1520 subproblems computed.
+ 1530 subproblems computed.
+ 1540 subproblems computed.
+ 1550 subproblems computed.
+ 1560 subproblems computed.
+ 1570 subproblems computed.
+ 1580 subproblems computed.
+ 1590 subproblems computed.
+ 1600 subproblems computed.
+ 1610 subproblems computed.
+ 1620 subproblems computed.
+ 1630 subproblems computed.
+ 1640 subproblems computed.
+ 1650 subproblems computed.
+ 1660 subproblems computed.
+ 1670 subproblems computed.
+ 1680 subproblems computed.
+ 1690 subproblems computed.
+ 1700 subproblems computed.
+ 1710 subproblems computed.
+ 1720 subproblems computed.
+ 1730 subproblems computed.
+ 1740 subproblems computed.
+ 1750 subproblems computed.
+ 1760 subproblems computed.
+ 1770 subproblems computed.
+ 1780 subproblems computed.
+ 1790 subproblems computed.
+ 1800 subproblems computed.
+ 1810 subproblems computed.
+ 1820 subproblems computed.
+ 1830 subproblems computed.
+ 1840 subproblems computed.
+ 1850 subproblems computed.
+ 1860 subproblems computed.
+ 1870 subproblems computed.
+ 1880 subproblems computed.
+ 1890 subproblems computed.
+ 1900 subproblems computed.
+ 1910 subproblems computed.
+ 1920 subproblems computed.
+ 1930 subproblems computed.
+ 1940 subproblems computed.
+ 1950 subproblems computed.
+ 1960 subproblems computed.
+ 1970 subproblems computed.
+ 1980 subproblems computed.
+ 1990 subproblems computed.
+ 2000 subproblems computed.
+ 2010 subproblems computed.
+ 2020 subproblems computed.
+ 2030 subproblems computed.
+ 2040 subproblems computed.
+ 2050 subproblems computed.
+ 2060 subproblems computed.
+ 2070 subproblems computed.
+ 2080 subproblems computed.
+ 2090 subproblems computed.
+ 2100 subproblems computed.
+ 2110 subproblems computed.
+ 2120 subproblems computed.
+ 2130 subproblems computed.
+ 2140 subproblems computed.
+ 2150 subproblems computed.
+ 2160 subproblems computed.
+ 2170 subproblems computed.
+ 2180 subproblems computed.
+ 2190 subproblems computed.
+ 2200 subproblems computed.
+ 2210 subproblems computed.
+ 2220 subproblems computed.
+ 2230 subproblems computed.
+ 2240 subproblems computed.
+ 2250 subproblems computed.
+ 2260 subproblems computed.
+ 2270 subproblems computed.
+ 2280 subproblems computed.
+ 2290 subproblems computed.
+ 2300 subproblems computed.
+ 2310 subproblems computed.
+ 2320 subproblems computed.
+ 2330 subproblems computed.
+ 2340 subproblems computed.
+ 2350 subproblems computed.
+ 2351 subproblems computed.
+Printing species tree
+(((((((((((((((((((((HFIK,FIKG),FOMH),((((JGGD,VYER),YRMA),LDRY),RWXW)),((((((VRGZ,ULXR),JCXF),QLMZ),ASZK),((RAPY,SRSQ),FIDQ)),FSQE)),LIRF),APTP),((VKVG,DBYD),BOGT)),((((((VJED,NMAK),LLEN),RFAD),EBWI),(BAJW,LXRN)),(((IRZA,IAYV),ROZZ),BAKF))),((((((((((BWVJ,IHJY),JEBK),((((WEJN,UGPM),SBLT),CKXF),IEHF)),((((LJPN,VNAL),(PWKQ,FTRP)),IKWM),(((IKIZ,ZJOJ),URSB),PYDB))),(((UYFR,XAXW),YSBD),VZWX)),ZULJ),LLXJ),JJZR),((PVGP,OBUY),(RSOF,RTLC))),Cyame_v1.0)),(((POOW,PQED),JKHA),QFND)),((((((((((((((((((((((((((((JWGT,WRSL),Volca_v2.0),(RNAT,RYJX)),ISPU),KUJU),IHOI),Chlre_v5.5),BCYF),JKKI),(QWRA,USIX)),IRYH),(XDLL,OFUE)),(((((((WDWX,ZDIZ),RHVC),UKUC),SYJM),ZFXU),(((PRIQ,QRTH),ZLQE),(KFEB,GUBD))),(((LNIL,ACRY),ZIVZ),(((VALZ,MULF),JRGZ),(TSBQ,GFUR))))),((((LBRP,AJUW),AOUJ),UTRE),RUIF)),FXHG),VIAU),((((((((XKWQ,XTON),VJDZ),(MWAN,PZIF)),OTQG),BZSH),FOYQ),DZPJ),(MXDS,ENAU))),(((((RAWF,ISGT),(VFIV,JMUI)),IJMT),(DVYE,SDPC)),BAZF)),(((((((((OAEZ,CQQP),OQON),(LSHT,NQYP)),KSFK),GJIY),(((LETF,CBNG),AJAU),JIWJ)),KADG),(ALZF,NSTT)),(((NATT,YDCQ),(VHIJ,VBLH)),(GYBH,JTIG)))),(((((Chlva_v1.0,EEJO),AKCR),(JQFK,BILC)),((MFYC,MNCB),PFUD)),((WCLV,WXRI),(((((QYXY,ETGN),GXBM),NKXU),EATP),ZNUM)))),(((HVNO,HHXJ),DUMA),FMVB)),(RRSV,PUAN)),AYPS),TGNL),JMTE),(ISIM,MMKU)),((((((Micpu_v3.0,QXSZ),(Ostlu_v2.0,MCPK)),XOAL),BTFM),(TNAW,XIVI)),EGNB)),((HYHN,XJGM),XMCL))),((NNHQ,AZZW),KYIO)),(((Klefl_v1.0,FQLP),FPCO),BFIK)),(Chabr_v0.1,MWXT)),((QPDY,VQBJ),DRGY)),(((((((((((((((((((DFDS,GGWH),QWFV),(MNNM,ISHC)),GYRP),((((((STKJ,WDGV),MOYY),GBGT),MCHJ),(BHBK,RPRU)),WCQU)),RQFE),HIDG),RPQV),YSQT),AEKF),DRFX),KEYW),XRTZ),SNOX),KMNX),FFGR),HAOX),((((VAZE,RPGL),YOXI),(((NBYP,MFZO),JOJQ),(HKZW,ZRMT))),(WSJO,WDCW))),TPHT)),((((((((((((((((((((IGUH,ZACW),((((QMWB,TMAJ),(JADL,VBMM)),(MIRS,WSPM)),((EEMJ,LNSF),TAVP))),QKQO),DHWX),WNGH),CMEQ),((XWHK,JMXW),BGXB)),ORKS),YWNF),((((VMXJ,RGKI),((FFPD,GRKU),NGTD)),(ABCD,RDOO)),BPSG)),ZQRI),((YEPO,Phypa_v3.0),KEFD)),AWOI),HRWG),((SZYG,ZTHV),HVBQ)),WOGB),((GOWD,RCBT),UHLI)),SKQD),((((((((((IRBN,OFTV),YBQN),(RTMU,WZYK)),LGOW),HPXA),((KRUQ,UUHD),(TGKW,BNCU))),NRWZ),YFGP),(PIUF,JHFI)),(((((JPYU,HMHL),TFYI),(ILBQ,WJLO)),TXVB),HERT))),((((((TCBC,DXOU),UCRN),AKXB),((WCZB,WEEQ),FAJB)),(BSNI,TWUW)),ANON))),(((((CBAE,GAON),(YHZW,GKAG)),ZZEI),(((WAFT,ENQF),(PQTO,XNXF)),(UPMJ,ULKT))),((((((Selmo_v1.0,ZZOL),(LGDQ,ABIJ)),KJYC),((JKAA,ZYCD),ZFGK)),KUXM),(PKOX,PYHZ)))),(((((((((((((((((((((((CJNT,IXLH),GYFU),YLJA),ZQYU),UJWU),ORJE),OQWW),NWWI),(FQGQ,JBLI)),WGTU),RFRB),((((((YOWV,XXHP),(LHLE,RICC)),HNDZ),HEGQ),(((((((URCP,AFPO),UFJN),FCHS),(HTFH,VITX)),(YQEC,YJJY)),MROH),OCZL)),((BMIF,PSKY),KJZG))),MTGC),((((((ZXJO,DCDT),YCKE),(XDDT,GSXD)),((NDUV,SKYV),(BMJR,WCLG))),WQML),(((FLTD,POPJ),UJTT),PIVW))),((YIXP,NOKI),VVRN)),(((UWOD,PNZO),EWXK),GANB)),(CVEG,KIIX)),(PBUU,CQPW)),(MEKP,QIAD)),((UOMY,VIBO),RFMZ)),((UGNK,NHCM),DFHO)),(((EEAQ,BEGM),DJSE),(QVMR,ALVQ))),(JVSZ,CAPN))),((((((((((((((RMMV,JDQB),IFLI),(AUDE,GKCZ)),((YYPE,OVIJ),ETCJ)),((((XMGP,QNGJ),(((XQSG,BUWV),CGDN),FRPM)),(UEVI,AIGO)),(VFYZ,NKIN))),((OXGJ,FHST),GMHZ)),(((QFAE,HBGV),NRXL),XIRK)),QSNJ),ZQVF),((((ZYAX,WWSS),(BTTS,YLPM)),NVGZ),((EFMS,HQOM),IAJW))),YFZK),((((((((UUJS,VGSX),(SCEB,XLGK)),(((ROWR,QHBI),IZGN),FMWZ)),HILW),MHGD),QCGM),((EGLZ,KLGF),((((ZQWM,CDFR),JZVE),OWFC),(JRNA,BBDD)))),(((MIXZ,ACWS),RSCE),XTZO))),(((((((((JBND,MFTM),DZQM),Pinta_v2.0),IIOL),AWQB),NPRL),(WVWN,IOVS)),((((GAMH,AREG),AQFM),(VSRH,JUWL)),GGEA)),((TOXE,GTHK),VDAO))),((((GNQG,KAWQ),WLIC),XZUY),SGTW))),(((((((((((((((((((((((((((((((((((WHNV,XMBA),IYDF),PHCE),(PUCW,FUMQ)),((FDMM,EQDA),TAGM)),(BAHE,FYUH)),((((GNPX,RTNA),(UCNM,LRRR)),(((EAAA,SNNC),GETL),ATYL)),DMLT)),((((((FAMO,FROP),VYDM),EJCM),OWAS),UMUL),Mimgu_v2.0)),((WOHL,EDXZ),ZRIN)),(((PSHB,MQIV),GCFE),((UTQR,XAYK),TKEK))),((((NBMW,WEAC),AYIY),PCGJ),((MXFG,JCMU),HRUR))),GDZS),(((XXYA,SIBR),(GRFT,XRLM)),EJBY)),((((PTBJ,YKZB),GNRI),(YRHD,XISJ)),CLRW)),((RWKR,DTNC),DCCI)),((((KTAR,YZGX),TORX),MZLD),COBX)),((((((((NMDZ,LQJY),UGJI),((Solly_iTAGv2.3,DLAI),(GHLP,DLJZ))),(AIOU,JNVS)),((OSMU,LWCK),BOLZ)),MKZR),((((((XQRV,VXKB),(EMBR,NAUM)),((QSLH,NHAG),OQBM)),((IZNU,ERWT),ALUC)),CPOC),AHRN)),(((((((((IDGE,OUER),((ABEH,JWEY),MZOB)),(OEKO,MDJK)),NIGS),(DIHD,XVRU)),((SMUR,HANM),EMAL)),YQIJ),DKFZ),(((((((((JCLQ,YFQX),(YADI,DSUV)),JGYZ),EDEQ),MGVU),(UOYN,QEHE)),GGJD),((KPUM,ECTD),HGSM)),(((KTWL,PCNH),ZSGF),WQRD))))),QZZU),((((ASMV,SXML),DFYF),QACK),(GIPR,SZUO))),((((((((((((((((((QXWF,HXCD),(ZCUA,JEPE)),NVSO),((JYMN,UYED),LYPZ)),(AQZD,YRBQ)),BIDT),UBLN),DUNJ),AFQQ),((((((DESP,MHYG),TEZA),XRCX),DOVJ),((OAGK,GUMF),DUQG)),BMSE)),((((KFZY,KGJF),FUPX),DDRL),(JNKW,RFSD))),(CFRN,EYKJ)),HUQC),IXVJ),((TPEM,GIOY),AUIP)),FXGI),(IHPC,IZLO)),((((((((CWYJ,TQKZ),WEQK),AJFN),((SUVN,EDBB),OINM)),(NTEO,SALZ)),(QIKZ,MVSE)),SBZH),((((CAQZ,GSZA),(JTRM,FFFY)),(ZJRC,HLJG)),(CLNU,CLMX))))),(((((((((WXVX,PPPZ),AVJK),(LRTN,SERM)),(QAUE,HUSX)),(((ADHK,UFHF),AXBO),JPDJ)),NGRR),((((((ODDO,DAAD),PTFA),VKJD),KVFU),((BEFC,WRPP),OXYP)),((FNEN,WVMY),YSRZ))),(BNTL,JEXA)),(((ZETY,QURC),VTLJ),((BFJL,FWBF),VUSY)))),(QUTB,HAEU)),XMQO),((((((((((((((DZLN,GVCB),(HKMQ,CJGZ)),(((ROLB,IDAU),(ZINQ,BZDF)),((ARYD,IMZV),(KBRW,YHLF)))),(SJAN,EQYT)),(((AXNH,PMTB),JKNQ),(UJGI,TLCA))),FEDW),(RJNQ,YNUE)),(((NEBM,FGDU),(Eucgr_v1.1,AYMT)),(SWGX,WWQZ))),AJJE),((UDUT,KVAY),ZHMB)),((VYGG,PTLU),(HDWF,YGCX))),((((((((((((((((TVSH,KEGA),Phavu_v1.0),SUAK),NXOH),((((HJMP,MYMP),KNMB),(JTQQ,PEZP)),RMWJ)),VLNB),(CMFF,TTRG)),SLYR),ZSSR),(((VHZV,GEHT),QZXQ),(((ZCDJ,PJSX),XOOE),KZED))),((JETM,RKFX),RKLL)),OQHZ),OHAE),(((((UZWG,NHUA),HENI),SVVG),(((LWDA,CWZU),LNER),(INSP,DXQW))),TJLC)),(((((((((QIEH,BLVL),(EAVM,VCIN)),((Prupe_v1.0,NCVK),TJQY)),ZPKK),SXCE),(SQCF,XFFT)),((IANR,QNOC),DHAW)),(((((BJSW,AQGE),KYAD),((EDHN,XVJB),(WKCY,ACFP))),CQMG),(((WVEF,EILE),ZHEE),RBYC))),((OCTM,NNGU),AXAF))),(((((((((((((((((((BXBF,UVQL),LAPO),LJQF),GTSV),HABV),TZWR),((VMNH,IPWB),CSUV)),Arath_TAIR10),((UPZX,VDKG),(QSKP,LVUS))),RTTY),(SWPE,UAXP)),JOIS),DZTK),CRNC),((MYZV,HYZL),(CZPV,Carpa_ASGPBv0.4))),((((((OLXF,ZSAB),WYIG),Theca_v1.1),((PKMO,WMUK),KPTE)),ATFX),(PUDI,AWJM))),((((((UVDC,RJIM),UHJR),(QICX,IKFD)),(((FCCA,JSZD),YUOM),BCAA)),((VFFP,HBHB),WAXR)),OBTI)),((((YZVJ,THHD),TIUZ),JHCN),WWKL)),((((((((((BHYC,AEPI),BVOF),((POZS,OODC),MYVH)),HNCF),(((TXMP,VXOD),KCPT),AXPJ)),(ZBVT,HBUQ)),((((FWCQ,OSIP),(BNDE,NFXV)),(CKDK,TVCU)),XPBC)),(((((((((IEPQ,KKDQ),GLVK),(LFOG,TDTF)),RZTJ),INQX),Poptr_v3.0),(((SIZE,ZIWB),EZZT),COAQ)),(NJLF,LPGY)),(YGAT,VNMY))),(((((XNLP,Manes_v4.1),VVPY),PAZJ),(RHAU,PXYR)),((RPPC,ZTLR),RVGH))),(IHCQ,MFEA))))),(((((((((DAYQ,CTSS),SLOI),ERIA),(((UHBY,CIAC),YKFU),(OOVX,CKKR))),FCBJ),SYHW),UWFU),(((DRIL,ZJUL),KWGC),(IUSR,TOKV))),(((((HQRJ,OMDH),YKQR),NUZN),FYTP),HTIP))),(((((XGFU,RSPO),(QKMG,BSEY)),VGVI),XKPS),(((SZPD,BBBA),Vitvi_Genoscope.12X),BGZG)))),((((((((((((BWRK,ZBPY),(EYRD,OHKC)),CUTE),(PDQH,HDSY)),(WMLW,XSSD)),(((((AAXJ,ONLQ),CBJR),SMMC),WGET),(FVXD,Betvu_v1.1))),(((((SKNL,SHEZ),OLES),FZQN),TJES),RXEN)),(((((((((((IWIS,GCYL),LDEL),CPLT),(BYNZ,KDCH)),LLQV),(UQCB,EZGR)),(CPKP,JLOV)),LKKX),CTYH),(((RNBN,SCAO),NXTS),KJAA)),((((((((DVXD,EGOS),(ZBTA,VJPU)),JGAB),JAFJ),(AZBL,SFKQ)),GIWN),(MRKX,BKQU)),(((((HZTS,EDIT),GJNX),BERS),OMYK),BJKT)))),YNFJ),RUUB),CVDF),((FYSJ,WOBD),WQUF))),EHNF),(IWMW,SWOH)),(((((RQUG,SIIK),GRRW),VQFW),(FAKD,Nelnu_v1.0)),AALA)),(((((((((RQNK,QCOU),BEKN),SSDU),IRAF),(XHKT,XMVD)),EVOD),(((ZGQD,UDHA),AUGV),NMGG)),(((((UPOG,ZUHO),(GBVZ,Aquco_v1.1)),VGHH),(WFBF,YHFG)),CCID)),QTJY)),NPND),((((((((((ABSS,BCGB),KAYP),WIGA),VYLQ),(BSVG,KRJP)),(MAQO,WAIL)),(FALI,WPHN)),(((WBOD,XQWC),((PSJT,YZRI),DHPO)),OBPL)),((((MUNP,XSZI),(CSSK,OPDF)),(PAWA,QDVW)),(SJEV,WKSU))),(WZFE,OSHQ))),(((((((((((((((((((((VQYB,ZENX),XUAB),BXAY),NNOK),(ZMGN,BPKH)),(WCOR,XBKS)),SOHV),((ROEI,Sorbi_v2.1),YPIC)),((RCAH,YLWW),(YXNR,EFCZ))),HATH),((IADP,RMVB),Orysa_v7.0)),WXNT),BSTR),(((PWSG,WBIB),XPAF),CIEA)),BYPY),(PPQR,BRUD)),((((LEMW,BDJQ),(JNUB,TZNS)),(((UOEL,LSKK),XHHU),Musac_v1.0)),(((HWUP,HXJE),Elagu_v2.0),NSPR))),(((((((((((((((((RQZP,HOKG),((XFJG,RCUX),UZXL)),TCYS),LSJW),MVRF),ONBE),FGRF),MUMD),((((ICNN,YBML),KXSK),(PLBZ,CMCY)),((SVTS,KOFB),IXEM))),((((((JDTY,DPFW),LDME),(DMIN,ZKPF)),TRRQ),(GJPF,KBXS)),PRFO)),((((BLAJ,JHUL),WTDE),FCEL),JVBR)),SART),LTZF),(KYNE,RDYY)),(EMJJ,YJUG)),(((((LELS,VTUS),XZME),MTHW),(JSAG,CNTZ)),THDM)),((((QNPH,NHIX),GDKK),(MWYQ,THEW)),(AFLV,OOSO)))),(((QOXT,SILJ),((DGXS,VVVV),VBHQ)),OCWZ)),(((MFIN,YMES),Spipo_v2),((COCP,BYQM),DWZT))),MTII)),((VZCI,NWMY),FZJL)),(PZRT,WTKZ)),(URDJ,Ambtr_v1.0.27)));
+Writing species tree
+Parlay time: Execution time: : 2915.5543
+
+Running on bee_bs.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/bee_bs.tre -o bee_bs.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/bee_bs.tre
+output file: bee_bs.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    853 trees
+    32 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 59 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   59 subproblems computed.
+Printing species tree
+(((((((Hoplonomia_elliotii,Acunomia_melanderi),Curvinomia_chalybeata),Austronomia_australica),(Lipotriches_justiciae,Lipotriches_collaris)),(Afronomia_circumnitens,Macronomia_clavisetis)),((Dieunomia_heteropoda,Dieunomia_triangulifera),(Dufourea_novaeangliae,Lasioglossum_albipes))),((((((((Pseudapis_oxybeloides,Pseudapis_siamensis),((Pseudapis_nilotica,Pseudapis_flavolobata),Pseudapis_interstitinervis)),((Pseudapis_riftensis,Pseudapis_pandeana),Pseudapis_kenyensis)),Pseudapis_cinerea),(Nomiapis_bispinosa,Nomiapis_diversipes)),(Steganomus_junodi,Steganomus_ennediensis)),Ruginomia_rugiventris),(((Pachynomia_tshibindica,Pachynomia_amoenula),Pachynomia_flavicarpa),((Stictonomia_aliceae,Stictonomia_schubotzi),Stictonomia_sangaensis))));
+Writing species tree
+Parlay time: Execution time: : 2.9928
+
+Running on whale_bayes.tre
+TREE-QMC version 3.0.4
+COMMAND: ./tree-qmc --hybrid --bootstrap -i /ssd1/treeqmc/whale_bayes.tre -o whale_bayes.out 
+
+SETTINGS:
+input file: /ssd1/treeqmc/whale_bayes.tre
+output file: whale_bayes.out
+weighting mode: hybrid
+support min: 0
+support max: 100
+support default: 0
+normalization for artifical taxa mode: n2
+execution mode: efficient
+random seed for refinement: 12345
+random seed for max-cut: 1
+max-cut heuristic iteration limit: 10
+
+LOGGING:
+Reading input
+Found
+    3191 trees
+    98 taxa
+    0 polytomies across all trees
+Constructing species tree
+At most 191 subproblems:
+    0 subproblems computed.
+   10 subproblems computed.
+   20 subproblems computed.
+   30 subproblems computed.
+   40 subproblems computed.
+   50 subproblems computed.
+   60 subproblems computed.
+   70 subproblems computed.
+   80 subproblems computed.
+   90 subproblems computed.
+  100 subproblems computed.
+  110 subproblems computed.
+  120 subproblems computed.
+  130 subproblems computed.
+  140 subproblems computed.
+  150 subproblems computed.
+  160 subproblems computed.
+  170 subproblems computed.
+  180 subproblems computed.
+  190 subproblems computed.
+  191 subproblems computed.
+Printing species tree
+((((((((((((((Mper,Mpni),Mden),Mste),MgraAUS),Mhec),((Mbow,Mcar),MlayAUS)),(((Mmir,Meur),Mgin),Mbid)),(Hamp,Hpla9120)),Zcav),Tshe),(Barn,Bbai76728)),((((((((((Bede66737,BedeAUS),Bbor),Bmus49099),((Bphy_baits,Bphy),Mnov)),Erob133443),(Bacu,BbonAUS)),Cmar59905),(((Egla13086,Ejap43864),EausAUS),Bmys)),((((((Oari,Phod),Orle),Gaar),(Btau,Treu2)),(((Vpac,Cbac),Ecab),Sscr)),(Clib,Hippo))),((Kbre,Ksim),Pmac))),((Igeo,Pbla7349),Lvex)),((((((((((((((Dcap108471,Dcap79929),(DdelSJR,Ddeltrop4525)),((Lhos30470,Lhos452),(((Slon16012,Slon24923),Scly1726),Scly1724))),Scoe),(((Sfro7784,Sfro7782),(Satt18473,Satt38219)),Tadu79924)),Ttru),Schi),Sflu9837),((((((Gmel,Gmac39091),(Fatt,Pele)),Pcra123188),Ggri),(Sbre18437,Sbre116871)),(Obre,Ohei))),((((Chea7320,Laus),Ccom40),(Lobl,Lobs)),(Lbor,LperAUS))),Lalb),Oorc),Lacu),(((((Pspi,Pdio),Ppho),Npho),Pdal),(Dleu,Mmon))));
+Writing species tree
+Parlay time: Execution time: : 106.3390
+
