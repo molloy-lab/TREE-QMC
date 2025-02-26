@@ -5,7 +5,7 @@ TREE-QMC
 
 TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER, based on the Quartet Max Cut (QMC) framework of Snir and Rao.
 
-To learn more about the TREE-QMC and weighted TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122) and [Han & Molloy, *bioRxiv*, 2024](https://doi.org/10.1101/2024.09.27.615467), respectively. 
+To learn more about the TREE-QMC and weighted TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122) and [Han & Molloy, *Systematic Biology*, 2025](https://doi.org/10.1093/sysbio/syaf009), respectively. 
 
 TREE-QMC also implements some convenient features:
 + TREE-QMC allows multi-labeled trees (i.e., MUL-trees) as input.
