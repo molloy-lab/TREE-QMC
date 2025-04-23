@@ -23,7 +23,7 @@ class Node {
         void print_leaves_below_index();
     private:
         Node *parent;
-        std::vector<Node *> children;
+        std::vector<Node *> children, ancestors;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
         bool isfake;
@@ -69,6 +69,9 @@ class Tree {
         Node* find_node(index_t index);
         Node* get_root();
         weight_t total_weight();
+        void get_bipartitions(std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
+        static std::string display_bipartition(std::vector<Node *> &A, std::vector<Node *> &B);
+        index_t get_quartet(index_t *indices);
     protected:
         Node *root;
         Node *pcs_node;
@@ -103,6 +106,8 @@ class Tree {
         //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);
+        void get_bipartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B);
+        void get_bipartitions(Node *root, std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
         void get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set);
         void get_depth(Node *root, index_t depth);
         //for weighted quartets:
@@ -137,12 +142,17 @@ class Tree {
         void build_ssinglet_s(Node *root);
         weight_t freq_s(Node *root);
         weight_t total_weight_bf();
+        void LCA_preprocessing();
+        void LCA_depth_first_search(Node *root, std::vector<Node *> &stack);
+        Node *LCA_fast(Node *x, Node *y);
+        Node *LCA_naive(Node *a, Node *b);
 };
 
 class SpeciesTree : public Tree {
     public:
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t blob_threshold);
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
@@ -156,6 +166,7 @@ class SpeciesTree : public Tree {
         index_t artifinyms;
         std::string mode;
         unsigned long int iter_limit;
+        std::unordered_map<quartet_t, weight_t> pvalues;
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
         Node *construct_stree(std::unordered_map<quartet_t, weight_t> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -165,10 +176,16 @@ class SpeciesTree : public Tree {
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit);
+        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B);
+        Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
+        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
 extern std::string verbose;
 extern unsigned long long count[8];
+extern RInside RINS;
 
 #endif

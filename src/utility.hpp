@@ -17,6 +17,7 @@
 #include <queue>
 #include <stack>
 #include <deque>
+#include <RInside.h>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6
@@ -38,6 +39,9 @@ index_t *split(quartet_t quartet);
 bool s2d(std::string s, weight_t *r);
 bool s2ul(std::string s, unsigned long int *r);
 weight_t *init(index_t size);
+weight_t pvalue(index_t *indices);
+std::vector<weight_t> pvalue_all(index_t *indices);
+weight_t pvalue(weight_t *qCF);
 
 const std::string help_info = 
 "=================================== TREE-QMC ===================================\n"

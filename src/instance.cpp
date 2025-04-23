@@ -11,6 +11,7 @@ Instance::Instance(int argc, char **argv) {
     stree_file = "";
     table_file = "";
     root_str = "";
+    pvalue_file = "";
 
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
     execute_mode = "0";  // use fast algorithm
@@ -23,11 +24,13 @@ Instance::Instance(int argc, char **argv) {
     char2tree = false;
     rootonly = false;
     pcsonly = false;
+    blob = false;
 
     support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
+    blob_threshold = 1e-8;
 
     refine_seed = 12345;
     cut_seed = 1;
@@ -72,6 +75,10 @@ Instance::Instance(int argc, char **argv) {
 
     dict->update_singletons();
 
+    if (pvalue_file != "") {
+        input_pvalues();
+    }
+
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
         std::ofstream fout(output_file);
@@ -113,11 +120,18 @@ long long Instance::solve() {
     std::string mode = normal_mode + execute_mode + taxa_mode + weight_mode;
 
     auto start = std::chrono::high_resolution_clock::now();
-
+    
     if (stree_file != "") {
         output = new SpeciesTree(stree_file, dict);
     } else {
-        output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+        if (blob) {
+            SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+            output = new SpeciesTree(input, dict, display, blob_threshold);
+            delete display;
+        }
+        else {
+            output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+        }
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -261,6 +275,25 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
+        }
+        else if (opt == "--blob") {
+            blob = true;
+            if (i < argc - 1) {
+                blob_threshold = std::stod(argv[++ i]);
+            }
+            else  {
+                std::cout << "\nERROR: No alpha value specified" << std::endl;
+                return 2;
+            }
+        }
+        else if (opt == "--pvalue") {
+            if (i < argc - 1) {
+                pvalue_file = argv[++ i];
+            }
+            else {
+                std::cout << "\nERROR: No pvalue file specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
@@ -832,4 +865,61 @@ void Instance::prepare_indiv2taxon_map() {
     //    std::cout << itr->first << " : " << itr->second << std::endl;
 
     fin.close();
+}
+
+void Instance::input_pvalues() {
+    std::ifstream fin(pvalue_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open pvalue file " << pvalue_file << std::endl;
+        exit(1);
+    }
+    std::cout << "Reading pvalue file" << std::endl;
+    index_t N = dict->size();
+    size_t Q = N * (N - 1) * (N - 2) * (N - 3) / 24;
+    std::vector<std::string> labels;
+    for (index_t i = 0; i < N; i ++)
+        labels.push_back(dict->index2label(i));
+    std::sort(labels.begin(), labels.end());
+    std::vector<std::vector<index_t>> quartets;
+    for (index_t i = 0; i < N; i ++) {
+        std::vector<index_t> line;
+        for (size_t j = 0; j < Q; j ++) {
+            index_t k;
+            fin >> k;
+            line.push_back(k);
+            //std::cout << k << " ";
+        }
+        quartets.push_back(line);
+        // std::cout << i << std::endl;
+    }
+    std::vector<std::vector<weight_t>> pvalues;
+    for (index_t i = 0; i < 5; i ++) {
+        std::vector<weight_t> line;
+        for (size_t j = 0; j < Q; j ++) {
+            weight_t k;
+            fin >> k;
+            line.push_back(k);
+            //std::cout << k << " ";
+        }
+        pvalues.push_back(line);
+        // std::cout << i << std::endl;
+    }
+    for (size_t i = 0; i < Q; i ++) {
+        index_t indices[4], k = 0;
+        for (index_t j = 0; j < N; j ++) {
+            if (quartets[j][i] == 1) 
+                indices[k ++] = j;
+        }
+        for (index_t k = 0; k < 4; k ++) {
+            std::string label = labels[indices[k]];
+            index_t j = dict->label2index(label);
+            indices[k] = j;
+        }
+        std::sort(indices, indices + 4);
+        quartet_t q = join(indices);
+        std::vector<weight_t> values;
+        for (index_t j = 0; j < 5; j ++) 
+            values.push_back(pvalues[j][i]);
+        quartet2pvalue[q] = values;
+    }
 }

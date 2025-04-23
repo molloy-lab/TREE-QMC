@@ -168,7 +168,6 @@ Node *Tree::build_tree(const std::string &newick,
     }
 }
 
-
 std::string Tree::display_tree(Node *root) {
     if (root->children.size() == 0) 
         return dict->index2label(root->index) + ":" + std::to_string((double) root->length);
@@ -196,6 +195,7 @@ std::string Tree::display_tree_index(Node *root) {
     for (Node * node : root->children) 
         s += display_tree_index(node) + ",";
     s[s.size() - 1] = ')';
+    std::cout << s << std::endl;
     return s;
 }
 
