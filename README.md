@@ -1,3 +1,5 @@
+<a href="url"><img src="https://github.com/molloy-lab/TREE-QMC/blob/main/external/logo.png" align="left" height="135" width="135" ></a>
+
 TREE-QMC
 ========
 
