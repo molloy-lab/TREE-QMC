@@ -484,7 +484,7 @@ void SpeciesTree::get_qfreq_around_branch(Node *root, std::vector<Tree *> &input
                 localqs.push_back(t->get_qcount(quad));
 
             // Combine quartet frequencies across gene trees
-            for (index_t i = 0; i < input.size(); i++) {
+            for (std::size_t i = 0; i < input.size(); i++) {
                 // Normalize so each gene tree votes once (but can split its vote)
                 if (localqs[i] != 0.0) {
                     localf0[i] /= localqs[i];  // x,y|z,w'
@@ -634,7 +634,7 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::s
             localqs.push_back(t->get_qcount(quad));
 
         // Write to CSV
-        for (index_t i = 0; i < input.size(); i++) {
+        for (std::size_t i = 0; i < input.size(); i++) {
             localtotal = localf0[i] + localf1[i] + localf2[i];
 
 
@@ -673,7 +673,7 @@ void SpeciesTree::write_pcs_table(std::vector<Tree *> &input, std::vector<std::s
         }
 
         // Write to CSV
-        for (index_t i = 0; i < input.size(); i++) {
+        for (std::size_t i = 0; i < input.size(); i++) {
             f0 = localf0[i] * sqrt(gtcount / sumsq);
             f1 = localf1[i] * sqrt(gtcount / sumsq);
             f2 = localf2[i] * sqrt(gtcount / sumsq);
