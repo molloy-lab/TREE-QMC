@@ -25,16 +25,21 @@ Instance::Instance(int argc, char **argv) {
     rootonly = false;
     pcsonly = false;
     blob = false;
+    store_pvalue = false;
+    load_pvalue = false;
+    override_file = false;
 
     support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
-    blob_threshold = 1e-8;
+    alpha = -1;
+    beta = 2;
 
     refine_seed = 12345;
     cut_seed = 1;
     iter_limit = 10;
+    iter_limit_blob = 0;
 
     dict = NULL;
     output = NULL;
@@ -124,10 +129,23 @@ long long Instance::solve() {
     if (stree_file != "") {
         output = new SpeciesTree(stree_file, dict);
     } else {
-        if (blob) {
+        if (store_pvalue) {
             SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-            output = new SpeciesTree(input, dict, display, blob_threshold);
-            delete display;
+            output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob);
+            delete output;
+            output = display;
+        }
+        else if (blob) {
+            if (load_pvalue) {
+                output = new SpeciesTree(input[0], dict, alpha, beta);
+            }
+            else {
+                SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+                output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob);
+                std::cout << "Display tree with pvalues:" << std::endl;
+                std::cout << display->to_string_pvalue() << std::endl;
+                delete display;
+            }
         }
         else {
             output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
@@ -163,8 +181,13 @@ void Instance::output_solution() {
         if (output_file != "") {
             std::ifstream fin(output_file);
             if (!fin.fail()) {
-                std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-                output_file = "";
+//                std::cout << override_file << std::endl;
+                if (!override_file) {
+                    std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+                    output_file = "";
+                } else {
+                    std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl; 
+                }
             }
             fin.close();
         }
@@ -207,8 +230,12 @@ void Instance::output_solution() {
     std::cout << "Writing species tree" << std::endl;
     std::ifstream fin(output_file);
     if (!fin.fail()) {
-        std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-        output_file = "";
+        if (!override_file) {
+            std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+            output_file = "";
+        } else {
+            std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl;
+        }
     }
     fin.close();
     if (output_file != "") {
@@ -216,6 +243,8 @@ void Instance::output_solution() {
         if (!fout.fail()) {
             if (score_mode == "1")
                 fout << output->to_string_annotated(brln_mode) << std::endl;
+            else if (store_pvalue) 
+                fout << output->to_string_pvalue() << std::endl;
             else 
                 fout << output->to_string_basic() << std::endl;
             fout.close();
@@ -226,6 +255,8 @@ void Instance::output_solution() {
 
     if (score_mode == "1")
         std::cout << output->to_string_annotated(brln_mode) << std::endl;
+    else if (store_pvalue) 
+        std::cout << output->to_string_pvalue() << std::endl;
     else
         std::cout << output->to_string_basic() << std::endl;
 }
@@ -276,15 +307,18 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
         }
+        else if (opt == "--override") {
+            override_file = true;
+//            std::cout << override_file << std::endl;
+        }
         else if (opt == "--blob") {
             blob = true;
-            if (i < argc - 1) {
-                blob_threshold = std::stod(argv[++ i]);
-            }
-            else  {
-                std::cout << "\nERROR: No alpha value specified" << std::endl;
-                return 2;
-            }
+        }
+        else if (opt == "--alpha") {
+            alpha = std::stod(argv[++ i]);
+        }
+        else if (opt == "--beta") {
+            beta = std::stod(argv[++ i]);
         }
         else if (opt == "--pvalue") {
             if (i < argc - 1) {
@@ -293,6 +327,17 @@ int Instance::parse(int argc, char **argv) {
             else {
                 std::cout << "\nERROR: No pvalue file specified" << std::endl;
                 return 2;
+            }
+        }
+        else if (opt == "--store_pvalue") {
+            store_pvalue = true;
+        }
+        else if (opt == "--load_pvalue") {
+            load_pvalue = true;
+        }
+        else if (opt == "--iter_limit_blob") {
+            if (i < argc - 1) {
+                iter_limit_blob = std::stoi(argv[++ i]);
             }
         }
         else if (opt == "-q" || opt == "--supportonly") {
@@ -556,7 +601,7 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "  WARNING: --hybrid option is recommended" << std::endl;
 
         // Process support branch options
-        if (weight_mode == "s" || weight_mode == "h" || contract) {
+        if (! load_pvalue && (weight_mode == "s" || weight_mode == "h" || contract)) {
             // Check support options make sense
             if (nminparam  == 0 || nmaxparam == 0 || ndefaultparam == 0) {
                 std::cout << "\nERROR: Must specify min, max, and default support values or use preset option" << std::endl;

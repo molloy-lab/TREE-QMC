@@ -124,8 +124,15 @@ std::vector<weight_t> pvalue_all(index_t *indices) {
 }
 
 weight_t pvalue(weight_t *qCF) {
-    SEXP a = RINS.parseEval("quartetTreeTest(c(" + std::to_string(qCF[0]) +"," + std::to_string(qCF[1]) +"," + std::to_string(qCF[2]) + "), \"T3\")");
+    SEXP a = RINS.parseEval("quartetTreeTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "), \"T3\")");
     SEXP b = VECTOR_ELT(a, 0);
     double* pvalue = REAL(b);
     return *pvalue;
 }
+
+weight_t pvalue_star(weight_t *qCF) {
+    SEXP a = RINS.parseEval("quartetStarTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "))");
+    double* pvalue = REAL(a);
+    return *pvalue;
+}
+

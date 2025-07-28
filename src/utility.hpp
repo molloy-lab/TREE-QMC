@@ -42,6 +42,7 @@ weight_t *init(index_t size);
 weight_t pvalue(index_t *indices);
 std::vector<weight_t> pvalue_all(index_t *indices);
 weight_t pvalue(weight_t *qCF);
+weight_t pvalue_star(weight_t *qCF);
 
 const std::string help_info = 
 "=================================== TREE-QMC ===================================\n"

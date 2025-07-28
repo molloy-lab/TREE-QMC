@@ -26,6 +26,7 @@ class Node {
         std::vector<Node *> children, ancestors;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
+        weight_t min_f[3], max_f[3];
         bool isfake;
 
         weight_t /* **doublet, */ *singlet;
@@ -42,6 +43,7 @@ class Node {
 
         // TODO: make below vector in species tree class
         weight_t f[3];
+        weight_t min_pvalue, max_pvalue;
 };
 
 class Tree {
@@ -55,6 +57,7 @@ class Tree {
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
+        std::string to_string_pvalue();
         size_t refine();
         void prepare(std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
         index_t size();
@@ -81,6 +84,7 @@ class Tree {
         std::string display_tree(Node *root);
         std::string display_tree_basic(Node *root);
         std::string display_tree_index(Node *root);
+        std::string display_tree_pvalue(Node *root);
         Node* find_node_for_split(std::unordered_set<index_t> &clade);
         void reroot_on_edge_above_node(Node *node);
     private:
@@ -152,7 +156,8 @@ class SpeciesTree : public Tree {
     public:
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t blob_threshold);
+        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display,  weight_t alpha, weight_t beta, unsigned long int iter_limit_blob);
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
@@ -166,7 +171,7 @@ class SpeciesTree : public Tree {
         index_t artifinyms;
         std::string mode;
         unsigned long int iter_limit;
-        std::unordered_map<quartet_t, weight_t> pvalues;
+        std::unordered_map<quartet_t, std::pair<weight_t, weight_t *>> pvalues, pvalues_star;
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
         Node *construct_stree(std::unordered_map<quartet_t, weight_t> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -176,11 +181,15 @@ class SpeciesTree : public Tree {
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit);
-        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f);
+        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f);
+        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
+        weight_t neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f);
+        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f);
         Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
-        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices);
+        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices, weight_t *f);
+        weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices, weight_t *f);
 };
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
