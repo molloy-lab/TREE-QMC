@@ -19,7 +19,10 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta)
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob) {
     std::cout << "Constructing tree of blobs" << std::endl;
-    RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/yhhan/tree-of-blobs/software/Rlibs\")");
+    // RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/yhhan/tree-of-blobs/software/Rlibs\")");
+    // /fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/library/
+    // hardcode path to Rlib i.e. the parent path of MSCquartets
+    RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/library/\")");
     for (Tree *t : input) t->LCA_preprocessing();
     display->refine();
     std::string mode = "n";
@@ -420,6 +423,10 @@ weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indic
 index_t Tree::get_quartet(index_t *indices) {
     Node *leaves[4];
     for (index_t i = 0; i < 4; i ++) {
+        // add for absent tadxon in gene tree
+        if (!index2node[indices[i]]) {
+            return -1;
+        }
         leaves[i] = index2node[indices[i]];
     }
     Node *lowest = NULL;
@@ -428,7 +435,7 @@ index_t Tree::get_quartet(index_t *indices) {
     for (index_t i = 0; i < 4; i ++) {
         for (index_t j = i + 1; j < 4; j ++) {
             // Node *a = LCA_naive(leaves[i], leaves[j]);
-            Node *a = LCA_fast(leaves[i], leaves[j]);
+            Node *a = LCA_fast(leaves[i], leaves[j]); 
             if (lowest == NULL || a->depth > lowest->depth) {
                 lowest = a;
                 lowest_count = 0;
