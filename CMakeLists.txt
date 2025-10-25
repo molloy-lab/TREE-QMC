@@ -9,9 +9,16 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  add_compile_options(-O2 -DNDEBUG -fno-plt)
-  add_link_options(-Wl,-O1,--as-needed)
+if(APPLE)
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(-O2 -DNDEBUG)
+    add_link_options(-Wl,-dead_strip)
+  endif()
+else()
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(-O2 -DNDEBUG -fno-plt)
+    add_link_options(-Wl,-O1,--as-needed)
+  endif()
 endif()
 
 include(CheckIPOSupported)
@@ -20,46 +27,73 @@ if(ipo_ok)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 endif()
 
-# ---------- self-contained R discovery (under external/R) ----------
-set(R_ROOT "${CMAKE_SOURCE_DIR}/external/R" CACHE PATH "Self-contained R prefix")
+# ---------- system R discovery (replaces external/R) ----------
+find_program(RSCRIPT_BIN NAMES Rscript
+  HINTS /opt/homebrew/bin /usr/local/bin /usr/bin
+  REQUIRED)
+message(STATUS "Found Rscript at: ${RSCRIPT_BIN}")
 
-set(_CANDIDATE_R_HOMES
-  "${R_ROOT}/lib64/R"
-  "${R_ROOT}/lib/R"
+# R home, include, lib
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home()))"
+  OUTPUT_VARIABLE R_HOME
+  OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-set(R_HOME "")
-foreach(_p IN LISTS _CANDIDATE_R_HOMES)
-  if(EXISTS "${_p}/include/R.h")
-    set(R_HOME "${_p}")
-    break()
-  endif()
-endforeach()
-if(NOT R_HOME)
-  message(FATAL_ERROR "Could not find R_HOME under ${R_ROOT} (expected lib64/R or lib/R with include/R.h)")
+if(NOT R_HOME OR NOT EXISTS "${R_HOME}/include/R.h")
+  message(FATAL_ERROR "Could not locate R headers. Ensure R is installed and ${R_HOME}/include/R.h exists.")
+endif()
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home('lib')))"
+  OUTPUT_VARIABLE R_LIB_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# RInside + Rcpp dirs
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "p<-system.file('include',package='RInside');cat(if(nzchar(p)) normalizePath(p) else '')"
+  OUTPUT_VARIABLE RINSIDE_INC
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT EXISTS "${RINSIDE_INC}/RInside.h")
+  message(FATAL_ERROR "RInside headers not found for this R. In R: install.packages('RInside')")
+endif()
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "p<-system.file('lib',package='RInside');cat(if(nzchar(p)) normalizePath(p) else '')"
+  OUTPUT_VARIABLE RINSIDE_LIB_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT EXISTS "${RINSIDE_LIB_DIR}")
+  message(FATAL_ERROR "RInside lib dir not found. In R: install.packages('RInside')")
+endif()
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "p<-system.file('include',package='Rcpp');cat(if(nzchar(p)) normalizePath(p) else '')"
+  OUTPUT_VARIABLE RCPP_INC
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT EXISTS "${RCPP_INC}/Rcpp.h")
+  message(FATAL_ERROR "Rcpp headers not found. In R: install.packages('Rcpp')")
 endif()
 
-set(R_BIN        "${R_ROOT}/bin/R")
-set(R_EXECUTABLE "${R_ROOT}/bin/Rscript")
-if(NOT EXISTS "${R_BIN}")
-  message(FATAL_ERROR "Missing R binary at ${R_BIN}")
-endif()
-if(NOT EXISTS "${R_EXECUTABLE}")
-  message(FATAL_ERROR "Missing Rscript binary at ${R_EXECUTABLE}")
+# ensure MSCquartets installed
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(if(requireNamespace('MSCquartets',quietly=TRUE)) 'OK' else '')"
+  OUTPUT_VARIABLE MSCQ_OK
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT MSCQ_OK STREQUAL "OK")
+  message(FATAL_ERROR "R package 'MSCquartets' not found. In R: install.packages('MSCquartets')")
 endif()
 
-set(R_LIB "${R_HOME}/library" CACHE PATH "R site library (Rcpp, RInside, MSCquartets)")
-if(NOT EXISTS "${R_HOME}/include/R.h")
-  message(FATAL_ERROR "R headers not found at ${R_HOME}/include")
-endif()
-if(NOT EXISTS "${R_LIB}/RInside/include/RInside.h")
-  message(FATAL_ERROR "RInside headers not found under ${R_LIB}/RInside/include")
-endif()
-if(NOT EXISTS "${R_LIB}/Rcpp/include/Rcpp.h")
-  message(FATAL_ERROR "Rcpp headers not found under ${R_LIB}/Rcpp/include")
-endif()
-if(NOT EXISTS "${R_LIB}/MSCquartets")
-  message(FATAL_ERROR "MSCquartets is not installed in ${R_LIB}. See bootstrap script.")
-endif()
+# --- Gather R's library trees for runtime (used by your RInside code) ---
+# This produces a colon-separated list of absolute directories from .libPaths()
+execute_process(
+  COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(paste(normalizePath(.libPaths()), collapse=':'))"
+  OUTPUT_VARIABLE R_LIB_TREES
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+# Escape quotes defensively for use in a compile definition
+string(REPLACE "\"" "\\\"" R_LIB_TREES "${R_LIB_TREES}")
+message(STATUS "R library trees: ${R_LIB_TREES}")
 
 # ---------- external MQLib (built via its Makefile) ----------
 set(MQLIB_DIR "${CMAKE_SOURCE_DIR}/external/MQLib")
@@ -92,39 +126,95 @@ add_executable(tree-qmc ${TREE_QMC_SOURCES})
 
 # ---------- includes ----------
 target_include_directories(tree-qmc
-  SYSTEM PRIVATE                 
+  SYSTEM PRIVATE
   "${CMAKE_SOURCE_DIR}/external/MQLib/include"
 )
 target_include_directories(tree-qmc PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   "${CMAKE_SOURCE_DIR}/external/toms743"
   "${R_HOME}/include"
-  "${R_LIB}/Rcpp/include"
-  "${R_LIB}/RInside/include"
+  "${RCPP_INC}"
+  "${RINSIDE_INC}"
 )
 
 # ---------- compile defs ----------
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" VERSION_TXT)
 string(STRIP "${VERSION_TXT}" VERSION_TXT)
 target_compile_definitions(tree-qmc PRIVATE VERSION="${VERSION_TXT}")
-set(R_LIBDIRS "${R_LIB}")
 
+# Provide R library search paths to the code (used by rlib_dirs.cpp, etc.)
+target_compile_definitions(tree-qmc PRIVATE R_LIBDIRS="${R_LIB_TREES}")
 
 # ---------- link + rpath ----------
-target_link_directories(tree-qmc PRIVATE
-  "${R_HOME}/lib"               # libR.so
-  "${R_LIB}/RInside/lib"        # libRInside.so
-)
-target_link_libraries(tree-qmc PRIVATE
-  MQLib
-  RInside
-  R Rblas Rlapack
-  m
-)
-set_target_properties(tree-qmc PROPERTIES
-  BUILD_RPATH   "${R_HOME}/lib;${R_LIB}/RInside/lib"
-  INSTALL_RPATH "${R_HOME}/lib;${R_LIB}/RInside/lib"
-)
+# Link search paths (only add if they exist)
+if(EXISTS "${R_LIB_DIR}")
+  target_link_directories(tree-qmc PRIVATE "${R_LIB_DIR}")
+endif()
+if(EXISTS "${RINSIDE_LIB_DIR}")
+  target_link_directories(tree-qmc PRIVATE "${RINSIDE_LIB_DIR}")
+endif()
+
+# macOS: link to absolute dylib paths; Linux: link by names
+if(APPLE)
+  # Resolve actual dylib files
+  set(RINSIDE_DYLIB "${RINSIDE_LIB_DIR}/libRInside.dylib")
+  if(NOT EXISTS "${RINSIDE_DYLIB}")
+    message(FATAL_ERROR "Expected RInside dylib not found at: ${RINSIDE_DYLIB}")
+  endif()
+
+  # libR.dylib can reside in a few places; prefer R.home('lib')
+  set(R_DYLIB_CANDIDATES
+    "${R_LIB_DIR}/libR.dylib"
+    "${R_HOME}/lib/libR.dylib"
+    "${R_HOME}/lib/R/lib/libR.dylib"
+  )
+  set(R_DYLIB "")
+  foreach(_c IN LISTS R_DYLIB_CANDIDATES)
+    if(EXISTS "${_c}")
+      set(R_DYLIB "${_c}")
+      break()
+    endif()
+  endforeach()
+  if(NOT R_DYLIB)
+    message(FATAL_ERROR "Could not find libR.dylib under expected locations.")
+  endif()
+
+  target_link_libraries(tree-qmc PRIVATE
+    MQLib
+    "${RINSIDE_DYLIB}"
+    "${R_DYLIB}"
+  )
+else()
+  target_link_libraries(tree-qmc PRIVATE
+    MQLib
+    RInside
+    R
+    m
+  )
+endif()
+
+# RPATHs: set via properties; no install_name_tool -add_rpath to avoid duplicates
+if(APPLE)
+  set(_RPATHS "${RINSIDE_LIB_DIR};${R_LIB_DIR};@loader_path;@loader_path/../lib;@loader_path/../R/lib")
+  set_target_properties(tree-qmc PROPERTIES
+    BUILD_RPATH   "${_RPATHS}"
+    INSTALL_RPATH "${_RPATHS}"
+  )
+else()
+  set_target_properties(tree-qmc PROPERTIES
+    BUILD_RPATH   ""
+    INSTALL_RPATH ""
+  )
+endif()
+
+# macOS post-link: only rewrite install names (no rpath additions here)
+if(APPLE)
+  add_custom_command(TARGET tree-qmc POST_BUILD
+    COMMAND /usr/bin/install_name_tool -change libRInside.dylib "${RINSIDE_DYLIB}" $<TARGET_FILE:tree-qmc>
+    COMMAND /usr/bin/install_name_tool -change libR.dylib      "${R_DYLIB}"       $<TARGET_FILE:tree-qmc>
+    VERBATIM
+  )
+endif()
 
 # Optional: place the binary elsewhere
 # set_target_properties(tree-qmc PROPERTIES
