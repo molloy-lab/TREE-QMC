@@ -4,6 +4,8 @@
 #include "utility.hpp"
 #include "dict.hpp"
 #include "taxa.hpp"
+#include <tuple>
+
 
 class Node {
     friend class Tree;
@@ -74,6 +76,8 @@ class Tree {
         weight_t total_weight();
         void get_bipartitions(std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
         static std::string display_bipartition(std::vector<Node *> &A, std::vector<Node *> &B);
+        void get_quardpartitions(std::vector<Node *> *internal, std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> *quads, Dict *dict);
+        std::string display_quardpartitions(std::vector<Node *> &A, std::vector<Node *> &B, std::vector<Node *> &C, std::vector<Node *> &D, Dict *dict);
         index_t get_quartet(index_t *indices);
     protected:
         Node *root;
@@ -112,6 +116,8 @@ class Tree {
         void get_leaves(Node *root, std::vector<Node *> *leaves);
         void get_bipartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B);
         void get_bipartitions(Node *root, std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
+        void get_quardpartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B, std::vector<Node *> *C, std::vector<Node *> *D, Dict *dict);
+        void get_quardpartitions(Node *root, std::vector<Node *> *internal, std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> *quads, std::unordered_set<uint64_t>* seen_edges, Dict *dict);
         void get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set);
         void get_depth(Node *root, index_t depth);
         //for weighted quartets:
@@ -158,6 +164,8 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::string stree_file, Dict *dict);
         SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display,  weight_t alpha, weight_t beta, unsigned long int iter_limit_blob);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict,  SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob, bool three_fix_one_alter);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool quard);
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
@@ -185,16 +193,20 @@ class SpeciesTree : public Tree {
         weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f);
         weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
         weight_t neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f, index_t *minimizer);
         weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f);
+        weight_t search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer);
+        weight_t search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer);
         Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
         weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices, weight_t *f);
         weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices, weight_t *f);
 };
 
+
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
 extern std::string verbose;
 extern unsigned long long count[8];
+
 extern RInside RINS;
 
 #endif

@@ -28,6 +28,8 @@ Instance::Instance(int argc, char **argv) {
     store_pvalue = false;
     load_pvalue = false;
     override_file = false;
+    three_fix_one_alter = false;
+    quard = false;
 
     support_low = 0.0;
     support_high = 1.0;
@@ -131,7 +133,7 @@ long long Instance::solve() {
     } else {
         if (store_pvalue) {
             SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-            output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob);
+            output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
             delete output;
             output = display;
         }
@@ -141,7 +143,7 @@ long long Instance::solve() {
             }
             else {
                 SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-                output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob);
+                output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
                 std::cout << "Display tree with pvalues:" << std::endl;
                 std::cout << display->to_string_pvalue() << std::endl;
                 delete display;
@@ -313,6 +315,12 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--blob") {
             blob = true;
+        }
+        else if (opt == "--3f1a") {
+            three_fix_one_alter = true;
+        }
+        else if (opt == "--quard") {
+            quard = true;
         }
         else if (opt == "--alpha") {
             alpha = std::stod(argv[++ i]);
