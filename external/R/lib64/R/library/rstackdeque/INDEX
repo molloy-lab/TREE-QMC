@@ -1,0 +1,80 @@
+as.data.frame.rdeque    Convert an rdeque to a data.frame
+as.data.frame.rpqueue   Convert an rpqueue to a data.frame
+as.data.frame.rstack    Convert an rstack to a data.frame
+as.list.rdeque          Convert an rdeque to a list
+as.list.rpqueue         Convert an rpqueue to a list
+as.list.rstack          Convert an rstack to a list
+as.rdeque               Create a pre-filled rdeque from a given input
+as.rdeque.default       Default method for converting to an rdeque
+as.rpqueue              Create a pre-filled rpqueue from a given input
+as.rpqueue.default      Default method for converting to an rpqueue
+as.rstack               Create an rstack pre-filled from a given input
+as.rstack.default       Default method for converting to an rstack
+empty                   Check if an rstack, rdeque, or rpqueue is empty
+empty.rdeque            Check if an rdeque is empty
+empty.rpqueue           Check if an rpqueue is empty
+empty.rstack            Check if an rstack is empty
+fixd                    Fix an rdeque
+fixd.rdeque             Fix an rdeque
+head.rdeque             Return the first n elements of an rdeque as an
+                        rdeque
+head.rpqueue            Return the head (front) of an rpqueue
+head.rstack             Return the head (top) of an rstack
+insert_back             Insert an element into the back of an rdeque or
+                        rpqueue
+insert_back.rdeque      Insert an element into the back of an rdeque
+insert_back.rpqueue     Insert an element into the back of an rpqueue
+insert_front            Insert an element into the front of an rdeque
+insert_front.rdeque     Insert an element into the front of an rdeque
+insert_top              Insert an element onto the top of an rstack
+insert_top.rstack       Insert an element onto the top of an rstack
+length.rdeque           Return the number of elements in an rdeque
+length.rpqueue          Return the number of elements in an rpqueue
+length.rstack           Return the number of elements in an rstack
+makeequal               Generic maintenance function for rpqueues
+makeequal.rpqueue       Maintenance function for rpqueues
+peek_back               Return the data element at the back of an
+                        rdeque
+peek_back.rdeque        Return the data element at the back of an
+                        rdeque
+peek_back<-             Assign to/modify the back of an rdeque
+peek_back<-.rdeque      Assign to/modify the back of an rdeque
+peek_front              Return the data element at the front of an
+                        rdeque
+peek_front.rdeque       Return the data element at the front of an
+                        rdeque
+peek_front.rpqueue      Return the data element at the front of an
+                        rpqueue
+peek_front<-            Assign to/modify the front of an rdeque or
+                        rpqueue
+peek_front<-.rdeque     Assign to/modify the front of an rdeque
+peek_front<-.rpqueue    Assign to/modify the front of an rpqueue
+peek_top                Return the data element at the top of an rstack
+peek_top.rstack         Return the data element at the top of an rstack
+peek_top<-              Assign to/modify the top of an rstack
+peek_top<-.rstack       Assign to/modify the top of an rstack
+print.rdeque            Print an rdeque
+print.rpqueue           Print an rpqueue
+print.rstack            Print an rstack
+rdeque                  Create a new empty rdeque
+rev.rstack              Reverse an rstack
+rotate                  Generic maintenance function for rpqueues
+rotate.rpqueue          Maintenance function for rpqueues
+rpqueue                 Create a new empty rpqueue
+rstack                  Create a new, empty rstack
+rstacknode              Internal structure used by rstacks, rdeques,
+                        and rpqueues
+without_back            Return a version of an rdeque without the back
+                        element
+without_back.rdeque     Return a version of an rdeque without the back
+                        element
+without_front           Return a version of an rdeque or rpqueue
+                        without the front element
+without_front.rdeque    Return a version of an rdeque without the front
+                        element
+without_front.rpqueue   Return a version of an rpqueue without the
+                        front element
+without_top             Return a version of an rstack without the top
+                        element
+without_top.rstack      Return a version of an rstack without the top
+                        element

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Persistent Fast Amortized Stack and Queue Data Structures</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+<h1> Persistent Fast Amortized Stack and Queue Data Structures
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;rstackdeque&rsquo; version 1.1.1</h2>
+
+<ul><li><a href="../DESCRIPTION" type="text/plain">DESCRIPTION file</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="as.data.frame.rdeque.html">as.data.frame.rdeque</a></td>
+<td>Convert an rdeque to a data.frame</td></tr>
+<tr><td style="width: 25%;"><a href="as.data.frame.rpqueue.html">as.data.frame.rpqueue</a></td>
+<td>Convert an rpqueue to a data.frame</td></tr>
+<tr><td style="width: 25%;"><a href="as.data.frame.rstack.html">as.data.frame.rstack</a></td>
+<td>Convert an rstack to a data.frame</td></tr>
+<tr><td style="width: 25%;"><a href="as.list.rdeque.html">as.list.rdeque</a></td>
+<td>Convert an rdeque to a list</td></tr>
+<tr><td style="width: 25%;"><a href="as.list.rpqueue.html">as.list.rpqueue</a></td>
+<td>Convert an rpqueue to a list</td></tr>
+<tr><td style="width: 25%;"><a href="as.list.rstack.html">as.list.rstack</a></td>
+<td>Convert an rstack to a list</td></tr>
+<tr><td style="width: 25%;"><a href="as.rdeque.html">as.rdeque</a></td>
+<td>Create a pre-filled rdeque from a given input</td></tr>
+<tr><td style="width: 25%;"><a href="as.rdeque.default.html">as.rdeque.default</a></td>
+<td>Default method for converting to an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="as.rpqueue.html">as.rpqueue</a></td>
+<td>Create a pre-filled rpqueue from a given input</td></tr>
+<tr><td style="width: 25%;"><a href="as.rpqueue.default.html">as.rpqueue.default</a></td>
+<td>Default method for converting to an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="as.rstack.html">as.rstack</a></td>
+<td>Create an rstack pre-filled from a given input</td></tr>
+<tr><td style="width: 25%;"><a href="as.rstack.default.html">as.rstack.default</a></td>
+<td>Default method for converting to an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="empty.html">empty</a></td>
+<td>Check if an rstack, rdeque, or rpqueue is empty</td></tr>
+<tr><td style="width: 25%;"><a href="empty.rdeque.html">empty.rdeque</a></td>
+<td>Check if an rdeque is empty</td></tr>
+<tr><td style="width: 25%;"><a href="empty.rpqueue.html">empty.rpqueue</a></td>
+<td>Check if an rpqueue is empty</td></tr>
+<tr><td style="width: 25%;"><a href="empty.rstack.html">empty.rstack</a></td>
+<td>Check if an rstack is empty</td></tr>
+<tr><td style="width: 25%;"><a href="fixd.html">fixd</a></td>
+<td>Fix an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="fixd.rdeque.html">fixd.rdeque</a></td>
+<td>Fix an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="head.rdeque.html">head.rdeque</a></td>
+<td>Return the first n elements of an rdeque as an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="head.rpqueue.html">head.rpqueue</a></td>
+<td>Return the head (front) of an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="head.rstack.html">head.rstack</a></td>
+<td>Return the head (top) of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="insert_back.html">insert_back</a></td>
+<td>Insert an element into the back of an rdeque or rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="insert_back.rdeque.html">insert_back.rdeque</a></td>
+<td>Insert an element into the back of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="insert_back.rpqueue.html">insert_back.rpqueue</a></td>
+<td>Insert an element into the back of an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="insert_front.html">insert_front</a></td>
+<td>Insert an element into the front of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="insert_front.rdeque.html">insert_front.rdeque</a></td>
+<td>Insert an element into the front of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="insert_top.html">insert_top</a></td>
+<td>Insert an element onto the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="insert_top.rstack.html">insert_top.rstack</a></td>
+<td>Insert an element onto the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="length.rdeque.html">length.rdeque</a></td>
+<td>Return the number of elements in an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="length.rpqueue.html">length.rpqueue</a></td>
+<td>Return the number of elements in an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="length.rstack.html">length.rstack</a></td>
+<td>Return the number of elements in an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="makeequal.html">makeequal</a></td>
+<td>Generic maintenance function for rpqueues</td></tr>
+<tr><td style="width: 25%;"><a href="makeequal.rpqueue.html">makeequal.rpqueue</a></td>
+<td>Maintenance function for rpqueues</td></tr>
+<tr><td style="width: 25%;"><a href="peek_back.html">peek_back</a></td>
+<td>Return the data element at the back of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_back.rdeque.html">peek_back.rdeque</a></td>
+<td>Return the data element at the back of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_back-set.html">peek_back&lt;-</a></td>
+<td>Assign to/modify the back of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_back-set-.rdeque.html">peek_back&lt;-.rdeque</a></td>
+<td>Assign to/modify the back of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front.html">peek_front</a></td>
+<td>Return the data element at the front of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front.rdeque.html">peek_front.rdeque</a></td>
+<td>Return the data element at the front of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front.rpqueue.html">peek_front.rpqueue</a></td>
+<td>Return the data element at the front of an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front-set.html">peek_front&lt;-</a></td>
+<td>Assign to/modify the front of an rdeque or rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front-set-.rdeque.html">peek_front&lt;-.rdeque</a></td>
+<td>Assign to/modify the front of an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="peek_front-set-.rpqueue.html">peek_front&lt;-.rpqueue</a></td>
+<td>Assign to/modify the front of an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="peek_top.html">peek_top</a></td>
+<td>Return the data element at the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="peek_top.rstack.html">peek_top.rstack</a></td>
+<td>Return the data element at the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="peek_top-set.html">peek_top&lt;-</a></td>
+<td>Assign to/modify the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="peek_top-set-.rstack.html">peek_top&lt;-.rstack</a></td>
+<td>Assign to/modify the top of an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="print.rdeque.html">print.rdeque</a></td>
+<td>Print an rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="print.rpqueue.html">print.rpqueue</a></td>
+<td>Print an rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="print.rstack.html">print.rstack</a></td>
+<td>Print an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="rdeque.html">rdeque</a></td>
+<td>Create a new empty rdeque</td></tr>
+<tr><td style="width: 25%;"><a href="rev.rstack.html">rev.rstack</a></td>
+<td>Reverse an rstack</td></tr>
+<tr><td style="width: 25%;"><a href="rotate.html">rotate</a></td>
+<td>Generic maintenance function for rpqueues</td></tr>
+<tr><td style="width: 25%;"><a href="rotate.rpqueue.html">rotate.rpqueue</a></td>
+<td>Maintenance function for rpqueues</td></tr>
+<tr><td style="width: 25%;"><a href="rpqueue.html">rpqueue</a></td>
+<td>Create a new empty rpqueue</td></tr>
+<tr><td style="width: 25%;"><a href="rstack.html">rstack</a></td>
+<td>Create a new, empty rstack</td></tr>
+<tr><td style="width: 25%;"><a href="rstacknode.html">rstacknode</a></td>
+<td>Internal structure used by rstacks, rdeques, and rpqueues</td></tr>
+<tr><td style="width: 25%;"><a href="without_back.html">without_back</a></td>
+<td>Return a version of an rdeque without the back element</td></tr>
+<tr><td style="width: 25%;"><a href="without_back.rdeque.html">without_back.rdeque</a></td>
+<td>Return a version of an rdeque without the back element</td></tr>
+<tr><td style="width: 25%;"><a href="without_front.html">without_front</a></td>
+<td>Return a version of an rdeque or rpqueue without the front element</td></tr>
+<tr><td style="width: 25%;"><a href="without_front.rdeque.html">without_front.rdeque</a></td>
+<td>Return a version of an rdeque without the front element</td></tr>
+<tr><td style="width: 25%;"><a href="without_front.rpqueue.html">without_front.rpqueue</a></td>
+<td>Return a version of an rpqueue without the front element</td></tr>
+<tr><td style="width: 25%;"><a href="without_top.html">without_top</a></td>
+<td>Return a version of an rstack without the top element</td></tr>
+<tr><td style="width: 25%;"><a href="without_top.rstack.html">without_top.rstack</a></td>
+<td>Return a version of an rstack without the top element</td></tr>
+</table>
+</div></body></html>

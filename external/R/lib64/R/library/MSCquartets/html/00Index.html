@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Analyzing Gene Tree Quartets under the Multi-Species Coalescent</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body><div class="container">
+<h1> Analyzing Gene Tree Quartets under the Multi-Species Coalescent
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;MSCquartets&rsquo; version 3.2</h2>
+
+<ul><li><a href="../DESCRIPTION" type="text/plain; charset=utf-8">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="MSCquartets-package.html">MSCquartets-package</a></td>
+<td>Multispecies Coalescent Model Quartet Package</td></tr>
+<tr><td style="width: 25%;"><a href="allPerms.html">allPerms</a></td>
+<td>Generate permutations</td></tr>
+<tr><td style="width: 25%;"><a href="blobDistance.html">blobDistance</a></td>
+<td>Compute empirical distance between taxon groups.</td></tr>
+<tr><td style="width: 25%;"><a href="BQinference.html">BQinference</a></td>
+<td>Main loop of B-quartet inference</td></tr>
+<tr><td style="width: 25%;"><a href="circHybOrders.html">circHybOrders</a></td>
+<td>Generate all circular orders with designated hybrid</td></tr>
+<tr><td style="width: 25%;"><a href="collapseEdges.html">collapseEdges</a></td>
+<td>Collapse short tree edges</td></tr>
+<tr><td style="width: 25%;"><a href="combineCycleResolutions.html">combineCycleResolutions</a></td>
+<td>Combine several cycle resolutions on a tree of blobs to create a network</td></tr>
+<tr><td style="width: 25%;"><a href="compatibleSplits.html">compatibleSplits</a></td>
+<td>Extract compatible splits</td></tr>
+<tr><td style="width: 25%;"><a href="cutDensity.html">cutDensity</a></td>
+<td>Probability density function for Cut Model</td></tr>
+<tr><td style="width: 25%;"><a href="dataGeneTreeSample.html">dataGeneTreeSample</a></td>
+<td>Simulated gene tree dataset from species tree</td></tr>
+<tr><td style="width: 25%;"><a href="dataPapioniniVanderpool.html">dataPapioniniVanderpool</a></td>
+<td>Papionini gene tree dataset</td></tr>
+<tr><td style="width: 25%;"><a href="dataYeastRokas.html">dataYeastRokas</a></td>
+<td>Yeast gene tree dataset</td></tr>
+<tr><td style="width: 25%;"><a href="estimateEdgeLengths.html">estimateEdgeLengths</a></td>
+<td>Estimate edge lengths on a species tree from gene tree quartet counts</td></tr>
+<tr><td style="width: 25%;"><a href="expectedCFs.html">expectedCFs</a></td>
+<td>Produce table of expected quartet concordance factors for a species tree</td></tr>
+<tr><td style="width: 25%;"><a href="expmodNANUQCycleDist.html">expmodNANUQCycleDist</a></td>
+<td>Expected modNANUQ cycle distance</td></tr>
+<tr><td style="width: 25%;"><a href="expNANUQCycleDist.html">expNANUQCycleDist</a></td>
+<td>Expected NANUQ cycle distance</td></tr>
+<tr><td style="width: 25%;"><a href="fitCycleOrders.html">fitCycleOrders</a></td>
+<td>Compute fit of circular orders to distance with least squares</td></tr>
+<tr><td style="width: 25%;"><a href="HolmBonferroni.html">HolmBonferroni</a></td>
+<td>Apply Holm-Bonferroni method to adjust for multiple tests</td></tr>
+<tr><td style="width: 25%;"><a href="initBquartets.html">initBquartets</a></td>
+<td>Initialize vector of B quartets</td></tr>
+<tr><td style="width: 25%;"><a href="labelIntNodes.html">labelIntNodes</a></td>
+<td>Label internal nodes on tree</td></tr>
+<tr><td style="width: 25%;"><a href="M0.html">M0</a></td>
+<td>Modified Struve function</td></tr>
+<tr><td style="width: 25%;"><a href="MSCquartets-package.html">MSCquartets</a></td>
+<td>Multispecies Coalescent Model Quartet Package</td></tr>
+<tr><td style="width: 25%;"><a href="NANUQ.html">NANUQ</a></td>
+<td>Apply NANUQ network inference algorithm to gene tree data</td></tr>
+<tr><td style="width: 25%;"><a href="NANUQdist.html">NANUQdist</a></td>
+<td>Compute NANUQ distance and write to file</td></tr>
+<tr><td style="width: 25%;"><a href="nexusDist.html">nexusDist</a></td>
+<td>Write a distance table to a file in nexus format</td></tr>
+<tr><td style="width: 25%;"><a href="nodeGroups.html">nodeGroups</a></td>
+<td>Groups taxa by deleting a node in a tree</td></tr>
+<tr><td style="width: 25%;"><a href="ordersHeuristicmodNANUQ.html">ordersHeuristicmodNANUQ</a></td>
+<td>Choose cycle orders heuristically from empirical modNANUQ distance</td></tr>
+<tr><td style="width: 25%;"><a href="powerDivStat.html">powerDivStat</a></td>
+<td>Power divergence statistic of Cressie &amp; Read</td></tr>
+<tr><td style="width: 25%;"><a href="pTableYeastRokas.html">pTableYeastRokas</a></td>
+<td>pTable for Yeast dataset</td></tr>
+<tr><td style="width: 25%;"><a href="pvalHist.html">pvalHist</a></td>
+<td>Plot histogram of log p-values in table</td></tr>
+<tr><td style="width: 25%;"><a href="QDC.html">QDC</a></td>
+<td>Compute Quartet Distance Consensus tree from gene tree data</td></tr>
+<tr><td style="width: 25%;"><a href="QDS.html">QDS</a></td>
+<td>Compute Quartet Distance Supertree</td></tr>
+<tr><td style="width: 25%;"><a href="quartetBTinferencePlot.html">quartetBTinferencePlot</a></td>
+<td>Produce simplex plot with results of B/T-quartet inference</td></tr>
+<tr><td style="width: 25%;"><a href="quartetCutMLE.html">quartetCutMLE</a></td>
+<td>Maximum likelihood estimate of quartet tree of blobs topology and CF under Cut model</td></tr>
+<tr><td style="width: 25%;"><a href="quartetCutTest.html">quartetCutTest</a></td>
+<td>Hypothesis test for quartet counts fitting a resolved quartet tree of blobs under NMSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetCutTestInd.html">quartetCutTestInd</a></td>
+<td>Multiple independent hypothesis tests for quartet counts fitting the Cut model under the NMSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetDist.html">quartetDist</a></td>
+<td>Compute quartet distance between taxa</td></tr>
+<tr><td style="width: 25%;"><a href="quartetNetworkDist.html">quartetNetworkDist</a></td>
+<td>Compute network quartet distance between taxa</td></tr>
+<tr><td style="width: 25%;"><a href="quartetStarTest.html">quartetStarTest</a></td>
+<td>Hypothesis test for quartet counts fitting a star tree under the MSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetStarTestInd.html">quartetStarTestInd</a></td>
+<td>Multiple independent hypothesis tests for gene quartet counts fitting a species quartet star tree under the MSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTable.html">quartetTable</a></td>
+<td>Produce table of counts of quartets displayed on trees</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTableCollapse.html">quartetTableCollapse</a></td>
+<td>Reduce quartet table by combining some taxa</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTableDominant.html">quartetTableDominant</a></td>
+<td>Produce table of dominant quartets, with estimates of internal edge lengths</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTableParallel.html">quartetTableParallel</a></td>
+<td>Produce table of counts of quartets displayed on trees, in parallel for large data sets</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTablePrint.html">quartetTablePrint</a></td>
+<td>Print a quartet table with nice formatting</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTableResolved.html">quartetTableResolved</a></td>
+<td>Modify quartet table to show only resolved quartets</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTallyCpp.html">quartetTallyCpp</a></td>
+<td>Build quartet table from distances</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTestPlot.html">quartetTestPlot</a></td>
+<td>Produce simplex plot with results of quartet hypothesis tests</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTreeErrorProb.html">quartetTreeErrorProb</a></td>
+<td>Bayesian posterior probability of error in 4-taxon unrooted species tree topology estimate</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTreeTest.html">quartetTreeTest</a></td>
+<td>Hypothesis test for quartet counts fitting a tree under the MSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetTreeTestInd.html">quartetTreeTestInd</a></td>
+<td>Multiple independent hypothesis tests for quartet counts fitting a species tree under the MSC</td></tr>
+<tr><td style="width: 25%;"><a href="quartetWeightedDist.html">quartetWeightedDist</a></td>
+<td>Compute the Weighted Quartet Distance between taxa</td></tr>
+<tr><td style="width: 25%;"><a href="resolveCycle.html">resolveCycle</a></td>
+<td>Resolve a node on a tree of blobs as a cycle</td></tr>
+<tr><td style="width: 25%;"><a href="resolveLevel1.html">resolveLevel1</a></td>
+<td>Resolve Tree of Blobs to Level-1 network</td></tr>
+<tr><td style="width: 25%;"><a href="simplexCoords.html">simplexCoords</a></td>
+<td>Convert 3-d coordinates to 2-d probability simplex coordinates</td></tr>
+<tr><td style="width: 25%;"><a href="simplexLabels.html">simplexLabels</a></td>
+<td>Label vertices of 2-d probability simplex</td></tr>
+<tr><td style="width: 25%;"><a href="simplexPoint.html">simplexPoint</a></td>
+<td>Plot point in 2-d probability simplex</td></tr>
+<tr><td style="width: 25%;"><a href="simplexPrepare.html">simplexPrepare</a></td>
+<td>Draw 2-d probability simplex, with model lines for T3 or T1 model</td></tr>
+<tr><td style="width: 25%;"><a href="simplexSegment.html">simplexSegment</a></td>
+<td>Plot line segment in 2-d probability simplex</td></tr>
+<tr><td style="width: 25%;"><a href="simplexText.html">simplexText</a></td>
+<td>Add text at a point in 2-d probability simplex</td></tr>
+<tr><td style="width: 25%;"><a href="sortQuartetTableRows.html">sortQuartetTableRows</a></td>
+<td>Sort quartet table rows by lex order</td></tr>
+<tr><td style="width: 25%;"><a href="suppressNetBinaryNodes.html">suppressNetBinaryNodes</a></td>
+<td>Suppress Network Binary Nodes</td></tr>
+<tr><td style="width: 25%;"><a href="T1density.html">T1density</a></td>
+<td>Probability density function for Model T1</td></tr>
+<tr><td style="width: 25%;"><a href="T3density.html">T3density</a></td>
+<td>Probability density function for Model T3</td></tr>
+<tr><td style="width: 25%;"><a href="tableHeliconiusMartin.html">tableHeleconiusMartin</a></td>
+<td>Quartet table for Heliconius gene tree dataset</td></tr>
+<tr><td style="width: 25%;"><a href="tableHeliconiusMartin.html">tableHeliconiusMartin</a></td>
+<td>Quartet table for Heliconius gene tree dataset</td></tr>
+<tr><td style="width: 25%;"><a href="tableLeopardusLescroart.html">tableLeopardusLescroart</a></td>
+<td>Quartet table for Leopardus dataset</td></tr>
+<tr><td style="width: 25%;"><a href="taxonNames.html">taxonNames</a></td>
+<td>Get all taxon names from a collection of trees</td></tr>
+<tr><td style="width: 25%;"><a href="TINNIK.html">TINNIK</a></td>
+<td>TINNIK algorithm to infer species tree of blobs</td></tr>
+<tr><td style="width: 25%;"><a href="TINNIKdist.html">TINNIKdist</a></td>
+<td>Compute TINNIK distance from quartets and hypothesis test p-values</td></tr>
+<tr><td style="width: 25%;"><a href="topDist.html">topDist</a></td>
+<td>Topological distances on a tree</td></tr>
+<tr><td style="width: 25%;"><a href="treeFromSplits.html">treeFromSplits</a></td>
+<td>Produce tree from compatible splits</td></tr>
+<tr><td style="width: 25%;"><a href="treeOfBlobs.html">treeOfBlobs</a></td>
+<td>Tree of blobs for a network</td></tr>
+<tr><td style="width: 25%;"><a href="WQDC.html">WQDC</a></td>
+<td>Compute Weighted Quartet Distance Consensus tree from gene tree data</td></tr>
+<tr><td style="width: 25%;"><a href="WQDCrecursive.html">WQDCrecursive</a></td>
+<td>Compute the Recursive Weighted Quartet Distance Consensus tree from gene tree data</td></tr>
+<tr><td style="width: 25%;"><a href="WQDS.html">WQDS</a></td>
+<td>Compute the Weighted Quartet Distance Supertree</td></tr>
+<tr><td style="width: 25%;"><a href="WQDSAdjustLengths.html">WQDSAdjustLengths</a></td>
+<td>Adjust edge lengths on tree built from Weighted Quartet distance to estimate metric tree</td></tr>
+</table>
+</div></body></html>

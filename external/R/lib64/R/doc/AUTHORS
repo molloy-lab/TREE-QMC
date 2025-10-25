@@ -1,0 +1,38 @@
+Authors of R.
+
+R was initially written by Robert Gentleman and Ross Ihaka, also known as "R & R"
+of the Statistics Department of the University of Auckland.
+
+Since mid-1997 there has been a core group with write access to the R
+source, currently consisting of
+
+John Chambers
+Peter Dalgaard
+Robert Gentleman
+Kurt Hornik
+Ross Ihaka
+Tomas Kalibera
+Michael Lawrence
+Uwe Ligges
+Thomas Lumley
+Martin Maechler
+Sebastian Meyer
+Paul Murrell
+Martyn Plummer
+Brian Ripley
+Deepayan Sarkar
+Duncan Temple Lang
+Luke Tierney
+Simon Urbanek
+
+plus Heiner Schwarte up to October 1999, Guido Masarotto up to June 2003,
+Stefano Iacus up to July 2014, Seth Falcon up to August 2015, Duncan Murdoch
+up to September 2017, Martin Morgan up to June 2021, Douglas Bates up to March 2024,
+and Friedrich Leisch up to April 2024.
+
+
+Current R-core members can be contacted via email to R-project.org
+with name made up by replacing spaces by dots in the name listed above.
+
+(The authors of code from other projects included in the R distribution
+are listed in the COPYRIGHTS file.)

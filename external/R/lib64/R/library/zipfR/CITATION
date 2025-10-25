@@ -1,0 +1,15 @@
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("zipfR")
+note <- sprintf("(R package version %s of %s)", meta$Version, meta$Date)
+
+bibentry("inproceedings",
+  author = c(person("Stefan","Evert"), person("Marco","Baroni")),
+  title = "\\emph{zipfR}: Word Frequency Distributions in {R}",
+  booktitle = "Proceedings of the 45th Annual Meeting of the Association for Computational Linguistics, Posters and Demonstrations Sessions",
+  address = "Prague, Czech Republic",
+  year = "2007",
+  pages = "29--32",
+  note = note,
+  textVersion = paste("Evert, Stefan and Baroni, Marco (2007). \"zipfR: Word frequency distributions in R.\" In Proceedings of the 45th Annual Meeting of the Association for Computational Linguistics, Posters and Demonstrations Sessions, pages 29-32, Prague, Czech Republic.", note),
+  mheader = "To cite package 'zipfR' in publications use:",
+  mfooter = "Thanks for crediting our work! We hope that you enjoy using the package and would like to hear your comments, criticism and suggestions for future enhancements."
+)

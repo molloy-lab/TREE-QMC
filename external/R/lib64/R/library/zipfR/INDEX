@@ -1,0 +1,81 @@
+Baayen2001              Frequency Spectra from Baayen (2001) (zipfR)
+Brown                   Brown Corpus Frequency Data (zipfR)
+BrownSubsets            Brown Corpus Subset Frequency Data (zipfR)
+Cgamma                  Incomplete Beta and Gamma Functions (zipfR)
+Dickens                 Dickens' Frequency Data (zipfR)
+EV                      Expected Frequency Spectrum (zipfR)
+EV.spc                  Binomial Interpolation (zipfR)
+EvertLuedeling2001      Samples of German Word Formation Affixes
+                        (zipfR)
+ItaPref                 Italian Ri- and Ultra- Prefix Frequency Data
+                        (zipfR)
+LNRE                    Type and Probability Distributions of LNRE
+                        Models (zipfR)
+LNRE_posterior          Posterior Distribution of LNRE Model (zipfR)
+N                       Access Methods for Observed Frequency Data
+                        (zipfR)
+N.spc                   Access Methods for Frequency Spectra (zipfR)
+N.tfl                   Access Methods for Type Frequency Lists (zipfR)
+N.vgc                   Access Methods for Vocabulary Growth Curves
+                        (zipfR)
+Tiger                   Tiger NP and PP expansions (zipfR)
+VV                      Variances of the Expected Frequency Spectrum
+                        (zipfR)
+bootstrap.confint       Estimate Confidence Intervals from Parametric
+                        Bootstrap Simulations (zipfR)
+confint.lnre            Confidence Intervals for LNRE Model Parameters
+                        (zipfR)
+estimate.model          Estimate LNRE Model Parameters (zipfR)
+lnre                    LNRE Models (zipfR)
+lnre.bootstrap          Parametric bootstrapping for LNRE models
+                        (zipfR)
+lnre.details            Technical Details of LNRE Model Objects (zipfR)
+lnre.fzm                The finite Zipf-Mandelbrot (fZM) LNRE Model
+                        (zipfR)
+lnre.gigp               The Generalized Inverse Gauss-Poisson (GIGP)
+                        LNRE Model (zipfR)
+lnre.goodness.of.fit    Goodness-of-fit Evaluation of LNRE Models
+                        (zipfR)
+lnre.productivity.measures
+                        Measures of Productivity and Lexical Richness
+                        (zipfR)
+lnre.spc                Compute Expected Frequency Spectrum of LNRE
+                        Model (zipfR)
+lnre.vgc                Expected Vocabulary Growth Curves of LNRE Model
+                        (zipfR)
+lnre.zm                 The Zipf-Mandelbrot (ZM) LNRE Model (zipfR)
+merge.tfl               Merging Type Frequency Lists (zipfR)
+plot.lnre               Plot LNRE Population Distribution (zipfR)
+plot.spc                Plot Word Frequency Spectra (zipfR)
+plot.tfl                Plot Type-Frequency List / Zipf Ranking (zipfR)
+plot.vgc                Plot Vocabulary Growth Curves (zipfR)
+print.lnre              Printing LNRE Models (zipfR)
+print.spc               Printing Frequency Spectra (zipfR)
+print.tfl               Printing Type Frequency Lists (zipfR)
+print.vgc               Printing Vocabulary Growth Curves (zipfR)
+productivity.measures   Measures of Productivity and Lexical Richness
+                        (zipfR)
+read.multiple.objects   Reading Multiple Objects from Files (zipfR)
+read.spc                Loading and Saving Frequency Spectra (zipfR)
+read.tfl                Loading and Saving Type Frequency Lists (zipfR)
+read.vgc                Loading and Saving Vocabulary Growth Curves
+                        (zipfR)
+sample.spc              Incremental Samples from a Frequency Spectrum
+                        (zipfR)
+sample.tfl              Incremental Samples from a Type Frequency List
+                        (zipfR)
+spc                     Frequency Spectra (zipfR)
+spc.interp              Expected Frequency Spectrum by Binomial
+                        Interpolation (zipfR)
+spc.vector              Create Vector of Spectrum Elements (zipfR)
+spc2tfl                 Convert Between Frequency Spectra and Type
+                        Frequency Lists (zipfR)
+tfl                     Type Frequency Lists (zipfR)
+vec2tfl                 Type-Token Statistics for Samples and Empirical
+                        Data (zipfR)
+vgc                     Vocabulary Growth Curves (zipfR)
+vgc.interp              Expected Vocabulary Growth by Binomial
+                        Interpolation (zipfR)
+zipfR-package           zipfR: lexical statistics in R
+zipfR.par               Set or Query Graphics Parameters (zipfR)
+zipfR.plotutils         Plotting Utilities (zipfR)

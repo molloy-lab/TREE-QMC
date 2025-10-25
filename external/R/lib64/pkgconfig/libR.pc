@@ -1,0 +1,10 @@
+rhome=/fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R
+rlibdir=${rhome}/lib
+rincludedir=/fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/include
+
+Name: libR
+Description: R as a library
+Version: 4.5.1
+Libs: -Wl,--export-dynamic -fopenmp  -L/fs/cbcb-software/RedHat-8-x86_64/local/conda/202211/lib -L${rlibdir} -lR
+Cflags: -I${rincludedir} -I${rincludedir}
+Libs.private:

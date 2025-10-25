@@ -1,0 +1,9 @@
+## Versions from settings when configure was run
+: ${JAVA_HOME=/fs/cbcb-software/RedHat-8-x86_64/local/conda/202211/lib/jvm}
+: ${JAVA_CPPFLAGS=~autodetect~}
+: ${JAVA_LD_LIBRARY_PATH=/fs/cbcb-software/RedHat-8-x86_64/local/conda/202211/lib/jvm/lib/server}
+: ${JAVA_LIBS=~autodetect~}
+: ${JAVA=}
+: ${JAVAC=}
+: ${JAVAH=}
+: ${JAR=}

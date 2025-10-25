@@ -1,0 +1,22 @@
+Package: zipfR
+Type: Package
+Title: Statistical Models for Word Frequency Distributions
+Version: 0.6-70
+Depends: R (>= 3.0.0)
+Imports: methods, utils, stats, graphics, grDevices, parallel
+Date: 2020-10-10
+Author: Stefan Evert <stefan.evert@fau.de>, Marco Baroni <marco.baroni@unitn.it>
+Maintainer: Stefan Evert <stefan.evert@fau.de>
+Description: Statistical models and utilities for the analysis of word frequency distributions.
+	The utilities include functions for loading, manipulating and visualizing word frequency
+	data and vocabulary growth curves.  The package also implements several statistical 
+	models for the distribution of word frequencies in a population.  (The name of this package 
+	derives from the most famous word frequency distribution, Zipf's law.)
+License: GPL-3
+URL: https://zipfR.R-Forge.R-project.org/
+LazyData: yes
+NeedsCompilation: no
+Packaged: 2020-10-11 18:25:21 UTC; evert
+Repository: CRAN
+Date/Publication: 2020-10-11 19:40:02 UTC
+Built: R 4.5.1; ; 2025-07-28 04:02:56 UTC; unix

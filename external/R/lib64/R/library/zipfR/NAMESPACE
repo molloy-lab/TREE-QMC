@@ -1,0 +1,131 @@
+importFrom(stats, density, median, sd, IQR, na.omit, nlm, optim, uniroot)
+importFrom(stats, dbinom, rhyper, runif, rbinom, rmultinom, rnorm, qnorm, pchisq, pbeta, qbeta, pgamma, qgamma)
+importFrom(utils, read.delim, setTxtProgressBar, txtProgressBar, write.table)
+importFrom(grDevices, dev.cur, dev.list, dev.new, dev.off, dev.set, pdf, png, postscript)
+importFrom(graphics, abline, barplot, hist, lines, par, plot, points, segments)
+importFrom(parallel, clusterCall, clusterApply, mclapply)
+importFrom(methods, is)
+
+export(Cgamma, Igamma, Igamma.inv, Rgamma, Rgamma.inv)
+export(Cbeta, Ibeta, Ibeta.inv, Rbeta, Rbeta.inv)
+
+export(spc, read.spc, write.spc)
+export(tfl, read.tfl, write.tfl)
+export(vgc, read.vgc, write.vgc)
+
+export(spc.vector)
+export(tfl2spc, spc2tfl)
+export(vec2tfl, vec2spc, vec2vgc)
+export(sample.tfl, sample.spc)
+export(spc.interp, vgc.interp)
+
+export(lnre, lnre.goodness.of.fit)
+export(lnre.spc, lnre.vgc)
+
+export(N, V, Vm, EV, EVm, VV, VVm)
+
+export(zipfR.par)
+export(zipfR.begin.plot, zipfR.end.plot, zipfR.pick.device)
+
+export(tdlnre, ltdlnre, tplnre, tqlnre)
+export(dlnre, ldlnre, plnre, qlnre)
+export(rlnre)
+export(postdlnre, postldlnre, postplnre, postqlnre)
+
+export(read.multiple.objects)
+export(lnre.bootstrap, bootstrap.confint)
+
+export(productivity.measures, lnre.productivity.measures)
+
+S3method(plot, spc)
+S3method(plot, tfl)
+S3method(plot, vgc)
+S3method(plot, lnre)
+export(plot.spc, plot.tfl, plot.vgc, plot.lnre)
+
+S3method(print, spc)
+S3method(print, tfl)
+S3method(print, vgc)
+S3method(print, lnre)
+
+S3method(summary, spc)
+S3method(summary, tfl)
+S3method(summary, vgc)
+S3method(summary, lnre)
+
+S3method(merge, tfl)
+
+S3method(confint, lnre)
+
+S3method(N, spc)
+S3method(N, tfl)
+S3method(N, vgc)
+S3method(N, lnre)
+
+S3method(V, spc)
+S3method(V, tfl)
+S3method(V, vgc)
+S3method(V, lnre)
+
+S3method(Vm, spc)
+S3method(Vm, tfl)
+S3method(Vm, vgc)
+S3method(Vm, lnre)
+
+S3method(EV, spc)
+S3method(EV, lnre)
+S3method(EV, lnre.zm)
+S3method(EV, lnre.fzm)
+S3method(EV, lnre.gigp)
+
+S3method(EVm, spc)
+S3method(EVm, lnre)
+S3method(EVm, lnre.zm)
+S3method(EVm, lnre.fzm)
+S3method(EVm, lnre.gigp)
+
+S3method(VV, spc)
+S3method(VV, vgc)
+S3method(VV, lnre)
+
+S3method(VVm, spc)
+S3method(VVm, vgc)
+S3method(VVm, lnre)
+
+S3method(tdlnre, lnre.zm)
+S3method(tdlnre, lnre.fzm)
+S3method(tdlnre, lnre.gigp)
+
+S3method(tplnre, lnre.zm)
+S3method(tplnre, lnre.fzm)
+
+S3method(tqlnre, lnre.zm)
+S3method(tqlnre, lnre.fzm)
+
+S3method(dlnre, lnre.zm)
+S3method(dlnre, lnre.fzm)
+S3method(dlnre, lnre.gigp)
+
+S3method(plnre, lnre.zm)
+S3method(plnre, lnre.fzm)
+
+S3method(qlnre, lnre.zm)
+S3method(qlnre, lnre.fzm)
+
+S3method(ltdlnre, lnre)
+S3method(ldlnre, lnre)
+S3method(rlnre, lnre)
+
+S3method(postdlnre, lnre)
+S3method(postldlnre, lnre)
+
+# S3method(postplnre, lnre.zm)
+# S3method(postplnre, lnre.fzm)
+
+# S3method(postqlnre, lnre.zm)
+# S3method(postqlnre, lnre.fzm)
+
+S3method(productivity.measures, default)
+S3method(productivity.measures, tfl)
+S3method(productivity.measures, spc)
+S3method(productivity.measures, vgc)

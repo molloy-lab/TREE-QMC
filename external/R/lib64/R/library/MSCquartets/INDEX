@@ -1,0 +1,116 @@
+BQinference             Main loop of B-quartet inference
+HolmBonferroni          Apply Holm-Bonferroni method to adjust for
+                        multiple tests
+M0                      Modified Struve function
+MSCquartets-package     Multispecies Coalescent Model Quartet Package
+NANUQ                   Apply NANUQ network inference algorithm to gene
+                        tree data
+NANUQdist               Compute NANUQ distance and write to file
+QDC                     Compute Quartet Distance Consensus tree from
+                        gene tree data
+QDS                     Compute Quartet Distance Supertree
+T1density               Probability density function for Model T1
+T3density               Probability density function for Model T3
+TINNIK                  TINNIK algorithm to infer species tree of blobs
+TINNIKdist              Compute TINNIK distance from quartets and
+                        hypothesis test p-values
+WQDC                    Compute Weighted Quartet Distance Consensus
+                        tree from gene tree data
+WQDCrecursive           Compute the Recursive Weighted Quartet Distance
+                        Consensus tree from gene tree data
+WQDS                    Compute the Weighted Quartet Distance Supertree
+WQDSAdjustLengths       Adjust edge lengths on tree built from Weighted
+                        Quartet distance to estimate metric tree
+allPerms                Generate permutations
+blobDistance            Compute empirical distance between taxon
+                        groups.
+circHybOrders           Generate all circular orders with designated
+                        hybrid
+collapseEdges           Collapse short tree edges
+combineCycleResolutions
+                        Combine several cycle resolutions on a tree of
+                        blobs to create a network
+compatibleSplits        Extract compatible splits
+cutDensity              Probability density function for Cut Model
+dataGeneTreeSample      Simulated gene tree dataset from species tree
+dataPapioniniVanderpool
+                        Papionini gene tree dataset
+dataYeastRokas          Yeast gene tree dataset
+estimateEdgeLengths     Estimate edge lengths on a species tree from
+                        gene tree quartet counts
+expNANUQCycleDist       Expected NANUQ cycle distance
+expectedCFs             Produce table of expected quartet concordance
+                        factors for a species tree
+expmodNANUQCycleDist    Expected modNANUQ cycle distance
+fitCycleOrders          Compute fit of circular orders to distance with
+                        least squares
+initBquartets           Initialize vector of B quartets
+labelIntNodes           Label internal nodes on tree
+nexusDist               Write a distance table to a file in nexus
+                        format
+nodeGroups              Groups taxa by deleting a node in a tree
+ordersHeuristicmodNANUQ
+                        Choose cycle orders heuristically from
+                        empirical modNANUQ distance
+pTableYeastRokas        pTable for Yeast dataset
+powerDivStat            Power divergence statistic of Cressie & Read
+pvalHist                Plot histogram of log p-values in table
+quartetBTinferencePlot
+                        Produce simplex plot with results of
+                        B/T-quartet inference
+quartetCutMLE           Maximum likelihood estimate of quartet tree of
+                        blobs topology and CF under Cut model
+quartetCutTest          Hypothesis test for quartet counts fitting a
+                        resolved quartet tree of blobs under NMSC
+quartetCutTestInd       Multiple independent hypothesis tests for
+                        quartet counts fitting the Cut model under the
+                        NMSC
+quartetDist             Compute quartet distance between taxa
+quartetNetworkDist      Compute network quartet distance between taxa
+quartetStarTest         Hypothesis test for quartet counts fitting a
+                        star tree under the MSC
+quartetStarTestInd      Multiple independent hypothesis tests for gene
+                        quartet counts fitting a species quartet star
+                        tree under the MSC
+quartetTable            Produce table of counts of quartets displayed
+                        on trees
+quartetTableCollapse    Reduce quartet table by combining some taxa
+quartetTableDominant    Produce table of dominant quartets, with
+                        estimates of internal edge lengths
+quartetTableParallel    Produce table of counts of quartets displayed
+                        on trees, in parallel for large data sets
+quartetTablePrint       Print a quartet table with nice formatting
+quartetTableResolved    Modify quartet table to show only resolved
+                        quartets
+quartetTallyCpp         Build quartet table from distances
+quartetTestPlot         Produce simplex plot with results of quartet
+                        hypothesis tests
+quartetTreeErrorProb    Bayesian posterior probability of error in
+                        4-taxon unrooted species tree topology estimate
+quartetTreeTest         Hypothesis test for quartet counts fitting a
+                        tree under the MSC
+quartetTreeTestInd      Multiple independent hypothesis tests for
+                        quartet counts fitting a species tree under the
+                        MSC
+quartetWeightedDist     Compute the Weighted Quartet Distance between
+                        taxa
+resolveCycle            Resolve a node on a tree of blobs as a cycle
+resolveLevel1           Resolve Tree of Blobs to Level-1 network
+simplexCoords           Convert 3-d coordinates to 2-d probability
+                        simplex coordinates
+simplexLabels           Label vertices of 2-d probability simplex
+simplexPoint            Plot point in 2-d probability simplex
+simplexPrepare          Draw 2-d probability simplex, with model lines
+                        for T3 or T1 model
+simplexSegment          Plot line segment in 2-d probability simplex
+simplexText             Add text at a point in 2-d probability simplex
+sortQuartetTableRows    Sort quartet table rows by lex order
+suppressNetBinaryNodes
+                        Suppress Network Binary Nodes
+tableHeliconiusMartin   Quartet table for Heliconius gene tree dataset
+tableLeopardusLescroart
+                        Quartet table for Leopardus dataset
+taxonNames              Get all taxon names from a collection of trees
+topDist                 Topological distances on a tree
+treeFromSplits          Produce tree from compatible splits
+treeOfBlobs             Tree of blobs for a network

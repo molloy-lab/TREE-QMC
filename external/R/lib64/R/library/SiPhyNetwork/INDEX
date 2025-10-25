@@ -1,0 +1,33 @@
+biconnectedComponents   Biconnected Components
+deleteTips              Remove tips from a phylogenetic Network
+getNetworkLevel         Get the level of a Network
+incompleteSampling      Sample Tips on a Phylogenetic Network
+isFUstable              Determine whether a phylogeny is FU-stable
+isNormal                #' Determine whether a phylogeny is Normal
+isTreeBased             Determine whether a network is tree-based
+isTreeChild             Determine whether a network is tree-child
+ltt.network             Lineages thru time on a network
+make.beta.draw          Function that makes a draw from a beta
+                        distribution
+make.categorical.draw   Function that makes a draw from a categorical
+                        distribution
+make.exp.decay          Make an exponential decay function
+make.linear.decay       Make a linear decay function
+make.polynomial.decay   Make a polynomial decay function
+make.stepwise           Make a stepwise decay function
+make.trait.model        Model for trait evolution across the phylogeny
+make.uniform.draw       Function that makes a draw from a uniform
+                        distribution
+network.gsa             Sample under the Generalized Sampling Approach
+plottable.net           Create a more Plotting-Friendly phylogenetic
+                        Network
+read.net                Read a Network from Parenthetic Format
+reconstructedNetwork    Remove Extinct Lineages from a Phylogenetic
+                        Network
+sim.bdh.age             Simulate a Phylogenetic Network to a Specified
+                        Number of Taxa
+sim.bdh.taxa.gsa        Simulate a Phylogenetic Network to a Specified
+                        Number of Taxa
+sim.bdh.taxa.ssa        Simulate a Phylogenetic Network to a Specified
+                        Number of Taxa
+write.net               Write a Network in Parenthetic Format
