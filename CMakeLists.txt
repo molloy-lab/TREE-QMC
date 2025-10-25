@@ -104,11 +104,11 @@ target_include_directories(tree-qmc PRIVATE
 )
 
 # ---------- compile defs ----------
+file(READ "${CMAKE_SOURCE_DIR}/version.txt" VERSION_TXT)
+string(STRIP "${VERSION_TXT}" VERSION_TXT)
+target_compile_definitions(tree-qmc PRIVATE VERSION="${VERSION_TXT}")
 set(R_LIBDIRS "${R_LIB}")
-target_compile_definitions(tree-qmc PRIVATE
-  R_LIBDIRS="${R_LIBDIRS}"
-  VERSION="42"
-)
+
 
 # ---------- link + rpath ----------
 target_link_directories(tree-qmc PRIVATE
