@@ -8,7 +8,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-
 if(APPLE)
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O2 -DNDEBUG)
@@ -33,20 +32,43 @@ find_program(RSCRIPT_BIN NAMES Rscript
   REQUIRED)
 message(STATUS "Found Rscript at: ${RSCRIPT_BIN}")
 
-# R home, include, lib
+# Prefer env overrides; otherwise query R
+if(DEFINED ENV{R_INCLUDE_DIR})
+  set(R_INCLUDE_DIR "$ENV{R_INCLUDE_DIR}")
+else()
+  execute_process(
+    COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home('include')))"
+    OUTPUT_VARIABLE R_INCLUDE_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+endif()
+
 execute_process(
   COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home()))"
   OUTPUT_VARIABLE R_HOME
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-if(NOT R_HOME OR NOT EXISTS "${R_HOME}/include/R.h")
-  message(FATAL_ERROR "Could not locate R headers. Ensure R is installed and ${R_HOME}/include/R.h exists.")
+
+if(DEFINED ENV{R_LIB_DIR})
+  set(R_LIB_DIR "$ENV{R_LIB_DIR}")
+else()
+  execute_process(
+    COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home('lib')))"
+    OUTPUT_VARIABLE R_LIB_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 endif()
-execute_process(
-  COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(normalizePath(R.home('lib')))"
-  OUTPUT_VARIABLE R_LIB_DIR
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+
+# Validate headers
+if(NOT R_INCLUDE_DIR OR NOT EXISTS "${R_INCLUDE_DIR}/R.h")
+  message(FATAL_ERROR
+    "Could not locate R headers. Looked at R_INCLUDE_DIR='${R_INCLUDE_DIR}'.\n"
+    "Tip: export R_INCLUDE_DIR=/usr/share/R/include")
+endif()
+
+message(STATUS "R_HOME       = ${R_HOME}")
+message(STATUS "R_INCLUDE_DIR= ${R_INCLUDE_DIR}")
+message(STATUS "R_LIB_DIR    = ${R_LIB_DIR}")
 
 # RInside + Rcpp dirs
 execute_process(
@@ -57,6 +79,7 @@ execute_process(
 if(NOT EXISTS "${RINSIDE_INC}/RInside.h")
   message(FATAL_ERROR "RInside headers not found for this R. In R: install.packages('RInside')")
 endif()
+
 execute_process(
   COMMAND "${RSCRIPT_BIN}" --vanilla -e "p<-system.file('lib',package='RInside');cat(if(nzchar(p)) normalizePath(p) else '')"
   OUTPUT_VARIABLE RINSIDE_LIB_DIR
@@ -65,6 +88,7 @@ execute_process(
 if(NOT EXISTS "${RINSIDE_LIB_DIR}")
   message(FATAL_ERROR "RInside lib dir not found. In R: install.packages('RInside')")
 endif()
+
 execute_process(
   COMMAND "${RSCRIPT_BIN}" --vanilla -e "p<-system.file('include',package='Rcpp');cat(if(nzchar(p)) normalizePath(p) else '')"
   OUTPUT_VARIABLE RCPP_INC
@@ -85,13 +109,11 @@ if(NOT MSCQ_OK STREQUAL "OK")
 endif()
 
 # --- Gather R's library trees for runtime (used by your RInside code) ---
-# This produces a colon-separated list of absolute directories from .libPaths()
 execute_process(
   COMMAND "${RSCRIPT_BIN}" --vanilla -e "cat(paste(normalizePath(.libPaths()), collapse=':'))"
   OUTPUT_VARIABLE R_LIB_TREES
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-# Escape quotes defensively for use in a compile definition
 string(REPLACE "\"" "\\\"" R_LIB_TREES "${R_LIB_TREES}")
 message(STATUS "R library trees: ${R_LIB_TREES}")
 
@@ -132,7 +154,7 @@ target_include_directories(tree-qmc
 target_include_directories(tree-qmc PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   "${CMAKE_SOURCE_DIR}/external/toms743"
-  "${R_HOME}/include"
+  "${R_INCLUDE_DIR}"
   "${RCPP_INC}"
   "${RINSIDE_INC}"
 )
@@ -141,8 +163,6 @@ target_include_directories(tree-qmc PRIVATE
 file(READ "${CMAKE_SOURCE_DIR}/version.txt" VERSION_TXT)
 string(STRIP "${VERSION_TXT}" VERSION_TXT)
 target_compile_definitions(tree-qmc PRIVATE VERSION="${VERSION_TXT}")
-
-# Provide R library search paths to the code (used by rlib_dirs.cpp, etc.)
 target_compile_definitions(tree-qmc PRIVATE R_LIBDIRS="${R_LIB_TREES}")
 
 # ---------- link + rpath ----------
@@ -154,7 +174,6 @@ if(EXISTS "${RINSIDE_LIB_DIR}")
   target_link_directories(tree-qmc PRIVATE "${RINSIDE_LIB_DIR}")
 endif()
 
-# macOS: link to absolute dylib paths; Linux: link by names
 if(APPLE)
   # Resolve actual dylib files
   set(RINSIDE_DYLIB "${RINSIDE_LIB_DIR}/libRInside.dylib")
@@ -162,7 +181,7 @@ if(APPLE)
     message(FATAL_ERROR "Expected RInside dylib not found at: ${RINSIDE_DYLIB}")
   endif()
 
-  # libR.dylib can reside in a few places; prefer R.home('lib')
+  # libR.dylib candidates
   set(R_DYLIB_CANDIDATES
     "${R_LIB_DIR}/libR.dylib"
     "${R_HOME}/lib/libR.dylib"
@@ -191,9 +210,11 @@ else()
     R
     m
   )
+  # Keep the linker from dropping libR/libRInside under --as-needed
+  target_link_options(tree-qmc PRIVATE -Wl,--no-as-needed)
 endif()
 
-# RPATHs: set via properties; no install_name_tool -add_rpath to avoid duplicates
+# RPATHs
 if(APPLE)
   set(_RPATHS "${RINSIDE_LIB_DIR};${R_LIB_DIR};@loader_path;@loader_path/../lib;@loader_path/../R/lib")
   set_target_properties(tree-qmc PROPERTIES
@@ -201,9 +222,11 @@ if(APPLE)
     INSTALL_RPATH "${_RPATHS}"
   )
 else()
+  # Make runtime find libRInside.so and libR.so
+  set(_LINUX_RPATHS "${RINSIDE_LIB_DIR};${R_LIB_DIR}")
   set_target_properties(tree-qmc PROPERTIES
-    BUILD_RPATH   ""
-    INSTALL_RPATH ""
+    BUILD_RPATH   "${_LINUX_RPATHS}"
+    INSTALL_RPATH "${_LINUX_RPATHS}"
   )
 endif()
 
