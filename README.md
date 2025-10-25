@@ -26,6 +26,7 @@ TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic;
 
 TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
 
+TOB-QMC uses the hypothesis tests implemented in TINNiK to contract 
 
 Build
 -----
@@ -35,9 +36,9 @@ Requirements
 * RInside 
 * MQSquartets
 
-We recommand do environment export for the Rscript if it is not pointed to the appropriate one yet(particulary important when working on a cluster)
+We recommand to do add the installed R with MQSquartets to your PATH(particularly when working on a cluster)
 ```
-export Rscript=<the path of Rscript>
+export PATH="<Path to R>/bin:$PATH"
 ```
 
 To build TREE-QMC, use commands:
@@ -46,6 +47,7 @@ git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC
 ./build.sh
 ```
+This executable binary will be TREE-QMC/build/tree-qmc
 
 Usage
 -----
