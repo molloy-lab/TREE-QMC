@@ -10,20 +10,19 @@
 // Add compile-time R library paths and load required R packages.
 void add_r_libpaths_and_load(RInside& R) {
     const std::string libdirs = R_LIBDIRS;
-    if (!libdirs.empty()) {
-        // allow multiple colon-separated paths
-        R.parseEvalQ(
-            "suppressMessages({"
-            "  p <- strsplit(\"" + libdirs + "\", \":\")[[1]];"
-            "  .libPaths(c(p, .libPaths()))"
-            "})"
-        );
-    }
+    R[".tqmc_libdirs"] = libdirs;
 
-    // Load MSCquartets and TINNIK
+
     R.parseEvalQ(
-        "suppressMessages({"
-        "  tryCatch(library(MSCquartets), error=function(e){stop('MSCquartets not found: ', e$message)})"
+        "suppressMessages({\n"
+        "  if (nzchar(.tqmc_libdirs)) {\n"
+        "    p <- strsplit(.tqmc_libdirs, .Platform$path.sep, fixed = TRUE)[[1]]\n"
+        "    .libPaths(unique(c(p, .libPaths())))\n"
+        "  }\n"
+        "  if (!requireNamespace('MSCquartets', quietly = TRUE)) {\n"
+        "    stop('MSCquartets not found. Current .libPaths() = ', paste(.libPaths(), collapse = ', '))\n"
+        "  }\n"
+        "  library(MSCquartets)\n"
         "})"
     );
 }

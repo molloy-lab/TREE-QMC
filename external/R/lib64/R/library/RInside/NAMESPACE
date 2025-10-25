@@ -1,2 +1,0 @@
-useDynLib("RInside", .registration=TRUE)
-importFrom(Rcpp, evalCpp)

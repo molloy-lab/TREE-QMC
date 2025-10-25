@@ -17,7 +17,8 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
         std::cout << "Constructing tree of blobs using 3-fix-1-alter search" << std::endl;
     }
 
-    RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/library/\")");
+    
+    add_r_libpaths_and_load(RINS);
     for (Tree *t : input) t->LCA_preprocessing();
     display->refine();
     this->dict = display->dict;
@@ -109,10 +110,6 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta)
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob) {
     std::cout << "Constructing tree of blobs" << std::endl;
-    // RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/yhhan/tree-of-blobs/software/Rlibs\")");
-    // /fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/library/
-    // hardcode path to Rlib i.e. the parent path of MSCquartets
-    // RINS.parseEvalQ("library(MSCquartets, lib.loc=\"/fs/cbcb-lab/ekmolloy/umd-ufl-collab/tree-of-blobs-study/software/R-4.5.1-build/lib64/R/library/\")");
     add_r_libpaths_and_load(RINS);
     for (Tree *t : input) t->LCA_preprocessing();
     this->dict = display->dict;
