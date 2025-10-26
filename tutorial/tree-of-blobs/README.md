@@ -62,5 +62,5 @@ Once get a base tree, TOB-QMC can contract branches in the base tree to infer a 
     -i base_tree.tre \
     -o tob_default.tre \
 ```
-which species the hyperparameter $\alpha$ and $\beta$ used in hypothesis testing be $1e-7$ and $0.95$, respectively. 
+which species the hyperparameter $\alpha$ and $\beta$ used in hypothesis testing be $10^{-7}$ and $0.95$, respectively. 
 Tips: Add `--override` to the above command above if you would like to explore different setting of hyperparameters and overwrite the output file.
