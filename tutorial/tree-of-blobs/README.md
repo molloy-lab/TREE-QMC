@@ -6,12 +6,12 @@ TOB-QMC Tutorial
 
 2. Go to tutorial directory.
 ```
-cd tutorial/tree-of-blob
+cd tutorial/tree-of-blobs
 ```
 
-3. Run TOB-QMC on the [example input data](gene_trees.tre). The example data file contains the best maximum likelihood (ML) trees estimated for 3,679 UCEs with iqtree3 (note that branch support was estimated with rapid bootstrapping).
+3. Run TOB-QMC on the [example input data](gene_trees.tre). The example data file contains 991 the best maximum likelihood (ML) trees estimated with iqtree3 (note that branch support was estimated with rapid bootstrapping).
 
-To infer a tree of blob, our approach requires frstly build a base tree(a refinement of the tree of blobs)
+To infer a tree of blobs, our approach requires frstly build a base tree(a refinement of the tree of blobs)
 
 *Below, we describe three different ways of running TOB-QMC given gene trees to get a base tree.*
 
@@ -33,7 +33,7 @@ Build a base tree by exhaustive all quartets
 ---
 This approach can be used with TREE-QMC, by simply set `--iter_limit_blob 0` . The command
 ```
-../../tree-qmc \
+../../build/tree-qmc \
     --iter_limit_blob 0 \
     --store_pvalue \
     -i gene_trees.tre \
@@ -44,13 +44,13 @@ Using the 3-fix-1-alter algorithm
 ---
 This approach will use 3-fix-1-alter to build the base tree. This approach is statistical consistent and only sampling $\Theta(n)$ quartets for each branch. To run the 3-fix-1-alter TOB-QMC algorithm, use the command:
 ```
-../../tree-qmc \
+../../build/tree-qmc \
     --3f1a \
     --store_pvalue \
     -i gene_trees.tre \
     -o base_tree_3f1a.tre
 ```
-**IMPORTANT:** We only recommand use this algorithm with a **extremely large** number of input gene trees.
+**IMPORTANT:** We only recommand use this algorithm all quartet concordance factors are close to its expectation.
 
 Once get a base tree, TOB-QMC can contract branches in the base tree to infer a tree of blobs, use the command:
 ```

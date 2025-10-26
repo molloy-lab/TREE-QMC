@@ -68,7 +68,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
     if (display->root->children.size() == 2) {false_positive.insert(display->root->children[1]);}
     this->dict = display->dict;
     root = build_refinement(display->root, false_positive);
-
+    
 }
 
 
@@ -89,23 +89,6 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta)
     }
     root = build_refinement(input->root, false_positive);
 }
-
-
-
-// SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta) {
-//     std::cout << "Constructing tree of blobs from annotated species tree" << std::endl;
-//     this->dict = dict;
-//     std::vector<Node *> internal;
-//     std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> quads;
-//     input->get_quardpartitions(&internal, &quads, dict);
-//     std::cout << internal.size() << " branches to test" << std::endl;
-//     std::unordered_set<Node *> false_positive;
-//     for (index_t i = 0; i < internal.size(); i ++) {
-//         if (internal[i]->min_pvalue < alpha || internal[i]->max_pvalue > beta) 
-//             false_positive.insert(internal[i]);
-//     }
-//     root = build_refinement(input->root, false_positive);
-// }
 
 
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob) {
@@ -132,7 +115,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
         weight_t min, max;
         index_t minimizer[4];
         if (iter_limit != 0) {
-            min = search(input, bips[i].first, bips[i].second, iter_limit, internal[i]->min_f);
+            min = search(input, bips[i].first, bips[i].second, iter_limit, internal[i]->min_f, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, iter_limit, internal[i]->max_f);
         }
 	else {
@@ -474,7 +457,7 @@ weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *
     return min;
 }
 
-weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *min_f) {
+weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *min_f, index_t* minimizer) {
     index_t indices[4];
     weight_t min = -1;
     size_t count = 0;
@@ -484,6 +467,7 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A,
         indices[2] = B[rand() % B.size()]->index;
         do {indices[3] = B[rand() % B.size()]->index;} while (indices[2] == indices[3]);
         count += neighbor_search(input, A, B, indices, &min, min_f);
+        minimizer[0] = indices[0]; minimizer[1] = indices[1]; minimizer[2] = indices[2]; minimizer[3] = indices[3];
         // std::cout << i << ' ' << min << std::endl;
     }
     //std::cout << "heuristic iter: " << count << std::endl;

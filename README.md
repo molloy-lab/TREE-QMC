@@ -14,7 +14,7 @@ TREE-QMC also implements some convenient features:
 
 Tutorials
 --------
-Check out the [tutorial for gene trees](tutorial/gene-trees/README.md) and the [tutorial for character matrices](tutorial/characters/README.md).
+Check out the [tutorial for gene trees](tutorial/gene-trees/README.md), the [tutorial for character matrices](tutorial/characters/README.md), and the [tutorial for tree of blobs](tutorial/tree-of-blob/README.md).
 
 Acknowledgements
 ----------------
@@ -26,19 +26,26 @@ TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic;
 
 TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
 
-TOB-QMC uses the hypothesis tests implemented in TINNiK to contract 
+TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project.org/web/packages/MSCquartets/vignettes/TINNIK.html) to infer tree of blobs; see [Allman, E.S., Baños, H., et al. *Algorithms Mol Biol*, 2024](https://doi.org/10.1186/s13015-024-00266-2)
 
 Build
 -----
 Requirements
-* R
-* Rcpp
-* RInside 
-* MQSquartets
+* [R](https://www.r-project.org/)
+* [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
+* [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
+* [MQSquartets](https://cran.r-project.org/web/packages/MSCquartets/)
 
-We recommand to do add the installed R with MQSquartets to your PATH(particularly when working on a cluster)
+Please following the instructions on the [R official website](https://www.r-project.org/) to install R onyour platforms. Once install R, we recommand to do add the installed R to your PATH(particularly when working on a cluster).
 ```
 export PATH="<Path to R>/bin:$PATH"
+```
+
+To install Rcpp, RInside, MQSquartets, use command:
+```
+Rscript -e "install.packages(’Rcpp’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’RInside’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’MSCquartets’, repos=’https://cloud.r-project.org/’)"
 ```
 
 To build TREE-QMC, use commands:
