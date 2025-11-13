@@ -16,7 +16,7 @@ TREE-QMC also implements some convenient features:
 
 Tutorials
 --------
-Check out the [tutorial for gene trees](tutorial/gene-trees/README.md) and the [tutorial for character matrices](tutorial/characters/README.md).
+Check out the [tutorial for gene trees](tutorial/gene-trees/README.md), the [tutorial for character matrices](tutorial/characters/README.md), and the [tutorial for tree of blobs](tutorial/tree-of-blob/README.md).
 
 Acknowledgements
 ----------------
@@ -28,21 +28,35 @@ TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic;
 
 TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
 
+TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project.org/web/packages/MSCquartets/vignettes/TINNIK.html) to infer tree of blobs; see [Allman, E.S., Baños, H., et al. *Algorithms Mol Biol*, 2024](https://doi.org/10.1186/s13015-024-00266-2)
+
 Build
 -----
+Requirements
+* [R](https://www.r-project.org/)
+* [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
+* [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
+* [MQSquartets](https://cran.r-project.org/web/packages/MSCquartets/)
+
+Please following the instructions on the [R official website](https://www.r-project.org/) to install R onyour platforms. Once install R, we recommand to do add the installed R to your PATH(particularly when working on a cluster).
+```
+export PATH="<Path to R>/bin:$PATH"
+```
+
+To install Rcpp, RInside, MQSquartets, use command:
+```
+Rscript -e "install.packages(’Rcpp’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’RInside’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’MSCquartets’, repos=’https://cloud.r-project.org/’)"
+```
+
 To build TREE-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
-cd TREE-QMC/external/MQLib
-make
-cd ../..
-g++ -std=c++11 -O2 \
-    -I external/MQLib/include -I external/toms743 \
-    -o tree-qmc \
-    src/*.cpp external/toms743/toms743.cpp \
-    external/MQLib/bin/MQLib.a -lm \
-    -DVERSION=\"$(cat version.txt)\"
+cd TREE-QMC
+./build.sh
 ```
+This executable binary will be TREE-QMC/build/tree-qmc
 
 Usage
 -----
@@ -76,6 +90,8 @@ To see the TREE-QMC usage options, use command:
 
 The output help message should be
 ```
+TREE-QMC version 3.0.5
+COMMAND: ./build/tree-qmc -h
 =================================== TREE-QMC ===================================
 BASIC USAGE:
 tree-qmc (-i|--input) <input file>
@@ -112,12 +128,30 @@ Input Options:
 Output Options:
 [(-o|--output) <output file>]
         File for writing output species tree (default: stdout)
+[(--override)]
+        Override output file if it already exists
 [(--support)]
         Compute quartet support for output species tree
 [(--writetable) <table file>]
         Write branch and quartet support information to CSV
 [(--char2tree)]
         Write character matrix as trees (newick strings) to output and exit
+
+TOB-QMC Options:
+[(--blob)]
+        Compute the tree of blob directed from the input gene trees
+[(--store_pvalue)]
+        Only compute the MQSST and store p-values for all branches in the output newick string
+[(--3f1a)]
+        Perform 3-fix-1-alter algorithm for computing p-values of each branch
+[(--iter_limit_blob) <integer>]
+        Maximum number of iterations for hill climbing heurstic for computing p-values of each branch; if set to 0 exhaustive search will be performed
+[(--load_pvalue)]
+        Load p-values for all branches from the input MQSST
+[(--alpha <float number>)]
+        Hypothesis testing hyperparameter alpha parameter for Tob-QMC
+[(--beta <float number>)]
+        Hypothesis testing hyperparameter beta parameter for Tob-QMC
 
 Algorithm Options:
 [(--hybrid)]
@@ -187,7 +221,7 @@ If you use TREE-QMC or weighted TREE-QMC in your work, please cite:
   and accurate species tree estimation from gene trees, Genome Research,
   http:doi.org/10.1101/gr.277629.122.
 
-  Han and Molloy, 2024, Improved robustness to gene tree incompleteness, 
-  estimation errors, and systematic homology errors with weighted TREE-QMC, 
+  Han and Molloy, 2024, Improved robustness to gene tree incompleteness,
+  estimation errors, and systematic homology errors with weighted TREE-QMC,
   bioRxiv, https://doi.org/10.1101/2024.09.27.615467.
 ================================================================================

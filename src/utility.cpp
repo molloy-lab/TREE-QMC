@@ -1,6 +1,10 @@
 #include "utility.hpp"
 
+
+
 bool DEBUG_MODE;
+std::unordered_map<quartet_t, std::vector<weight_t>> quartet2pvalue;
+RInside RINS;
 
 weight_t **Matrix::new_mat(index_t size) {
     weight_t **m = new weight_t*[size];
@@ -99,4 +103,40 @@ weight_t* init(index_t size) {
     for (index_t i = 0; i < size; i ++) 
         a[i] = std::nan("");
     return a;
+}
+
+
+
+weight_t pvalue(index_t *indices) {
+    index_t temp[4];
+    for (index_t i = 0; i < 4; i ++) 
+        temp[i] = indices[i];
+    std::sort(temp, temp + 4);
+    quartet_t q = join(temp);
+    assert(quartet2pvalue.find(q) != quartet2pvalue.end());
+    return quartet2pvalue[q][3];
+}
+
+std::vector<weight_t> pvalue_all(index_t *indices) {
+    index_t temp[4];
+    for (index_t i = 0; i < 4; i ++) 
+        temp[i] = indices[i];
+    std::sort(temp, temp + 4);
+    quartet_t q = join(temp);
+    assert(quartet2pvalue.find(q) != quartet2pvalue.end());
+    return quartet2pvalue[q];
+}
+
+
+weight_t pvalue(weight_t *qCF) {
+    SEXP a = RINS.parseEval("quartetTreeTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "), \"T3\")");
+    SEXP b = VECTOR_ELT(a, 0);
+    double* pvalue = REAL(b);
+    return *pvalue;
+}
+
+weight_t pvalue_star(weight_t *qCF) {
+    SEXP a = RINS.parseEval("quartetStarTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "))");
+    double* pvalue = REAL(a);
+    return *pvalue;
 }

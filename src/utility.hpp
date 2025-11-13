@@ -17,6 +17,7 @@
 #include <queue>
 #include <stack>
 #include <deque>
+#include <RInside.h>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6
@@ -38,6 +39,10 @@ index_t *split(quartet_t quartet);
 bool s2d(std::string s, weight_t *r);
 bool s2ul(std::string s, unsigned long int *r);
 weight_t *init(index_t size);
+weight_t pvalue(index_t *indices);
+std::vector<weight_t> pvalue_all(index_t *indices);
+weight_t pvalue(weight_t *qCF);
+weight_t pvalue_star(weight_t *qCF);
 
 const std::string help_info = 
 "=================================== TREE-QMC ===================================\n"
@@ -71,12 +76,29 @@ const std::string help_info =
 "Output Options:\n"
 "[(-o|--output) <output file>]\n"
 "        File for writing output species tree (default: stdout)\n"
+"[(--override)]\n"
+"        Override output file if it already exists\n"
 "[(--support)]\n"
 "        Compute quartet support for output species tree\n"
 "[(--writetable) <table file>]\n"
 "        Write branch and quartet support information to CSV\n"
 "[(--char2tree)]\n"
 "        Write character matrix as trees (newick strings) to output and exit\n\n"
+"TOB-QMC Options:\n"
+"[(--blob)]\n"
+"        Compute the tree of blob directed from the input gene trees\n"
+"[(--store_pvalue)]\n"
+"        Only compute the MQSST and store p-values for all branches in the output newick string\n"
+"[(--3f1a)]\n"
+"        Perform 3-fix-1-alter algorithm for computing p-values of each branch\n"
+"[(--iter_limit_blob) <integer>]\n"
+"        Maximum number of iterations for hill climbing heurstic for computing p-values of each branch; if set to 0 exhaustive search will be performed\n"
+"[(--load_pvalue)]\n"
+"        Load p-values for all branches from the input MQSST\n"
+"[(--alpha <float number>)]\n"
+"        Hypothesis testing hyperparameter alpha parameter for Tob-QMC\n"
+"[(--beta <float number>)]\n"
+"        Hypothesis testing hyperparameter beta parameter for Tob-QMC\n\n"
 "Algorithm Options:\n"
 "[(--hybrid)]\n"
 "        Use hybrid weighting scheme (-w h)\n"

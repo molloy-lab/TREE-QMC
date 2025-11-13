@@ -11,6 +11,7 @@ Instance::Instance(int argc, char **argv) {
     stree_file = "";
     table_file = "";
     root_str = "";
+    pvalue_file = "";
 
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
     execute_mode = "0";  // use fast algorithm
@@ -23,15 +24,24 @@ Instance::Instance(int argc, char **argv) {
     char2tree = false;
     rootonly = false;
     pcsonly = false;
+    blob = false;
+    store_pvalue = false;
+    load_pvalue = false;
+    override_file = false;
+    three_fix_one_alter = false;
+    quard = false;
 
     support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
+    alpha = -1;
+    beta = 2;
 
     refine_seed = 12345;
     cut_seed = 1;
     iter_limit = 10;
+    iter_limit_blob = 0;
 
     dict = NULL;
     output = NULL;
@@ -71,6 +81,10 @@ Instance::Instance(int argc, char **argv) {
     }
 
     dict->update_singletons();
+
+    if (pvalue_file != "") {
+        input_pvalues();
+    }
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
@@ -113,11 +127,31 @@ long long Instance::solve() {
     std::string mode = normal_mode + execute_mode + taxa_mode + weight_mode;
 
     auto start = std::chrono::high_resolution_clock::now();
-
+    
     if (stree_file != "") {
         output = new SpeciesTree(stree_file, dict);
     } else {
-        output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+        if (store_pvalue) {
+            SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+            output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
+            delete output;
+            output = display;
+        }
+        else if (blob) {
+            if (load_pvalue) {
+                output = new SpeciesTree(input[0], dict, alpha, beta);
+            }
+            else {
+                SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+                output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
+                std::cout << "Display tree with pvalues:" << std::endl;
+                std::cout << display->to_string_pvalue() << std::endl;
+                delete display;
+            }
+        }
+        else {
+            output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
+        }
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -149,8 +183,13 @@ void Instance::output_solution() {
         if (output_file != "") {
             std::ifstream fin(output_file);
             if (!fin.fail()) {
-                std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-                output_file = "";
+//                std::cout << override_file << std::endl;
+                if (!override_file) {
+                    std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+                    output_file = "";
+                } else {
+                    std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl; 
+                }
             }
             fin.close();
         }
@@ -193,8 +232,12 @@ void Instance::output_solution() {
     std::cout << "Writing species tree" << std::endl;
     std::ifstream fin(output_file);
     if (!fin.fail()) {
-        std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-        output_file = "";
+        if (!override_file) {
+            std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+            output_file = "";
+        } else {
+            std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl;
+        }
     }
     fin.close();
     if (output_file != "") {
@@ -202,6 +245,8 @@ void Instance::output_solution() {
         if (!fout.fail()) {
             if (score_mode == "1")
                 fout << output->to_string_annotated(brln_mode) << std::endl;
+            else if (store_pvalue) 
+                fout << output->to_string_pvalue() << std::endl;
             else 
                 fout << output->to_string_basic() << std::endl;
             fout.close();
@@ -212,6 +257,8 @@ void Instance::output_solution() {
 
     if (score_mode == "1")
         std::cout << output->to_string_annotated(brln_mode) << std::endl;
+    else if (store_pvalue) 
+        std::cout << output->to_string_pvalue() << std::endl;
     else
         std::cout << output->to_string_basic() << std::endl;
 }
@@ -261,6 +308,45 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
+        }
+        else if (opt == "--override") {
+            override_file = true;
+//            std::cout << override_file << std::endl;
+        }
+        else if (opt == "--blob") {
+            blob = true;
+        }
+        else if (opt == "--3f1a") {
+            three_fix_one_alter = true;
+        }
+        else if (opt == "--quard") {
+            quard = true;
+        }
+        else if (opt == "--alpha") {
+            alpha = std::stod(argv[++ i]);
+        }
+        else if (opt == "--beta") {
+            beta = std::stod(argv[++ i]);
+        }
+        else if (opt == "--pvalue") {
+            if (i < argc - 1) {
+                pvalue_file = argv[++ i];
+            }
+            else {
+                std::cout << "\nERROR: No pvalue file specified" << std::endl;
+                return 2;
+            }
+        }
+        else if (opt == "--store_pvalue") {
+            store_pvalue = true;
+        }
+        else if (opt == "--load_pvalue") {
+            load_pvalue = true;
+        }
+        else if (opt == "--iter_limit_blob") {
+            if (i < argc - 1) {
+                iter_limit_blob = std::stoi(argv[++ i]);
+            }
         }
         else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
@@ -523,7 +609,7 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "  WARNING: --hybrid option is recommended" << std::endl;
 
         // Process support branch options
-        if (weight_mode == "s" || weight_mode == "h" || contract) {
+        if (! load_pvalue && (weight_mode == "s" || weight_mode == "h" || contract)) {
             // Check support options make sense
             if (nminparam  == 0 || nmaxparam == 0 || ndefaultparam == 0) {
                 std::cout << "\nERROR: Must specify min, max, and default support values or use preset option" << std::endl;
@@ -832,4 +918,61 @@ void Instance::prepare_indiv2taxon_map() {
     //    std::cout << itr->first << " : " << itr->second << std::endl;
 
     fin.close();
+}
+
+void Instance::input_pvalues() {
+    std::ifstream fin(pvalue_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open pvalue file " << pvalue_file << std::endl;
+        exit(1);
+    }
+    std::cout << "Reading pvalue file" << std::endl;
+    index_t N = dict->size();
+    size_t Q = N * (N - 1) * (N - 2) * (N - 3) / 24;
+    std::vector<std::string> labels;
+    for (index_t i = 0; i < N; i ++)
+        labels.push_back(dict->index2label(i));
+    std::sort(labels.begin(), labels.end());
+    std::vector<std::vector<index_t>> quartets;
+    for (index_t i = 0; i < N; i ++) {
+        std::vector<index_t> line;
+        for (size_t j = 0; j < Q; j ++) {
+            index_t k;
+            fin >> k;
+            line.push_back(k);
+            //std::cout << k << " ";
+        }
+        quartets.push_back(line);
+        // std::cout << i << std::endl;
+    }
+    std::vector<std::vector<weight_t>> pvalues;
+    for (index_t i = 0; i < 5; i ++) {
+        std::vector<weight_t> line;
+        for (size_t j = 0; j < Q; j ++) {
+            weight_t k;
+            fin >> k;
+            line.push_back(k);
+            //std::cout << k << " ";
+        }
+        pvalues.push_back(line);
+        // std::cout << i << std::endl;
+    }
+    for (size_t i = 0; i < Q; i ++) {
+        index_t indices[4], k = 0;
+        for (index_t j = 0; j < N; j ++) {
+            if (quartets[j][i] == 1) 
+                indices[k ++] = j;
+        }
+        for (index_t k = 0; k < 4; k ++) {
+            std::string label = labels[indices[k]];
+            index_t j = dict->label2index(label);
+            indices[k] = j;
+        }
+        std::sort(indices, indices + 4);
+        quartet_t q = join(indices);
+        std::vector<weight_t> values;
+        for (index_t j = 0; j < 5; j ++) 
+            values.push_back(pvalues[j][i]);
+        quartet2pvalue[q] = values;
+    }
 }
