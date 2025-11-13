@@ -1,11 +1,14 @@
 // rlib_dirs.cpp
-#include <RInside.h>
+
 #include <string>
 #include <iostream>
+#include "rlib_dirs.hpp"
 
 #ifndef R_LIBDIRS
 #define R_LIBDIRS ""
 #endif
+
+#if TREE_QMC_WITH_R
 
 // Add compile-time R library paths and load required R packages.
 void add_r_libpaths_and_load(RInside& R) {
@@ -26,3 +29,10 @@ void add_r_libpaths_and_load(RInside& R) {
         "})"
     );
 }
+
+#else
+
+void add_r_libpaths_and_load(RInside& R) {
+    // Do nothing if R is not enabled
+}
+#endif 

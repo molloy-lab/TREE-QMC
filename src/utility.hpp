@@ -17,7 +17,6 @@
 #include <queue>
 #include <stack>
 #include <deque>
-#include <RInside.h>
 
 #define INDEX_WIDTH 65536
 #define ERROR_BOUND 1e-6

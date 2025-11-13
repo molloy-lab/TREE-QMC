@@ -32,7 +32,17 @@ TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project
 
 Build
 -----
-Requirements
+
+To build TREE-QMC without TOB-QMC, use commands:
+```
+git clone https://github.com/molloy-lab/TREE-QMC.git
+cd TREE-QMC
+mkdir -p build && cd build
+cmake ..              
+cmake --build . -j
+```
+
+Requirements for TOB-QMC
 * [R](https://www.r-project.org/)
 * [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
 * [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
@@ -50,11 +60,13 @@ Rscript -e "install.packages(’RInside’, repos=’https://cloud.r-project.org
 Rscript -e "install.packages(’MSCquartets’, repos=’https://cloud.r-project.org/’)"
 ```
 
-To build TREE-QMC, use commands:
+To build TREE-QMC with TOB-QMC, use commands:
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC
-./build.sh
+mkdir -p build && cd build
+cmake .. -DTREE_QMC_WITH_R=ON             
+cmake --build . -j 
 ```
 This executable binary will be TREE-QMC/build/tree-qmc
 

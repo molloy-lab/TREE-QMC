@@ -1,6 +1,6 @@
 #include "utility.hpp"
-
-
+#include "rinside_support.hpp"
+#include "rlib_dirs.hpp"
 
 bool DEBUG_MODE;
 std::unordered_map<quartet_t, std::vector<weight_t>> quartet2pvalue;
@@ -127,7 +127,7 @@ std::vector<weight_t> pvalue_all(index_t *indices) {
     return quartet2pvalue[q];
 }
 
-
+#if TREE_QMC_WITH_R 
 weight_t pvalue(weight_t *qCF) {
     SEXP a = RINS.parseEval("quartetTreeTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "), \"T3\")");
     SEXP b = VECTOR_ELT(a, 0);
@@ -140,3 +140,11 @@ weight_t pvalue_star(weight_t *qCF) {
     double* pvalue = REAL(a);
     return *pvalue;
 }
+#else 
+weight_t pvalue(weight_t *qCF) {
+    return std::nan("");
+}
+weight_t pvalue_star(weight_t *qCF) {
+    return std::nan("");
+}
+#endif
