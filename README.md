@@ -5,7 +5,7 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for large phylogenomic data sets with high missingness.
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. However, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for phylogenomic analyses of data sets with high missingness. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** when gene flow or other network-level evolutionary processes are expected.
 
 
 Tutorials
@@ -222,9 +222,8 @@ Acknowledgements
 
 + Weighted TREE-QMC leverages the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215). 
 
++ TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project.org/web/packages/MSCquartets/vignettes/TINNIK.html) to infer tree of blobs; see [Allman, et al., *Algorithms Mol Biol*, 2024](https://doi.org/10.1186/s13015-024-00266-2)
+
 + TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS J Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
 + TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Trans Math Software*, 1995](https://doi.org/10.1145/203082.203088).
-
-+ TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project.org/web/packages/MSCquartets/vignettes/TINNIK.html) to infer tree of blobs; see [Allman, et al., *Algorithms Mol Biol*, 2024](https://doi.org/10.1186/s13015-024-00266-2)
-
