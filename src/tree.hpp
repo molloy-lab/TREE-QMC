@@ -189,6 +189,7 @@ class SpeciesTree : public Tree {
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
+        #if ENABLE_TOB
         weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f, index_t *minimizer);
         weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f);
         weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
@@ -200,6 +201,7 @@ class SpeciesTree : public Tree {
         Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
         weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices, weight_t *f);
         weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices, weight_t *f);
+        #endif  // ENABLE_TOB
 };
 
 
@@ -207,6 +209,8 @@ extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt
 extern std::string verbose;
 extern unsigned long long count[8];
 
+#if ENABLE_TOB
 extern RInside RINS;
+#endif  // ENABLE_TOB
 
 #endif

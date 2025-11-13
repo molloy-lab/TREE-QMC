@@ -1,3 +1,5 @@
+#if ENABLE_TOB
+
 // rlib_dirs.cpp
 #include <RInside.h>
 #include <string>
@@ -26,3 +28,4 @@ void add_r_libpaths_and_load(RInside& R) {
         "})"
     );
 }
+#endif  // ENABLE_TOB

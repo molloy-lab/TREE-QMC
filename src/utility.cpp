@@ -1,10 +1,11 @@
 #include "utility.hpp"
 
-
-
 bool DEBUG_MODE;
 std::unordered_map<quartet_t, std::vector<weight_t>> quartet2pvalue;
+
+#if ENABLE_TOB
 RInside RINS;
+#endif
 
 weight_t **Matrix::new_mat(index_t size) {
     weight_t **m = new weight_t*[size];
@@ -106,7 +107,7 @@ weight_t* init(index_t size) {
 }
 
 
-
+#if ENABLE_TOB
 weight_t pvalue(index_t *indices) {
     index_t temp[4];
     for (index_t i = 0; i < 4; i ++) 
@@ -140,3 +141,4 @@ weight_t pvalue_star(weight_t *qCF) {
     double* pvalue = REAL(a);
     return *pvalue;
 }
+#endif  // ENABLE_TOB

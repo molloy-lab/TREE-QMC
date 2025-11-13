@@ -132,12 +132,18 @@ long long Instance::solve() {
         output = new SpeciesTree(stree_file, dict);
     } else {
         if (store_pvalue) {
+            #if ENABLE_TOB
             SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
             output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
             delete output;
             output = display;
+            #else
+                std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
+                exit(1);
+            #endif  // ENABLE_TOB
         }
         else if (blob) {
+            #if ENABLE_TOB
             if (load_pvalue) {
                 output = new SpeciesTree(input[0], dict, alpha, beta);
             }
@@ -148,6 +154,10 @@ long long Instance::solve() {
                 std::cout << display->to_string_pvalue() << std::endl;
                 delete display;
             }
+            #else
+                std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
+                exit(1);
+            #endif  // ENABLE_TOB
         }
         else {
             output = new SpeciesTree(input, dict, mode, iter_limit, output_file);

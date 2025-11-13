@@ -1,8 +1,39 @@
 TOB-QMC Tutorial
-==========================
+=================
 
-1. Clone the TREE-QMC Github repository and build TREE-QMC following the instructions in the [README](../../README.md).
+This tutorial shows how to run TREE-QMC to reconstruct a tree of blobs (TOB). This requires TREE-QMC to be built with R.
 
+---
+
+Build
+-----
+Requirements
+* [R](https://www.r-project.org/)
+* [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
+* [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
+* [MQSquartets](https://cran.r-project.org/web/packages/MSCquartets/)
+
+Please following the instructions on the [R official website](https://www.r-project.org/) to install R onyour platforms. Once install R, we recommand to do add the installed R to your PATH(particularly when working on a cluster).
+```
+export PATH="<Path to R>/bin:$PATH"
+```
+
+To install Rcpp, RInside, MQSquartets, use command:
+```
+Rscript -e "install.packages(’Rcpp’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’RInside’, repos=’https://cloud.r-project.org/’)"
+Rscript -e "install.packages(’MSCquartets’, repos=’https://cloud.r-project.org/’)"
+```
+
+To build TREE-QMC, use commands:
+```
+git clone https://github.com/molloy-lab/TREE-QMC.git
+cd TREE-QMC
+./build.sh
+```
+
+Analyses
+-----
 
 2. Go to tutorial directory.
 ```

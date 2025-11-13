@@ -1,3 +1,4 @@
+#if ENABLE_TOB
 #include "tree.hpp"
 #include "rlib_dirs.hpp"
 
@@ -769,3 +770,4 @@ Node *Tree::LCA_naive(Node *a, Node *b) {
     while (a != b) {a = a->parent; b = b->parent;}
     return a;
 }
+#endif  // ENABLE_TOB
