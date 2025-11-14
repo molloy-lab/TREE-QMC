@@ -1,97 +1,128 @@
 TOB-QMC Tutorial
 =================
 
-This tutorial shows how to run TREE-QMC to reconstruct a tree of blobs (TOB). This requires TREE-QMC to be built with R.
+This tutorial shows how to run TREE-QMC to reconstruct a tree of blobs (TOB), which requires TREE-QMC to be built with R.
 
 ---
 
-Build
+BUILD
 -----
+
 Requirements
+* [cmake](https://cmake.org/download/)
 * [R](https://www.r-project.org/)
 * [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
 * [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
-* [MQSquartets](https://cran.r-project.org/web/packages/MSCquartets/)
+* [MSCquartets](https://cran.r-project.org/web/packages/MSCquartets/)
 
-Please following the instructions on the [R official website](https://www.r-project.org/) to install R onyour platforms. Once install R, we recommand to do add the installed R to your PATH(particularly when working on a cluster).
-```
-export PATH="<Path to R>/bin:$PATH"
-```
+**Step 1.** If cmake isn't already installed on your system, install cmake version 3.18 or later by following the instructions on the [cmake official website](https://cmake.org/download/). If you are using a cluster, you may be able to load cmake as a module. Type `module avail cmake` to see the available packages and then load cmake, if available, with the `module load <package>` command.
 
-To install Rcpp, RInside, MQSquartets, use command:
-```
-Rscript -e "install.packages(’Rcpp’, repos=’https://cloud.r-project.org/’)"
-Rscript -e "install.packages(’RInside’, repos=’https://cloud.r-project.org/’)"
-Rscript -e "install.packages(’MSCquartets’, repos=’https://cloud.r-project.org/’)"
-```
+**Step 2.** If R isn't already installed on your system, install R following the instructions on the [R official website](https://www.r-project.org/). If you are using a cluster, you may be able to load R as a module. Type `module avail R` to see the available packages and then load R, if available, with the `module load <package>` command. 
 
-To build TREE-QMC, use commands:
+**Step 3.** Start the R console by typing `R` into the terminal as a commandline instruction and then install packages by typing
+```
+install.packages('Rcpp', repos='https://cloud.r-project.org/')
+install.packages('RInside', repos='https://cloud.r-project.org/')
+install.packages('MSCquartets', repos='https://cloud.r-project.org/')
+```
+If you are working on a cluster, you may get the following Warning message:
+```
+Warning in install.packages("Rcpp", repos = "https://cloud.r-project.org/") :
+  'lib = "/opt/local/stow/R-4.5.1/lib64/R/library"' is not writable
+Would you like to use a personal library instead? (yes/No/cancel) yes
+Would you like to create a personal library
+‘~/R/x86_64-pc-linux-gnu-library/4.5’
+to install packages into? (yes/No/cancel)
+```
+Just type `yes` to install packages into a personal library.
+
+**Step 4.** Build TREE-QMC.
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC
-./build.sh
+mkdir -p build
+cd build
+cmake ..              
+cmake --build . -j
 ```
 
-Analyses
------
+**Step 5.** Add TREE-QMC build directory to your path.
+```
+TREEQMC_PATH=$(pwd)
+export PATH="$TREEQMC_PATH:$PATH"
+cd ..
+```
 
-2. Go to tutorial directory.
+USAGE
+-----
+**Step 1.** Go to tutorial directory.
 ```
 cd tutorial/tree-of-blobs
 ```
 
-3. Run TOB-QMC on the [example input data](gene_trees.tre). The example data file contains 991 the best maximum likelihood (ML) trees estimated with iqtree3 (note that branch support was estimated with rapid bootstrapping).
+3. Run TOB-QMC on the [example input data](nomiinae_gene_trees.txt). The example data file contains gene trees for the bee subfamily *Nomiinae* estimated for 852 UCEs.
 
-To infer a tree of blobs, our approach requires frstly build a base tree(a refinement of the tree of blobs)
+To infer a tree of blobs, our approach requires that you first build a base tree (which should be a refinement of the tree of blobs) and then annotate its branches with the minimum p-value found from applying hypothesis tests to 4-taxon subsets around each edge. After, edges are contracted based on the alpha and beta hyperparameter values.
 
-*Below, we describe three different ways of running TOB-QMC given gene trees to get a base tree.*
+*Below, we describe three different ways of running TOB-QMC to get a base tree.*
 
-Build a base tree by hill-climbing heuristic
+Build a base tree using the bipartition search heuristic.
 ---
 This approach can be used with TOB-QMC by using the `--store_pvalue --iter_limit_blob` flags, along with one of the preset options to specify the type of branch support in the input. Try using the following command:
 ```
-../../build/tree-qmc \
-    --iter_limit_blob 5000 \
+tree-qmc \
+    --iter_limit_blob 2178 \
     --store_pvalue \
-    -i gene_trees.tre \
-    -o base_tree.tre
+    --root Lasioglossum_albipes \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_base_tree_default.tre
 ```
-which specifies the maximum number of iterations applied in hill-climbing heurstic for each branch. By default, we recommand set it to be $2n^2$, where $n$ is the number of taxa. In this example it is $5000$. 
-Tip: Add `--override` to the command above if you would like to try different seeting for the maximum number of iterations and want to overwrite the output base tree file.
-Tips: Add `--override` to the above command above if you would like to explore different maximum number of iterations and overwrite the output file.
+which specifies the maximum number of iterations for each branch. By default, we recommand set it to be $2n^2$, where $n$ is the number of taxa. In this example, it is $1922$ because there are $31$ taxa.
 
-Build a base tree by exhaustive all quartets
+**Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
+
+Build a base tree by exhaustive testing all 4-taxon subsets around each branch (bipartition)
 ---
-This approach can be used with TREE-QMC, by simply set `--iter_limit_blob 0` . The command
+This approach can be used with TREE-QMC, by simply set `--iter_limit_blob 0`. Try using the following command:
 ```
-../../build/tree-qmc \
+tree-qmc \
     --iter_limit_blob 0 \
     --store_pvalue \
-    -i gene_trees.tre \
-    -o base_tree_exhaustive.tre
+    --root Lasioglossum_albipes \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_base_tree_exhaustive.tre
 ```
 
-Using the 3-fix-1-alter algorithm
+Build a base tree by using the 3-fix-1-alter (3f1a) search heuristic.
 ---
-This approach will use 3-fix-1-alter to build the base tree. This approach is statistical consistent and only sampling $\Theta(n)$ quartets for each branch. To run the 3-fix-1-alter TOB-QMC algorithm, use the command:
+The 3f1a search algorithm is statistically consistent and only samples $\Theta(n)$ quartets for each branch. To run the 3-fix-1-alter algorithm, use the command:
 ```
-../../build/tree-qmc \
+tree-qmc \
     --3f1a \
     --store_pvalue \
-    -i gene_trees.tre \
-    -o base_tree_3f1a.tre
+    --root Lasioglossum_albipes \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_base_tree_3f1a.tre
 ```
-**IMPORTANT:** We only recommand use this algorithm all quartet concordance factors are close to its expectation.
+**IMPORTANT:** We only recommand use this algorithm all quartet concordance factors are close to their expectation. In our experimental study, the default (bipartition search heuristic) outperforms the 3f1a algorithm.
 
-Once get a base tree, TOB-QMC can contract branches in the base tree to infer a tree of blobs, use the command:
+Contract branches based on hyperparameter thresholds
+---
+Once you have the base tree, TOB-QMC can contract branches based on the alpha and beta hyperparameters to infer a tree of blobs. Use the command:
 ```
-../../build/tree-qmc \
+tree-qmc \
     --blob \
-    --alpha 1e-7 \
+    --alpha 1e-6 \
     --beta 0.95 \
     --load_pvalue \
-    -i base_tree.tre \
-    -o tob_default.tre \
+    -i nomiinae_base_tree_default.tre \
+    -o nomiinae_tob_default.tre
 ```
-which species the hyperparameter $\alpha$ and $\beta$ used in hypothesis testing be $10^{-7}$ and $0.95$, respectively. 
-Tips: Add `--override` to the above command above if you would like to explore different setting of hyperparameters and overwrite the output file.
+which sets the $\alpha$ and $\beta$ hyperparameters to $10^{-6}$ and $0.95$, respectively.
+This contracts one branch for the genus Stictonomia based on the following tree-test:
+```
+Testing branch 18, QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
+```
+which is suggestive of gene flow.
+
+**Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
