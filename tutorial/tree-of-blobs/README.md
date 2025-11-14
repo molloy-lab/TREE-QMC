@@ -121,8 +121,8 @@ tree-qmc \
 which sets the $\alpha$ and $\beta$ hyperparameters to $10^{-6}$ and $0.95$, respectively.
 This contracts one branch for the genus Stictonomia based on the following tree-test:
 ```
-Testing branch 18, QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
+QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
 ```
-which is suggestive of gene flow.
+This line in the logfile from constructing the base tree shows that the min p-value found around the branch is 1.36381e-07. This p-value occurs for quartet concordance factors (qCFs) equal to 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution (otherwise we expect the two lower qCFs to be equal to each other). That being said, these four taxa appear in only 170 out of the 852 UCE trees so there is limited data for hypothesis testing.
 
 **Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
