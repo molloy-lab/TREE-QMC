@@ -63,10 +63,6 @@ The output help message should be
 SPECIES TREE BASIC USAGE:
 tree-qmc -i <input gene trees> -o <output species tree>
 
-TREE OF BLOBS (TOB) BASIC USAGE:
-tree-qmc --store_pvalue -i <input gene trees> -o <output tree with p-values>
-tree-qmc --blob --load_pvalue -i <input tree with p-values> -o <output TOB>
-
 **If the directory containing the tree-qmc binary is not part of $PATH, replace
   tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**
 

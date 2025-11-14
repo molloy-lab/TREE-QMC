@@ -51,12 +51,6 @@ const std::string help_info =
 "=================================== TREE-QMC ===================================\n"
 "SPECIES TREE BASIC USAGE:\n"
 "tree-qmc -i <input gene trees> -o <output species tree>\n"
-#if ENABLE_TOB
-"\n"
-"TREE OF BLOBS (TOB) BASIC USAGE:\n"
-"tree-qmc --store_pvalue -i <input gene trees> -o <output tree with p-values>"
-"tree-qmc --blob --load_pvalue -i <input tree with p-values> -o <output TOB>"
-#endif  // ENABLE_TOB
 "\n"
 "**If the directory containing the tree-qmc binary is not part of $PATH, replace\n"
 "  tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**\n"

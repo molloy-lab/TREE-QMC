@@ -53,16 +53,16 @@ export PATH="$TREEQMC_PATH:$PATH"
 cd ..
 ```
 
-USAGE
+TUTORIAL
 -----
 **Step 1.** Go to tutorial directory.
 ```
 cd tutorial/tree-of-blobs
 ```
 
-3. Run TOB-QMC on the [example input data](nomiinae_gene_trees.txt). The example data file contains gene trees for the bee subfamily *Nomiinae* estimated for 852 UCEs.
+**Step 2.** Run TOB-QMC on the [example input data](nomiinae_gene_trees.txt). The example data file contains gene trees for the bee subfamily *Nomiinae* estimated for 852 UCEs.
 
-To infer a tree of blobs, our approach requires that you first build a base tree (which should be a refinement of the tree of blobs) and then annotate its branches with the minimum p-value found from applying hypothesis tests to 4-taxon subsets around each edge. After, edges are contracted based on the alpha and beta hyperparameter values.
+To infer a tree of blobs, our approach requires that you first build a base tree with branches annotated by the minimum p-value found from applying hypothesis tests to 4-taxon subsets around each edge. After, edges are contracted based on the alpha and beta hyperparameter values.
 
 *Below, we describe three different ways of running TOB-QMC to get a base tree.*
 
@@ -106,7 +106,7 @@ tree-qmc \
 ```
 **IMPORTANT:** We only recommand use this algorithm all quartet concordance factors are close to their expectation. In our experimental study, the default (bipartition search heuristic) outperforms the 3f1a algorithm.
 
-Contract branches based on hyperparameter thresholds
+Contract branches based on hyperparameter thresholds.
 ---
 Once you have the base tree, TOB-QMC can contract branches based on the alpha and beta hyperparameters to infer a tree of blobs. Use the command:
 ```
