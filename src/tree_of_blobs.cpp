@@ -423,7 +423,7 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
                 min = score;
                 min_f[0] = f[0]; min_f[1] = f[1]; min_f[2] = f[2];
                 i[alter] = temp[alter];
-                minimizer[0] = temp[0]; minimizer[1] = temp[1]; minimizer[2] = temp[2]; minimizer[3] = temp[3];
+                minimizer[0] = cur_quart[0]; minimizer[1] = cur_quart[1]; minimizer[2] = cur_quart[2]; minimizer[3] = cur_quart[3];
             }
         }
     }
