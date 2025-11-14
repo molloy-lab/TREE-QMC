@@ -123,6 +123,6 @@ This contracts one branch for the genus Stictonomia based on the following tree-
 ```
 QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
 ```
-This line in the logfile from constructing the base tree shows that the min p-value found around the branch is 1.36381e-07. This p-value occurs for quartet concordance factors (qCFs) equal to 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution (otherwise we expect the two lower qCFs to be equal to each other). That being said, these four taxa appear in only 170 out of the 852 UCE trees so there is limited data for hypothesis testing.
+This line in the logfile from constructing the base tree shows that the min p-value found around the branch is 1.36381e-07. This p-value occurs for quartet concordance factors (qCFs) equal to 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution (otherwise we expect the two lower qCFs to be equal to each other). We confirmed this signal by testing all other 4-taxon subsets around the branch; see [script](test_around_branch_with_TINNiK.R) and [results](test_around_branch_output.txt). However, it is worth noting that the four taxa subsets appear in a relative small fraction of the 852 UCE trees (114-183).
 
 **Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
