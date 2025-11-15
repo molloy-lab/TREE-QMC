@@ -33,6 +33,10 @@ std::string Tree::to_string_basic() {
     return display_tree_basic(root) + ";";
 }
 
+std::string Tree::to_string_pvalue() {
+    return display_tree_pvalue(root) + ";";
+}
+
 size_t Tree::refine() {
     bool flag = root->children.size() == 3;
     size_t count = refine_tree(root);
@@ -146,12 +150,22 @@ Node *Tree::build_tree(const std::string &newick,
             if (support.size() > 0) {
                 if (support == "PCS")
                     pcs_node = root;
-                else
+                else if (support[0] == '^') {
+                    std::size_t sp1 = support.find("*");
+                    std::size_t sp2 = support.find("'");
+                    s2d(support.substr(1, sp1 - 1), &root->min_pvalue);
+                    s2d(support.substr(sp1 + 1, sp2 - sp1 - 1), &root->max_pvalue);
+//		    std::cout << support << " " << support.substr(1, sp1) << " " << support.substr(sp1+ 1, sp2) << std::endl;
+//                    std::cout << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                }
+                else {
                     root->support = std::stod(support);
+                }
             }
             else root->support = this->support_default;  // allows user to change default support
                                                          // useful because default is support min for iqtree abayes
                                                          // but is max for other use cases
+//            std::cout << root->support << " " << support << std::endl;
         }
         //else {
         //    std::cout << "Found root" << std::endl;
@@ -167,7 +181,6 @@ Node *Tree::build_tree(const std::string &newick,
         return root;
     }
 }
-
 
 std::string Tree::display_tree(Node *root) {
     if (root->children.size() == 0) 
@@ -196,7 +209,27 @@ std::string Tree::display_tree_index(Node *root) {
     for (Node * node : root->children) 
         s += display_tree_index(node) + ",";
     s[s.size() - 1] = ')';
+    std::cout << s << std::endl;
     return s;
+}
+
+std::string Tree::display_tree_pvalue(Node *root) {
+    if (root->children.size() == 0) 
+        return dict->index2label(root->index);
+    std::string s = "(";
+    for (Node * node : root->children) 
+        s += display_tree_pvalue(node) + ",";
+    s[s.size() - 1] = ')';
+    if (root->parent != NULL && (root->parent->parent != NULL || (root->parent->parent == NULL && root == root->parent->children[0]))) {
+        std::ostringstream ss, ss2;
+    	ss << std::scientific << "^" << std::setprecision(12) << (double) root->min_pvalue << "*" << (double) root->max_pvalue; 
+    	ss2 << "'^[" << root->min_f[0] << "/" << root->min_f[1] << "/" << root->min_f[2] << "]";
+    	ss2 << "*[" << root->f[0] << "/" << root->f[1] << "/" << root->f[2] << "]'";
+    	return s + ss.str() + ss2.str();
+    }
+    else {
+        return s;
+    }
 }
 
 size_t Tree::refine_tree(Node *root) {

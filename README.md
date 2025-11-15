@@ -1,69 +1,57 @@
+<a href="url"><img src="https://github.com/molloy-lab/TREE-QMC/blob/main/external/logo.png" align="left" height="135" width="135" ></a>
+
 TREE-QMC
 ========
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). 
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. However, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for phylogenomic analyses of data sets with high missingness. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** when gene flow or other network-level evolutionary processes are expected.
 
-However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER. To learn more about the TREE-QMC algorithm, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122). It also has some convenient features. 
-+ It can be used to estimate a species tree from **low-homoplasy characters**, i.e., it can be run in `bp` mode described in [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy, Gatesy & Springer, *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). The characters need **not** be bialleic. 
-+ It can be used for computing **Partitioned Coalescence Support (PCS)**, described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
 
 Tutorials
---------
-Check out the [tutorial for gene trees](tutorial/gene-trees/README.md) and the [tutorial for character matrices](tutorial/characters/README.md).
-
-Acknowledgements
-----------------
-TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). TREE-QMC contributes fast algorithms for constructing the quartet graph directly from the input trees, rather than explicitly enumerating all quartets or sampling quartets.
-
-TREE-QMC now implements efficient (and brute force) algorithms for the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215). It also implements quartet support with the approach of [Sayyari & Mirarab, *Mol Biol Evol*, 2016](https://doi.org/10.1093/molbev/msw079).
-
-TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS Journal on Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
-
-TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Transactions on Mathematical Software*, 1995](https://doi.org/10.1145/203082.203088).
-
-Build
------
-To build TREE-QMC, use commands:
-```
-git clone https://github.com/molloy-lab/TREE-QMC.git
-cd TREE-QMC/external/MQLib
-make
-cd ../..
-g++ -std=c++11 -O2 \
-    -I external/MQLib/include -I external/toms743 \
-    -o tree-qmc \
-    src/*.cpp external/toms743/toms743.cpp \
-    external/MQLib/bin/MQLib.a -lm \
-    -DVERSION=\"$(cat version.txt)\"
-```
-
-Usage
------
-To run TREE-QMC, use command:
-```
-./tree-qmc -i <input file>
-```
-
+---------
+Check out: 
++ [tutorial for gene trees](tutorial/gene-trees/README.md)
++ [tutorial for multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
++ [tutorial for character matrices and Partitioned Coalescence Support (PCS) analyses](tutorial/characters/README.md)
++ [tutorial for tree of blobs (TOB)](tutorial/tree-of-blobs/README.md)
 
 Tips
 ----
-
-#1. For convenience, add the directory containing the `tree-qmc` binary to your `PATH` variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>tree-qmc`. For bash, this can be done by adding
+**Tip #1.** Add the directory containing the `tree-qmc` binary to your `PATH` variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>/tree-qmc`. For bash, this can be done by adding
 ```
 export PATH=$PATH:"path to tree-qmc binary"
 ```
-to `~/.bash_profile` file (or `~/.bashrc` file).
+to the `~/.bash_profile` file or the `~/.bashrc` file.
 
-#2. If you are having strange problems, try removing the `\r` characters from the input files and trying again:
+**Tip #2.** Hidden symbols in your input data file can cause strange problems. Try removing `\r` symbols from the input files with the following command 
 ```
-cat file.txt | tr -d '\r' > newfile.txt
+cat <input data> | tr -d '\r' > <clean input data>
 ```
+and then trying to run TREE-QMC again.
 
-Options
--------
+BUILD
+-----
+We recommend you install TREE-QMC with bioconda or download an executable for convenience. To build TREE-QMC (without tree of blobs functionality) use the following commands:
+```
+git clone htts://github.com/molloy-lab/TREE-QMC
+cd TREE-QMC
+cd external/MQLib
+make
+cd ../../
+g++ -std=c++11 -O2 \
+    -I external/MQLib/include \
+    -I external/toms743 \
+    -o tree-qmc \
+    src/*.cpp \
+    external/toms743/toms743.cpp \
+    external/MQLib/bin/MQLib.a -lm \
+    -DVERSION=\"$(cat version.txt)\"
+```
+Otherwise see the tree of blobs tutorial for build instructions.
 
+Usage
+-----
 To see the TREE-QMC usage options, use command:
 ```
 ./tree-qmc -h
@@ -72,11 +60,11 @@ To see the TREE-QMC usage options, use command:
 The output help message should be
 ```
 =================================== TREE-QMC ===================================
-BASIC USAGE:
-tree-qmc (-i|--input) <input file>
+SPECIES TREE BASIC USAGE:
+tree-qmc -i <input gene trees> -o <output species tree>
 
 **If the directory containing the tree-qmc binary is not part of $PATH, replace
-eplace tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**
+  tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**
 
 Help Options:
 [-h|--help]
@@ -93,28 +81,20 @@ Input Options:
         Missing states are N, -, and ?
 [(-a|-mapping) <mapping file>]
         File with individual/leaf names (1st col) mapped to species (2nd col)
-[(--root) <list of species separated by commas>]
-        Root species tree at given species if possible
-[(--rootonly) <species tree file>]
-        Root species tree in file and then exit
-[(--supportonly) <species tree file>]
-        Compute quartet support for species tree in file and then exit
-
-[(--pcsonly) <species tree file>]
-        Compute partitioned coalescent support (PCS) for specified branch in
-        species tree in file (anotate branch with PCS) and then exit
 
 Output Options:
 [(-o|--output) <output file>]
         File for writing output species tree (default: stdout)
+[(--override)]
+        Override output file if it already exists
+[(--root) <list of species separated by commas>]
+        Root species tree at given species if possible
 [(--support)]
         Compute quartet support for output species tree
 [(--writetable) <table file>]
         Write branch and quartet support information to CSV
-[(--char2tree)]
-        Write character matrix as trees (newick strings) to output and exit
 
-Algorithm Options:
+Weighted Algorithm Options:
 [(--hybrid)]
         Use hybrid weighting scheme (-w h)
 [(--fast)]
@@ -129,7 +109,36 @@ Algorithm Options:
        Contract internal branches with support less than specified threshold
        after mapping suport to the interval 0 to 1
 
-Advanced Options:
+Branch Support and Utility Options:
+[(--char2tree)]
+        Write character matrix as trees (newick strings) to output and exit
+[(--rootonly) <species tree file>]
+        Root species tree in file and then exit
+[(--supportonly) <species tree file>]
+        Compute quartet support for species tree in file and then exit
+[(--pcsonly) <species tree file>]
+        Compute partitioned coalescent support (PCS) for specified branch in
+        species tree in file (anotate branch with PCS) and then exit
+
+Tree of Blobs Options:
+[(--blob)]
+        Compute the tree of blobs directed from the input gene trees
+[(--store_pvalue)]
+        Run TREE-QMC and store min p-value found for each branch, then exit
+[(--3f1a)]
+        Use 3-fix-1-alter search algorithm for minimum p-value
+[(--iter_limit_blob) <non-negative integer>]
+        Maximum number of iterations for default bipartition search algorithm for
+        min p-value (default: two times the number of taxa squared)
+        Set to 0 to perform exhaustive search for min p-value
+[(--load_pvalue)]
+        Load tree with p-values and contract branches based on alpha, beta settings
+[(--alpha <float number>)]\n"
+        Hyperparameter for hypothesis testing with tree-test (default: 1e-7)
+[(--beta <float number>)]\n"
+        Hyperparameter for hypothesis testing with star-test (default: 0.95)
+
+Experimental/Advanced Options:
 [(-w|--weight) <character>]
         Weighting scheme for quartets; see paper for details
         -w n: none (default)
@@ -173,15 +182,44 @@ Advanced Options:
 [--shared <use shared taxon data structure to normalize quartet weights>]
         Do NOT use unless there are NO missing data!!!
 
-Contact: Post issue to Github (https://github.com/molloy-lab/TREE-QMC/)
-        or email Yunheng Han (yhhan@umd.edu) & Erin Molloy (ekmolloy@umd.edu)
 
-If you use TREE-QMC in your work, please cite:
-  Han and Molloy, 2024, https://github.com/molloy-lab/TREE-QMC.
+Contact: Post issues to Github at https://github.com/molloy-lab/TREE-QMC/
 
-  and
+
+If you use TREE-QMC, please cite:
 
   Han and Molloy, 2023, Improving quartet graph construction for scalable
-  and accurate species tree estimation from gene trees, Genome Research,
-  http:doi.org/10.1101/gr.277629.122.
+  and accurate species tree estimation from gene trees, Genome Res,
+  http:doi.org/10.1101/gr.277629.122
+
+If you use weighted TREE-QMC in your work, please cite:
+
+  Han and Molloy, 2025, Improved robustness to gene tree incompleteness,
+  estimation errors, and systematic homology errors with weighted TREE-QMC,
+  Syst Biol, https://doi.org/10.1093/sysbio/syaf009
+
+If you use TOB-QMC in your work, please cite:
+
+  Dai, Han, Molloy, 2025, Fast and accurate tree of blobs reconstruction under
+  the network multispcies coalescent, bioRxiv,
+  https://doi.org/10.1101/2025.11.05.686850
+
+  Allman et al., 2024, TINNiK: inference of the tree of blobs of a species
+  network under the coalescent model, Algorithms Mol Biol,
+  https://doi.org/10.1186/s13015-024-00266-2
 ================================================================================
+```
+
+Acknowledgements
+----------------
++ TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). It contributes fast algorithms for constructing the quartet graph directly from the input trees, rather than enumerating quartets or sampling quartets.
+
++ TREE-QMC enables quartet branch support calculations with the approach of [Sayyari & Mirarab, *Mol Biol Evol*, 2016](https://doi.org/10.1093/molbev/msw079).
+
++ Weighted TREE-QMC leverages the **quartet weighting schemes** introduced by Chao Zhang and Siavash Mirarab; see [Zhang & Mirarab, *Mol Biol Evol*, 2022](https://doi.org/10.1093/molbev/msac215). 
+
++ TOB-QMC uses the hypothesis tests implemented in [TINNiK](https://cran.r-project.org/web/packages/MSCquartets/vignettes/TINNIK.html) to infer tree of blobs; see [Allman, et al., *Algorithms Mol Biol*, 2024](https://doi.org/10.1186/s13015-024-00266-2)
+
++ TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS J Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
+
++ TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Trans Math Software*, 1995](https://doi.org/10.1145/203082.203088).

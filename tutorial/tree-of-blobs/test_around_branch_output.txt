@@ -1,0 +1,132 @@
+[1] "Lipotriches_collaris"   "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 22 79 69
+[1] 170
+[1] 2.867199e-07
+[1] ""
+[1] "Lipotriches_justiciae"  "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 21 80 65
+[1] 166
+[1] 9.485411e-07
+[1] ""
+[1] "Afronomia_circumnitens" "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 18 77 59
+[1] 154
+[1] 1.426721e-06
+[1] ""
+[1] "Macronomia_clavisetis"  "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 23 82 66
+[1] 171
+[1] 2.7179e-06
+[1] ""
+[1] "Dieunomia_heteropoda"   "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 24 80 62
+[1] 166
+[1] 2.760059e-05
+[1] ""
+[1] "Dieunomia_triangulifera" "Stictonomia_sangaensis" 
+[3] "Stictonomia_aliceae"     "Stictonomia_schubotzi"  
+[1] 24 85 67
+[1] 176
+[1] 3.728059e-06
+[1] ""
+[1] "Pachynomia_tshibindica" "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 19 90 53
+[1] 162
+[1] 4.344597e-05
+[1] ""
+[1] "Pachynomia_amoenula"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 24 89 56
+[1] 169
+[1] 0.0002844678
+[1] ""
+[1] "Pseudapis_oxybeloides"  "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 24 82 66
+[1] 172
+[1] 5.374702e-06
+[1] ""
+[1] "Pseudapis_siamensis"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 23 77 67
+[1] 167
+[1] 1.443706e-06
+[1] ""
+[1] "Pseudapis_riftensis"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 21 80 63
+[1] 164
+[1] 2.379469e-06
+[1] ""
+[1] "Pseudapis_pandeana"     "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 24 83 69
+[1] 176
+[1] 1.469832e-06
+[1] ""
+[1] "Pseudapis_kenyensis"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 18 52 44
+[1] 114
+[1] 0.0005934761
+[1] ""
+[1] "Pseudapis_cinerea"      "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 22 80 61
+[1] 163
+[1] 1.151526e-05
+[1] ""
+[1] "Steganomus_junodi"      "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 22 82 65
+[1] 169
+[1] 2.089708e-06
+[1] ""
+[1] "Hoplonomia_elliotii"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 21 79 60
+[1] 160
+[1] 8.795344e-06
+[1] ""
+[1] "Austronomia_australica" "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 21 74 67
+[1] 162
+[1] 2.704734e-07
+[1] ""
+[1] "Curvinomia_chalybeata"  "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 23 79 63
+[1] 165
+[1] 9.38034e-06
+[1] ""
+[1] "Acunomia_melanderi"     "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 25 89 69
+[1] 183
+[1] 3.335451e-06
+[1] ""
+[1] "Lasioglossum_albipes"   "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 26 86 67
+[1] 179
+[1] 1.37708e-05
+[1] ""
+[1] "Nomiapis_diversipes"    "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 22 73 61
+[1] 156
+[1] 9.706682e-06
+[1] ""
+[1] "Nomiapis_bispinosa"     "Stictonomia_sangaensis" "Stictonomia_aliceae"   
+[4] "Stictonomia_schubotzi" 
+[1] 21 80 69
+[1] 170
+[1] 1.363812e-07
+[1] ""

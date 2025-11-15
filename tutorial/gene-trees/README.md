@@ -1,5 +1,9 @@
 Weighted TREE-QMC Tutorial
-==========================
+---------------------------
+
+This tutorial shows how to run weighted TREE-QMC to reconstruct species trees from gene trees with branch lengths and branch support.
+
+-----
 
 1. Clone the TREE-QMC Github repository and build TREE-QMC following the instructions in the [README](../../README.md).
 

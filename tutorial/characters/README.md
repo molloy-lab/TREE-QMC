@@ -1,5 +1,11 @@
 TREE-QMC-BP Tutorial
----
+--------------------
+
+This tutorial shows how to run TREE-QMC to reconstruct species trees from **character matrices**. Running TREE-QMC on binary (biallelic) characters, referred to as  `bp` mode, is consistent under the neutral Wright-Fisher model; see [Springer et al., *J Heredity*, 2020](https://doi.org/10.1093/jhered/esz076) and [Molloy et al., *Syst Biol*, 2022](https://doi.org/10.1093/sysbio/syab086). TREE-QMC also computed MLE branch lengths in `bp` mode. Although TREE-QMC can be applied to multi-state characters, we do not make claims about TREE-QMC's performance in this setting.
+
+This tutorial also shows how to leverage **Partitioned Coalescence Support (PCS)**, specifically Quartet Quadrapartition Support (QQS) values, to evaluate support around a focal branch, as described by [Gatesy et al., *Mol Phy Evol*, 2019](https://doi.org/10.1016/j.ympev.2019.106539).
+
+-----
 
 1. Clone the TREE-QMC Github repository and build TREE-QMC following the instructions in the [README](../../README.md).
 

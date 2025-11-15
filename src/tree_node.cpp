@@ -7,6 +7,7 @@ Node::Node(index_t index) {
     parent = NULL;
     size = -1;
     isfake = false;
+    min_pvalue = 1;
 }
 
 Node::Node(index_t index, bool isfake) {

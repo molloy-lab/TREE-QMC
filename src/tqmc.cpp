@@ -1,3 +1,7 @@
+#ifndef ENABLE_TOB
+#define ENABLE_TOB FALSE
+#endif
+
 #include "instance.hpp"
 
 std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
