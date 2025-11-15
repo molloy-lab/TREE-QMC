@@ -32,7 +32,7 @@ tree-qmc -i qmc.txt --quartets --quartetformat "___,___|___,___:___"
 ```
 to build a tree. 
 
-**Note:** The above command uses the `n2` artificial taxon normalization scheme by default. To change it to `n0` add the flag `--norm_atax 0`. To learn more about these normalization schemes; see [Han & Molloy, *Genome Res*, 2023](https://doi.org/10.1101/gr.277629.122).
+**Note:** The above command uses the `n2` artificial taxon normalization scheme by default. To change it to `n0`, add the flag `--norm_atax 0`. To learn more about normalization, see [Han & Molloy, *Genome Res*, 2023](https://doi.org/10.1101/gr.277629.122).
 
 
 QFM format
@@ -53,7 +53,7 @@ tree-qmc -i qfm.txt --quartets
 ```
 to build a tree.
 
-PhyloNetworks qCF input
+PhyloNetworks qCF format
 ---
 To see the PhyloNetworks qCF format, type
 ```
