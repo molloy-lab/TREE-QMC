@@ -39,6 +39,7 @@ class Matrix {
 
 quartet_t join(index_t *quartet);
 index_t *split(quartet_t quartet);
+void split(index_t *indices, quartet_t quartet);
 bool s2d(std::string s, weight_t *r);
 bool s2ul(std::string s, unsigned long int *r);
 weight_t *init(index_t size);
@@ -62,6 +63,13 @@ const std::string help_info =
 "Input Options:\n"
 "(-i|--input) <input file>\n"
 "        File with gene trees in newick format (required)\n"
+"[(--quartets)]\n"
+"        Input are (weighted) quartets\n"
+"        Note: only n0 and n2 normalization are implemented for quartet input currently\n"
+"[(--quartetformat) <format string>]\n"
+"        Specify a format of the input quartets\n"
+"        Examples: ((___,___),(___,___));___ for ((a,bb),(ccc,dddd));1.234\n"
+"                  or ___,___|___,___:___ for a,bb|ccc,dddd:1.234\n"
 "[(--chars)]\n"
 "        Input are characters rather than trees\n"
 "        Missing states are N, -, and ?\n"

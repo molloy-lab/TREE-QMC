@@ -155,6 +155,16 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mod
     // std::cout << artifinyms << std::endl;
 }
 
+SpeciesTree::SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file) {
+    this->dict = dict;
+    this->artifinyms = dict->max_size();
+    this->mode = mode;
+    this->iter_limit = iter_limit;
+    this->root = NULL;
+    Taxa subset(dict, mode);
+    root = construct_stree(input_quartets, subset, -1, 0);
+}
+
 SpeciesTree::~SpeciesTree() {
     
 }
@@ -306,7 +316,7 @@ Node *SpeciesTree::construct_stree(std::unordered_map<quartet_t, weight_t> &quar
                         quartet_t temp = join(indices);
                         if (quartetsB.find(temp) == quartetsB.end()) 
                             quartetsB[temp] = 0;
-                        quartetsB[temp] += elem.second / A.size();
+                        quartetsB[temp] += elem.second / (mode[0] == '0' ? 1.0 : A.size());
                         break;
                     }
                     case 2: {
@@ -321,7 +331,7 @@ Node *SpeciesTree::construct_stree(std::unordered_map<quartet_t, weight_t> &quar
                         quartet_t temp = join(indices);
                         if (quartetsA.find(temp) == quartetsA.end()) 
                             quartetsA[temp] = 0;
-                        quartetsA[temp] += elem.second / B.size();
+                        quartetsA[temp] += elem.second / (mode[0] == '0' ? 1.0 : B.size());
                         break;
                     }
                     case 4: {
@@ -396,6 +406,108 @@ Node *SpeciesTree::artificial2node(Node *root, index_t artificial) {
             if (temp != NULL) return temp;
         }
         return NULL;
+    }
+}
+
+void SpeciesTree::get_qfreq_around_branch(Node *root, std::unordered_map<quartet_t, weight_t> &quartets, std::string &qfreq_mode) {
+    // Check tree is binary
+    if (root->children.size() != 2 && root->children.size() != 0) {
+        std::cout << "ERROR: Cannot compute quartet support in non-binary tree" << std::endl;
+        exit(1);
+    }
+
+    // Initalize quartet frequencies to 0
+    root->f[0] = 0;
+    root->f[1] = 0;
+    root->f[2] = 0;
+
+    // Check if there are quartets around the branch
+    bool ok = true;
+    if (root->parent == NULL) {
+        // At root
+        ok = false;
+    }
+    else if (root->is_leaf()) {
+        // At leaf
+        // TODO: handle multi-individuals
+        ok = false;
+    } else if (root->parent->parent == NULL) {
+        // At node incident to root
+        if (root->get_sibling()->is_leaf()) {
+            // Rooted at leaf so skip
+            ok = false;
+        }
+        else if (root != this->root->children[0]) {
+            // Not rooted at leaf so pick one branch
+            ok = false;
+        }
+    }
+
+    if (ok) {
+        std::unordered_map<index_t, index_t> quad;
+        std::vector<Node *> x, y, z, w;
+
+        Node *mysib = root->get_sibling();
+        get_leaves(this->root, &w);           // get all leaves in tree
+        get_leaves(root->children[0], &x);    // get leaves below left child
+        get_leaves(root->children[1], &y);    // get leaves below right child
+        if (root->parent->parent == NULL) {
+            // At root's left child
+            get_leaves(mysib->children[0], &z);
+        } else {
+            get_leaves(mysib, &z);  // get leaves below sibling
+        }
+
+        for (Node *leaf : w) quad[leaf->index] = 8;
+        for (Node *leaf : x) quad[leaf->index] = 1; // sibling
+        for (Node *leaf : y) quad[leaf->index] = 2; // sibling
+        for (Node *leaf : z) quad[leaf->index] = 4;
+        for (auto elem : quartets) {
+            index_t indices[4];
+            split(indices, elem.first);
+            if (quad[indices[0]] + quad[indices[1]] == 3 && quad[indices[2]] + quad[indices[3]] == 12
+             || quad[indices[2]] + quad[indices[3]] == 3 && quad[indices[0]] + quad[indices[1]] == 12)
+                root->f[0] += elem.second;
+        }
+        
+        for (Node *leaf : w) quad[leaf->index] = 8;
+        for (Node *leaf : x) quad[leaf->index] = 1; // sibling
+        for (Node *leaf : y) quad[leaf->index] = 4;
+        for (Node *leaf : z) quad[leaf->index] = 2; // sibling
+        
+        for (auto elem : quartets) {
+            index_t indices[4];
+            split(indices, elem.first);
+            if (quad[indices[0]] + quad[indices[1]] == 3 && quad[indices[2]] + quad[indices[3]] == 12
+             || quad[indices[2]] + quad[indices[3]] == 3 && quad[indices[0]] + quad[indices[1]] == 12)
+                root->f[1] += elem.second;
+        }
+
+        for (Node *leaf : w) quad[leaf->index] = 2; // sibling
+        for (Node *leaf : x) quad[leaf->index] = 1; // sibling
+        for (Node *leaf : y) quad[leaf->index] = 4;
+        for (Node *leaf : z) quad[leaf->index] = 8;
+        
+        for (auto elem : quartets) {
+            index_t indices[4];
+            split(indices, elem.first);
+            if (quad[indices[0]] + quad[indices[1]] == 3 && quad[indices[2]] + quad[indices[3]] == 12
+             || quad[indices[2]] + quad[indices[3]] == 3 && quad[indices[0]] + quad[indices[1]] == 12)
+                root->f[2] += elem.second;
+        }
+
+        /*
+        weight_t total = root->f[0] + root->f[1] + root->f[2];
+        if (total != 0.0) {
+            root->f[0] /= total;
+            root->f[1] /= total;
+            root->f[2] /= total;
+        }
+        */
+    }
+
+    for (Node *child : root->children) {
+        get_qfreq_around_branch(child, quartets, qfreq_mode);
     }
 }
 
@@ -722,8 +834,11 @@ std::string compute_branch_length_msc_bp(weight_t q1) {
         return "nan";
 }
 
+void SpeciesTree::annotate(std::unordered_map<quartet_t, weight_t> &quartets, std::string &qfreq_mode) {
+    get_qfreq_around_branch(root, quartets, qfreq_mode);
+}
 
-void SpeciesTree::annotate(std::vector<Tree *> input, std::string &qfreq_mode) {
+void SpeciesTree::annotate(std::vector<Tree *> &input, std::string &qfreq_mode) {
     get_qfreq_around_branch(root, input, qfreq_mode);
 }
 

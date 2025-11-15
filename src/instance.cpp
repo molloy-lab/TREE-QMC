@@ -24,6 +24,7 @@ Instance::Instance(int argc, char **argv) {
     char2tree = false;
     rootonly = false;
     pcsonly = false;
+    quartet_format = "((___,___),(___,___));___";
     blob = false;
     store_pvalue = false;
     load_pvalue = false;
@@ -35,6 +36,7 @@ Instance::Instance(int argc, char **argv) {
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
+    
     alpha = -1;
     beta = 2;
 
@@ -73,11 +75,20 @@ Instance::Instance(int argc, char **argv) {
 
     dict = new Dict;
     if (data_mode == "t") input_trees();
+    else if (data_mode == "q") input_quartets();
     else input_matrix();
-
-    if (input.size() == 0) {
-        std::cout << "\nERROR: Nothing read from input" << std::endl;
-        exit(1);
+    
+    if (data_mode == "q") {
+        if (quartets.size() == 0) {
+            std::cout << "\nERROR: Nothing read from input" << std::endl;
+            exit(1);
+        }
+    }
+    else {
+        if (input.size() == 0) {
+            std::cout << "\nERROR: Nothing read from input" << std::endl;
+            exit(1);
+        }
     }
 
     dict->update_singletons();
@@ -130,6 +141,8 @@ long long Instance::solve() {
     
     if (stree_file != "") {
         output = new SpeciesTree(stree_file, dict);
+    } if (data_mode == "q") {
+        output = new SpeciesTree(quartets, dict, mode, iter_limit, output_file);
     } else {
         if (store_pvalue) {
             #if ENABLE_TOB
@@ -225,7 +238,10 @@ void Instance::output_solution() {
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
         output->refine();
-        output->annotate(input, weight_mode);
+        if (data_mode == "q") 
+            output->annotate(quartets, weight_mode);
+        else 
+            output->annotate(input, weight_mode);
     }
 
     if (table_file != "") {
@@ -306,6 +322,18 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "--bp") {
             data_mode = "b";  // input data are 2-state characters
             brln_mode = "b";  // estimate branch lengths under nWF+IS model
+        }
+        else if (opt == "--quartets") {
+            data_mode = "q";
+        }
+        else if (opt == "--quartetformat") {
+            if (i < argc - 1) {
+                quartet_format = argv[++ i];
+            }
+            else {
+                std::cout << "\nERROR: No quartet format specified" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "-a" || opt == "--mapping") {
             if (i < argc - 1) {
@@ -929,6 +957,51 @@ void Instance::prepare_indiv2taxon_map() {
 
     fin.close();
 }
+
+void Instance::input_quartets() {
+    std::ifstream fin(input_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
+        exit(1);
+    }
+    std::vector<std::string> tokens;
+    std::string delimiter = "___";
+    size_t pos = 0, count = 0;
+    std::string temp = quartet_format;
+    while ((pos = quartet_format.find(delimiter)) != std::string::npos) {
+        count ++;
+        tokens.push_back(quartet_format.substr(0, pos));
+        quartet_format.erase(0, pos + delimiter.length());
+    }
+    if (quartet_format != "") tokens.push_back(quartet_format);
+    if (count != 5) {
+        std::cout << "\nERROR: Invalid quartet format " << temp << std::endl;
+        exit(1);
+    }
+    std::string line;
+    size_t j = 0;
+    while (std::getline(fin, line)) {
+        j ++;
+        std::string temp = line;
+        line.erase(std::remove(line.begin(), line.end(), ' ' ), line.end());
+        index_t indices[4]; 
+        for (size_t i = 0; i < count; i ++) {
+            size_t pos = line.find(tokens[i]);
+            if (pos == std::string::npos) {
+                std::cout << "\nWARNING: Invalid quartet; input truncated at line " << j << std::endl;
+                j = -1;
+                break;
+            }
+            if (i > 0) indices[i - 1] = dict->label2index(line.substr(0, pos));
+            line.erase(0, pos + tokens[i].length());
+        }
+        if (j == -1) break;
+        quartet_t quartet = join(indices);
+        weight_t weight = 1.0;
+        if (line != "") weight = std::stod(line);
+        if (quartets.find(quartet) == quartets.end()) 
+            quartets[quartet] = 0;
+        quartets[quartet] += weight;
 
 void Instance::input_pvalues() {
     std::ifstream fin(pvalue_file);

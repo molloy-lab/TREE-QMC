@@ -16,11 +16,14 @@ class Instance {
         std::string get_execution_mode();
     private:
         std::vector<Tree *> input;
+        std::unordered_map<quartet_t, weight_t> quartets;
         std::vector<std::size_t> positions;
         Dict *dict;
         SpeciesTree *output;
         std::unordered_set<std::string> outgroup_taxon_set;
         std::unordered_map<std::string, std::string> indiv2taxon;
+        std::string input_file, output_file, mapping_file, stree_file, table_file;
+        std::string root_str, quartet_format;
         std::string input_file, output_file, mapping_file, stree_file, table_file, pvalue_file;
         std::string root_str;
         std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode;
@@ -34,6 +37,7 @@ class Instance {
         void input_matrix();
         void prepare_trees();
         void refine_trees();
+        void input_quartets();
         void input_pvalues();
 };
 

@@ -83,6 +83,13 @@ index_t *split(quartet_t quartet) {
     return indices;
 }
 
+void split(index_t *indices, quartet_t quartet) {
+    for (index_t i = 3; i >= 0; i --) {
+        indices[i] = quartet % INDEX_WIDTH;
+        quartet /= INDEX_WIDTH;
+    }
+}
+
 bool s2d(std::string s, weight_t *r) {
     char* end;
     weight_t tmp = strtod(s.c_str(), &end);
