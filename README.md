@@ -5,18 +5,18 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. However, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for phylogenomic analyses of data sets with high missingness. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** when gene flow or other network-level evolutionary processes are expected.
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. However, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** when gene flow or other network-level evolutionary processes are expected.
 
-
-Tutorials
+TUTORIALS
 ---------
 Check out: 
 + [tutorial for gene trees](tutorial/gene-trees/README.md)
 + [tutorial for multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
-+ [tutorial for character matrices and Partitioned Coalescence Support (PCS) analyses](tutorial/characters/README.md)
++ [tutorial for character matrices](tutorial/characters/README.md)
++ [tutorial for Partitioned Coalescence Support (PCS)](tutorial/characters/README.md)
 + [tutorial for tree of blobs (TOB)](tutorial/tree-of-blobs/README.md)
 
-Tips
+TIPS
 ----
 **Tip #1.** Add the directory containing the `tree-qmc` binary to your `PATH` variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>/tree-qmc`. For bash, this can be done by adding
 ```
@@ -50,7 +50,7 @@ g++ -std=c++11 -O2 \
 ```
 Otherwise see the tree of blobs tutorial for build instructions.
 
-Usage
+USAGE
 -----
 To see the TREE-QMC usage options, use command:
 ```
@@ -60,11 +60,11 @@ To see the TREE-QMC usage options, use command:
 The output help message should be
 ```
 =================================== TREE-QMC ===================================
-SPECIES TREE BASIC USAGE:
+USAGE:
 tree-qmc -i <input gene trees> -o <output species tree>
 
-**If the directory containing the tree-qmc binary is not part of $PATH, replace
-  tree-qmc with <path to tree-qmc binary>/tree-qmc in the command above**
+Note: If directory containing tree-qmc is NOT on your $PATH, replace
+      tree-qmc with <path to tree-qmc>/tree-qmc in command above
 
 Help Options:
 [-h|--help]
@@ -72,15 +72,26 @@ Help Options:
 
 Input Options:
 (-i|--input) <input file>
-        File with gene trees in newick format (required)
+        Input file, typically with gene trees in newick format (required)
+[(--quartets)]
+        Input are (weighted) quartets, either in qCF format or format below
+        Note: only n0 and n2 normalization are implemented for quartet input currently
+[(--quartetformat) <format string>]
+        Specify a format of the input quartets
+        Examples: ((___,___),(___,___));___ for ((A,B),(C,D));1.234 (default)
+                  or ___,___|___,___:___ for A,B|C,D:1.234
 [(--chars)]
-        Input are characters rather than trees
+        Input are characters in fasta, phylip, or nexus format
         Missing states are N, -, and ?
 [(--bp)]
-        Input are binary characters i.e. bipartitions
+        Input are binary (0/1) characters in fasta, phylip, or nexus format
         Missing states are N, -, and ?
 [(-a|-mapping) <mapping file>]
-        File with individual/leaf names (1st col) mapped to species (2nd col)
+        File with individual/leaf names mapped to species names
+        Example: ind1 taxA
+                 ind2 taxA
+                 ind3 taxB
+                 ...
 
 Output Options:
 [(-o|--output) <output file>]
@@ -133,9 +144,9 @@ Tree of Blobs Options:
         Set to 0 to perform exhaustive search for min p-value
 [(--load_pvalue)]
         Load tree with p-values and contract branches based on alpha, beta settings
-[(--alpha <float number>)]\n"
+[(--alpha <float number>)]
         Hyperparameter for hypothesis testing with tree-test (default: 1e-7)
-[(--beta <float number>)]\n"
+[(--beta <float number>)]
         Hyperparameter for hypothesis testing with star-test (default: 0.95)
 
 Experimental/Advanced Options:
@@ -210,7 +221,7 @@ If you use TOB-QMC in your work, please cite:
 ================================================================================
 ```
 
-Acknowledgements
+ACKNOWLEDGEMENTS
 ----------------
 + TREE-QMC is based on the Quartet Max Cut (QMC) framework introduced by Sagi Snir and Satish Rao; see [Snir & Rao, *IEEE/ACM TCBB*, 2010](http:doi.org/10.1109/TCBB.2008.133) and [Avni, Cohen & Snir, *Syst Biol*, 2015](http:doi.org/10.1093/sysbio/syu087). It contributes fast algorithms for constructing the quartet graph directly from the input trees, rather than enumerating quartets or sampling quartets.
 
