@@ -5,34 +5,35 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. However, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao, that is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** when gene flow or other network-level evolutionary processes are expected.
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. Unlike ASTRAL, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao. This approach is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** and evaluate signals of gene flow and other network-level evolutionary processes.
 
 TUTORIALS
 ---------
 Check out: 
-+ [tutorial for gene trees](tutorial/gene-trees/README.md)
++ [tutorial for gene tree](tutorial/gene-trees/README.md)
 + [tutorial for multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
 + [tutorial for character matrices](tutorial/characters/README.md)
 + [tutorial for Partitioned Coalescence Support (PCS)](tutorial/characters/README.md)
 + [tutorial for tree of blobs (TOB)](tutorial/tree-of-blobs/README.md)
++ [tutorial for quartet inputs](tutorial/quartets/README.md)
 
 TIPS
 ----
-**Tip #1.** Add the directory containing the `tree-qmc` binary to your `PATH` variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>/tree-qmc`. For bash, this can be done by adding
+**Tip #1.** Add the directory containing the `tree-qmc` binary to your `PATH` environment variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>/tree-qmc`. For bash, this can be done by adding
 ```
 export PATH=$PATH:"path to tree-qmc binary"
 ```
-to the `~/.bash_profile` file or the `~/.bashrc` file.
+to your `~/.bash_profile` file or your `~/.bashrc` file.
 
-**Tip #2.** Hidden symbols in your input data file can cause strange problems. Try removing `\r` symbols from the input files with the following command 
+**Tip #2.** Hidden symbols in your input data file can cause strange problems. If you are having strange output messages, try removing the hidden `\r` symbol from your input files with the following command 
 ```
-cat <input data> | tr -d '\r' > <clean input data>
+cat <input file> | tr -d '\r' > <clean input file>
 ```
-and then trying to run TREE-QMC again.
+running TREE-QMC again.
 
 BUILD
 -----
-We recommend you install TREE-QMC with bioconda or download an executable for convenience. To build TREE-QMC (without tree of blobs functionality) use the following commands:
+To build TREE-QMC *without* tree of blobs functionality use the following commands:
 ```
 git clone htts://github.com/molloy-lab/TREE-QMC
 cd TREE-QMC
@@ -48,11 +49,11 @@ g++ -std=c++11 -O2 \
     external/MQLib/bin/MQLib.a -lm \
     -DVERSION=\"$(cat version.txt)\"
 ```
-Otherwise see the tree of blobs tutorial for build instructions.
+Otherwise go to the [tree of blobs tutorial](tutorial/tree-of-blobs/README.md) for build instructions.
 
 USAGE
 -----
-To see the TREE-QMC usage options, use command:
+To see the TREE-QMC usage options, type command:
 ```
 ./tree-qmc -h
 ```
@@ -78,8 +79,8 @@ Input Options:
         Note: only n0 and n2 normalization are implemented for quartet input currently
 [(--quartetformat) <format string>]
         Specify a format of the input quartets
-        Examples: ((___,___),(___,___));___ for ((A,B),(C,D));1.234 (default)
-                  or ___,___|___,___:___ for A,B|C,D:1.234
+        Examples: "((___,___),(___,___));___" for ((A,B),(C,D));1.234 (default)
+                  or "___,___|___,___:___" for A,B|C,D:1.234
 [(--chars)]
         Input are characters in fasta, phylip, or nexus format
         Missing states are N, -, and ?
