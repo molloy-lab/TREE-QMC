@@ -52,7 +52,11 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
             min = search_quard(input, &quads[i], internal[i]->min_f, minimizer);
         }
         
-        max = pvalue_star(internal[i]->f);
+        if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+            max = 1.0;
+        else
+            max = pvalue_star(internal[i]->f);
+
         internal[i]->min_pvalue = min;
         internal[i]->max_pvalue = max;
         std::cout << "QTT: " << min << " ";
@@ -123,13 +127,18 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
             min = search(input, bips[i].first, bips[i].second, internal[i]->min_f, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, internal[i]->max_f);
 	}
-        max = pvalue_star(internal[i]->f);
+
+        if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+            max = 1.0;
+        else
+            max = pvalue_star(internal[i]->f);
         internal[i]->min_pvalue = min;
         internal[i]->max_pvalue = max;
+
         std::cout << "QTT: " << min << " ";
         std::cout << "[" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
- 	std::cout << "QST: " << max << " ";
+        std::cout << "QST: " << max << " ";
         std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
         if (min < alpha || max > beta) {
             false_positive.insert(internal[i]);
@@ -647,9 +656,10 @@ weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, w
         }
         assert(verification);
         */
-        // std::cout << qCF[0] << ' ' << qCF[1] << ' ' << qCF[2] << std::endl;
-	pvalues[q] = std::make_pair(pvalue(qCF), f);
-        // pvalues[q] = pvalue(indices);
+        if ((qCF[0] + qCF[1] + qCF[2]) == 0)
+            pvalues[q] = std::make_pair(1.0, f);
+        else
+            pvalues[q] = std::make_pair(pvalue(qCF), f);
 
     }
     auto elem = pvalues[q];
@@ -681,10 +691,10 @@ weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indic
         }
         assert(verification);
         */
-        // std::cout << qCF[0] << ' ' << qCF[1] << ' ' << qCF[2] << std::endl;
-	pvalues_star[q] = std::make_pair(pvalue_star(qCF), f);
-        // pvalues[q] = pvalue(indices);
-
+        if ((qCF[0] + qCF[1] + qCF[2]) == 0)
+            pvalues[q] = std::make_pair(1.0, f);
+        else
+            pvalues_star[q] = std::make_pair(pvalue_star(qCF), f);
     }
     auto elem = pvalues_star[q];
     f[0] = elem.second[0]; f[1] = elem.second[1]; f[2] = elem.second[2];
