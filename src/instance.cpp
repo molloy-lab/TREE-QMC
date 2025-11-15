@@ -126,11 +126,13 @@ Instance::Instance(int argc, char **argv) {
     // DONE SETTING UP!
 }
 
+
 Instance::~Instance() {
     for (Tree *t : input) delete t;
     delete output;
     delete dict;
 }
+
 
 long long Instance::solve() {
     srand(cut_seed);
@@ -183,9 +185,11 @@ long long Instance::solve() {
     return duration.count();
 }
 
+
 SpeciesTree *Instance::get_solution() {
     return output;
 }
+
 
 void Instance::output_solution() {
     if (execute_mode == "2" || execute_mode == "3") return;
@@ -289,6 +293,7 @@ void Instance::output_solution() {
         std::cout << output->to_string_basic() << std::endl;
 }
 
+
 int Instance::parse(int argc, char **argv) {
     std::cout << "TREE-QMC version " << VERSION << std::endl;
 
@@ -303,9 +308,6 @@ int Instance::parse(int argc, char **argv) {
     int ndefaultparam = 0;
     bool help = false;
 
-
-    // TODO: Maybe use argparse streamline e.g.
-    // https://github.com/p-ranav/argparse/blob/master/include/argparse/argparse.hpp
     index_t i = 1;
     while (i < argc) {
         std::string opt(argv[i]);
@@ -349,7 +351,6 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--override") {
             override_file = true;
-//            std::cout << override_file << std::endl;
         }
         else if (opt == "--blob") {
             blob = true;
@@ -757,9 +758,11 @@ int Instance::parse(int argc, char **argv) {
     return 0;
 }
 
+
 std::string Instance::get_execution_mode() {
     return execute_mode;
 }
+
 
 void Instance::input_trees() {
     std::ifstream fin(input_file);
@@ -801,6 +804,7 @@ void Instance::input_trees() {
 
     fin.close();
 }
+
 
 void Instance::input_matrix() {
     std::ifstream fin(input_file);
@@ -845,6 +849,7 @@ void Instance::input_matrix() {
     }
 }
 
+
 void Instance::refine_trees() {
     srand(refine_seed);
 
@@ -868,12 +873,14 @@ void Instance::refine_trees() {
     }
 }
 
+
 void Instance::prepare_trees() {
     for (Tree *t : input) {
         t->prepare(weight_mode, support_low, support_high, contract, support_threshold);
         // std::cout << t->to_string() << std::endl;
     }
 }
+
 
 void Instance::prepare_root_taxa() {
     std::string taxon;
@@ -958,12 +965,37 @@ void Instance::prepare_indiv2taxon_map() {
     fin.close();
 }
 
+
 void Instance::input_quartets() {
     std::ifstream fin(input_file);
     if (fin.fail()) {
         std::cout << "\nERROR: Unable to open " << input_file << std::endl;
         exit(1);
     }
+
+    // Read the first line
+    std::string firstLine;
+    if (!(std::getline(fin, firstLine))) {
+        std::cout << "\nERROR: Unable to read " << input_file << std::endl;
+        exit(1);
+    }
+
+    if (firstLine == "t1,t2,t3,t4,CF12_34,CF13_24,CF14_23,ngenes")
+        input_quartets_phylonetworks();
+    else
+        input_quartets_basic();
+
+    fin.close();
+}
+
+
+void Instance::input_quartets_basic() {
+    std::ifstream fin(input_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
+        exit(1);
+    }
+
     std::vector<std::string> tokens;
     std::string delimiter = "___";
     size_t pos = 0, count = 0;
@@ -978,13 +1010,15 @@ void Instance::input_quartets() {
         std::cout << "\nERROR: Invalid quartet format " << temp << std::endl;
         exit(1);
     }
+    
     std::string line;
     size_t j = 0;
     while (std::getline(fin, line)) {
         j ++;
-        std::string temp = line;
-        line.erase(std::remove(line.begin(), line.end(), ' ' ), line.end());
-        index_t indices[4]; 
+
+        line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+
+        index_t indices[4];
         for (size_t i = 0; i < count; i ++) {
             size_t pos = line.find(tokens[i]);
             if (pos == std::string::npos) {
@@ -992,10 +1026,12 @@ void Instance::input_quartets() {
                 j = -1;
                 break;
             }
-            if (i > 0) indices[i - 1] = dict->label2index(line.substr(0, pos));
+            if (i > 0)
+                indices[i - 1] = dict->label2index(line.substr(0, pos));
             line.erase(0, pos + tokens[i].length());
         }
         if (j == -1) break;
+        
         quartet_t quartet = join(indices);
         weight_t weight = 1.0;
         if (line != "") weight = std::stod(line);
@@ -1003,7 +1039,78 @@ void Instance::input_quartets() {
             quartets[quartet] = 0;
         quartets[quartet] += weight;
     }
+
+    fin.close();
 }
+
+
+void Instance::input_quartets_phylonetworks() {
+    std::ifstream fin(input_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+
+    // Read header
+    std::getline(fin, line);
+
+    size_t j = 0;
+    while (std::getline(fin, line)) {
+        j ++;
+        std::string temp = line;
+
+        line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+
+        index_t indices_12v34[4];
+        index_t indices_13v24[4];
+        index_t indices_14v23[4];
+        weight_t weights[4];
+
+        for (size_t i = 0; i < 7; i ++) {
+            size_t pos = line.find(',');
+            if (pos == std::string::npos) {
+                std::cout << "\nWARNING: Invalid qCF; input truncated at line " << j << std::endl;
+                j = -1;
+                break;
+            }
+
+            if (i < 4)
+                indices_12v34[i] = dict->label2index(line.substr(0, pos));
+            else
+                weights[i - 4] = std::stod(line.substr(0, pos));
+
+            line.erase(0, pos + 1);
+        }
+        if (j == -1) break;
+
+        weights[3] = std::stod(line);  // number of genes
+
+        // Add quartet 1,2|3,4
+        quartet_t quartet_12v34 = join(indices_12v34);
+        quartets[quartet_12v34] = weights[0] * weights[3];
+
+        // Add quartet 1,3|2,4
+        indices_13v24[0] = indices_12v34[0];
+        indices_13v24[1] = indices_12v34[2];
+        indices_13v24[2] = indices_12v34[1];
+        indices_13v24[3] = indices_12v34[3];
+        quartet_t quartet_13v24 = join(indices_13v24);
+        quartets[quartet_13v24] = weights[1] * weights[3];
+
+        // Add 1,4|2,3
+        indices_14v23[0] = indices_12v34[0];
+        indices_14v23[1] = indices_12v34[3];
+        indices_14v23[2] = indices_12v34[1];
+        indices_14v23[3] = indices_12v34[2];
+        quartet_t quartet_14v23 = join(indices_14v23);
+        quartets[quartet_14v23] = weights[2] * weights[3];
+    }
+
+    fin.close();
+}
+
 
 void Instance::input_pvalues() {
     std::ifstream fin(pvalue_file);
@@ -1060,4 +1167,6 @@ void Instance::input_pvalues() {
             values.push_back(pvalues[j][i]);
         quartet2pvalue[q] = values;
     }
+
+    fin.close();
 }

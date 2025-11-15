@@ -36,6 +36,8 @@ class Instance {
         void prepare_trees();
         void refine_trees();
         void input_quartets();
+        void input_quartets_basic();
+        void input_quartets_phylonetworks();
         void input_pvalues();
 };
 
