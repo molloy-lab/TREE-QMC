@@ -1002,6 +1002,8 @@ void Instance::input_quartets() {
         if (quartets.find(quartet) == quartets.end()) 
             quartets[quartet] = 0;
         quartets[quartet] += weight;
+    }
+}
 
 void Instance::input_pvalues() {
     std::ifstream fin(pvalue_file);
