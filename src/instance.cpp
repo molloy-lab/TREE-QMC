@@ -146,8 +146,13 @@ long long Instance::solve() {
 
     // Build or read species tree
     if (load_pvalue) {
-        std::cout << "Loading species tree with p-values" << root_str << std::endl;
-        output = new SpeciesTree(input[0], dict, alpha, beta);
+        #if ENABLE_TOB
+            std::cout << "Loading species tree with p-values" << root_str << std::endl;
+            output = new SpeciesTree(input[0], dict, alpha, beta);
+        #else
+            std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
+            exit(1);
+        #endif  // ENABLE_TOB
     } else {
         if (stree_file != "") {
             std::cout << "Loading species tree" << root_str << std::endl;
@@ -185,11 +190,13 @@ long long Instance::solve() {
         #endif  // ENABLE_TOB
     }
 
+    #if ENABLE_TOB
     if (!load_pvalue && !store_pvalue && blob) {
         SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta);
         delete output;
         output = tmp;
     }
+    #endif  // ENABLE_TOB
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
