@@ -74,7 +74,7 @@ The command above reconstructs a TOB in three steps:
 
 However, the output TOB is binary (try plotting it in [IcyTree](https://icytree.org)), and you don't learn much about your data. Instead, it is helpful to run each step of TOB-QMC independently. Instead, it can be helpful to execute each step separately
 
-Step 1: Build a base (or refinement tree) with TREE-QMC
+Step 1: Build a base tree (aka refinement TOB) with TREE-QMC
 ---
 ```
 ../../../build/tree-qmc \
@@ -83,10 +83,9 @@ Step 1: Build a base (or refinement tree) with TREE-QMC
     -o nomiinae_base_tree.tre
 ```
 
-Step 2: Annotated branches by minimum p-value found from hypothesis testing
+Step 2: Annotate branches with minimum p-value found from hypothesis testing
 ---
-There are several different heuristics you can use to search for a minimum p-value, with commands at the end of this tutorial. 
-**Bipartition search heuristic:** To execute the default search for step 2, type
+There are several different heuristics you can use to search for a minimum p-value. To execute the default search, type
 ```
 tree-qmc \
     --blobsearchonly nomiinae_base_tree.tre \
@@ -94,7 +93,7 @@ tree-qmc \
     -i nomiinae_gene_trees.tre \
     -o nomiinae_psearch_default.tre
 ```
-The bipartition search samples 2 taxa on either side of each branch. The default maximum number of 4-taxon subsets to tests is two times the number of species squared. To change the default, use the command `--iter_limit_blob <num>`. For large data sets, we recommend setting the iteration limit to one fourth the number of taxa squared. For small data sets, we recommend exhaustive search around the branch (bipartition). To execute exhaustive search, type
+This command executes bipartition search, which samples 2 taxa on either side of a branch. The default iteration limit (i.e., maximum number of 4-taxon subsets to test) is two times the number of species squared; this can be changed by adding the flag `--iter_limit_blob <num>`. For large data sets, we recommend setting the iteration limit to one fourth the number of taxa squared. For small data sets, we recommend exhaustive search around the branch (bipartition). To execute exhaustive search, type
 ```
 tree-qmc \
     --blobsearchonly nomiinae_base_tree.tre \
@@ -110,13 +109,13 @@ cat nomiinae_psearch_exhaustive.log
 ```
 to look at the log file.
 
-Step 3: Contract branches based on hyperparameter thresholds
+Step 3: Contract branches based on hyperparameter settings
 ---
 A major challenge with hypothesis testing in this context is selecting the hyperparameters alpha and beta for the quartet tree test (QTT) and the quartet star test (QST), respectively. However, if you look at the log file, it appears that there is one branch with some signal of hybridization; specifically, line
 ```
 QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
 ```
-indicates a min p-value of 1.36381e-07 for qCFs of 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution because the two smaller values are not equal to each other. Type
+indicates a min p-value of 1.36381e-07 for qCFs of 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution because the two smaller values are not equal to each other. To contract the branch, type
 ```
 tree-qmc \
     --alpha 1e-6 \
@@ -125,8 +124,4 @@ tree-qmc \
     -i nomiinae_psearch_exhaustive.tre \
     -o nomiinae_psearch_exhaustive_a1e-6_b0.95_tob.tre
 ```
-to contract this branch, associated with the genus Stictonomia. Lastly, try plotting the final TOB in [IcyTree](https://icytree.org).
-
-Step 4: Confirming network-like signals
----
-We confirmed this signal by testing all other 4-taxon subsets around the branch; see [script](test_around_branch_with_TINNiK.R) and [results](test_around_branch_output.txt). However, it is worth noting that the four taxa subsets appear in a relative small fraction of the 852 UCE trees (114-183).
+The final TOB has the genus Stictonomia as a blob. Lastly, we confirmed the blob signal by testing all other 4-taxon subsets around the branch; see [script](test_around_branch_with_TINNiK.R) and [results](test_around_branch_output.txt). However, it is worth noting that the four taxa subsets appear in a relative small fraction of the 852 UCE trees (114-183).
