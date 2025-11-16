@@ -47,7 +47,6 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta)
 // 3 fix 1 alter search algorithm O(n^2)
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, 
                          SpeciesTree* display, 
-                         // EKM weight_t alpha, weight_t beta, 
                          unsigned long int iter_limit_blob, 
                          bool three_fix_one_alter, 
                          bool is_quard) {
@@ -92,9 +91,9 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         index_t minimizer[4];
         
         if (three_fix_one_alter) {
-            min = search_3f1a(input, &quads[i], internal[i]->min_f, minimizer);
+            min = search_3f1a(input, &quads[i], minimizer);
         } else {
-            min = search_quard(input, &quads[i], internal[i]->min_f, minimizer);
+            min = search_quard(input, &quads[i], minimizer);
         }
         internal[i]->min_pvalue = min;
         weight_t keep[3];
@@ -133,8 +132,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
 
 // O(n*cn*klogn), O(kn^3logn) if c is O(n)
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, 
-                         SpeciesTree* display, 
-                         // EKM weight_t alpha, weight_t beta, 
+                         SpeciesTree* display,
                          unsigned long int iter_limit_blob) {
     std::cout << "Constructing tree of blobs" << std::endl;
     add_r_libpaths_and_load(RINS);
@@ -163,11 +161,11 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         weight_t min, max;
         index_t minimizer[4];
         if (iter_limit != 0) {
-            min = search(input, bips[i].first, bips[i].second, iter_limit, internal[i]->min_f, minimizer);
+            min = search(input, bips[i].first, bips[i].second, iter_limit, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, iter_limit, internal[i]->max_f);
         }
         else {
-            min = search(input, bips[i].first, bips[i].second, internal[i]->min_f, minimizer);
+            min = search(input, bips[i].first, bips[i].second, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, internal[i]->max_f);
         }
         internal[i]->min_pvalue = min;
@@ -369,7 +367,6 @@ std::string Tree::display_quardpartitions(std::vector<Node *> &A, std::vector<No
 weight_t SpeciesTree::search(std::vector<Tree *> &input, 
                              std::vector<Node *> &A, 
                              std::vector<Node *> &B, 
-                             weight_t *min_f, 
                              index_t* minimizer) {
     index_t i[4];
     weight_t min = -1;
@@ -384,14 +381,10 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
                     temp[2] = B[i[2]]->index;
                     temp[3] = B[i[3]]->index;
                     count ++;
-                    weight_t f[3];
 
-                    weight_t score = get_pvalue(input, temp, f);
+                    weight_t score = get_pvalue(input, temp);
                     if (min < 0 || score < min) {
                         min = score;
-                        min_f[0] = f[0]; 
-                        min_f[1] = f[1]; 
-                        min_f[2] = f[2];
                         minimizer[0] = temp[0]; 
                         minimizer[1] = temp[1]; 
                         minimizer[2] = temp[2]; 
@@ -406,7 +399,7 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
 }
 
 
-weight_t SpeciesTree::search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer) {
+weight_t SpeciesTree::search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer) {
     index_t i[4] = {0, 0, 0, 0};
     weight_t min = -1;
     auto& t = *quad;
@@ -420,11 +413,9 @@ weight_t SpeciesTree::search_quard(std::vector<Tree *> &input, std::tuple<std::v
                     temp[1] = std::get<1>(t)[i[1]]->index;
                     temp[2] = std::get<2>(t)[i[2]]->index;
                     temp[3] = std::get<3>(t)[i[3]]->index;
-                    weight_t f[3];
-                    weight_t score = get_pvalue(input, temp, f);
+                    weight_t score = get_pvalue(input, temp);
                     if (min < 0 || score < min) {
                         min = score;
-                        min_f[0] = f[0]; min_f[1] = f[1]; min_f[2] = f[2];
                         minimizer[0] = temp[0]; minimizer[1] = temp[1]; minimizer[2] = temp[2]; minimizer[3] = temp[3];
                     }
                 }
@@ -435,7 +426,7 @@ weight_t SpeciesTree::search_quard(std::vector<Tree *> &input, std::tuple<std::v
     return min;
 }
 
-weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer) {
+weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer) {
     index_t i[4] = {0, 0, 0, 0};
     weight_t min = -1;
     
@@ -486,11 +477,8 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
             //     }
             // }
 
-            weight_t f[3];
-            weight_t score = get_pvalue(input, cur_quart, f);
+            weight_t score = get_pvalue(input, cur_quart);
             if (min < 0 || score < min) {
-                min = score;
-                min_f[0] = f[0]; min_f[1] = f[1]; min_f[2] = f[2];
                 i[alter] = temp[alter];
                 minimizer[0] = cur_quart[0]; minimizer[1] = cur_quart[1]; minimizer[2] = cur_quart[2]; minimizer[3] = cur_quart[3];
             }
@@ -501,8 +489,7 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
 
 weight_t SpeciesTree::search_star(std::vector<Tree *> &input, 
                                   std::vector<Node *> &A,
-                                  std::vector<Node *> &B,
-                                  weight_t *min_f) {
+                                  std::vector<Node *> &B) {
     index_t i[4];
     weight_t min = -1;
     size_t count = 0;
@@ -517,10 +504,9 @@ weight_t SpeciesTree::search_star(std::vector<Tree *> &input,
                     temp[3] = B[i[3]]->index;
                     count ++;
                     weight_t f[3];
-                    weight_t score = get_pvalue_star(input, temp, f);
+                    weight_t score = get_pvalue_star(input, temp);
                     if (min < 0 || score > min) {
                         min = score;
-                        min_f[0] = f[0]; min_f[1] = f[1]; min_f[2] = f[2];
                     }
                 }
             }
@@ -534,7 +520,6 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
                              std::vector<Node *> &A,
                              std::vector<Node *> &B,
                              size_t iter_limit,
-                             weight_t *min_f,
                              index_t* minimizer) {
     index_t indices[4];
     weight_t min = -1;
@@ -544,7 +529,7 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
         do {indices[1] = A[rand() % A.size()]->index;} while (indices[0] == indices[1]);
         indices[2] = B[rand() % B.size()]->index;
         do {indices[3] = B[rand() % B.size()]->index;} while (indices[2] == indices[3]);
-        count += neighbor_search(input, A, B, indices, &min, min_f);
+        count += neighbor_search(input, A, B, indices, &min);
         minimizer[0] = indices[0]; minimizer[1] = indices[1]; minimizer[2] = indices[2]; minimizer[3] = indices[3];
         // std::cout << i << ' ' << min << std::endl;
     }
@@ -552,9 +537,9 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
     return min;
 }
 
-weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *min_f) {
+weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min) {
     weight_t current_f[3];
-    weight_t current_score = get_pvalue(input, current, current_f);
+    weight_t current_score = get_pvalue(input, current);
     size_t k = 1;
     while (true) {
         index_t temp[4], next[4];
@@ -565,7 +550,7 @@ weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<No
             index_t new_index = A[i]->index;
             if (new_index == current[0] || new_index == current[1]) continue;
             temp[0] = new_index;
-            temp_score = get_pvalue(input, temp, temp_f); k ++;
+            temp_score = get_pvalue(input, temp); k ++;
             if (next_score < 0 || temp_score < next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -574,7 +559,7 @@ weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<No
             }
             temp[0] = current[0];
             temp[1] = new_index;
-            temp_score = get_pvalue(input, temp, temp_f); k ++;
+            temp_score = get_pvalue(input, temp); k ++;
             if (next_score < 0 || temp_score < next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -587,7 +572,7 @@ weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<No
             index_t new_index = B[i]->index;
             if (new_index == current[2] || new_index == current[3]) continue;
             temp[2] = new_index;
-            temp_score = get_pvalue(input, temp, temp_f); k ++;
+            temp_score = get_pvalue(input, temp); k ++;
             if (next_score < 0 || temp_score < next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -596,7 +581,7 @@ weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<No
             }
             temp[2] = current[2];
             temp[3] = new_index;
-            temp_score = get_pvalue(input, temp, temp_f); k ++;
+            temp_score = get_pvalue(input, temp); k ++;
             if (next_score < 0 || temp_score < next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -613,12 +598,11 @@ weight_t SpeciesTree::neighbor_search(std::vector<Tree *> &input, std::vector<No
     }
     if (*min < 0 || *min > current_score) {
         *min = current_score;
-        min_f[0] = current_f[0]; min_f[1] = current_f[1]; min_f[2] = current_f[2];
     }
     return k;
 }
 
-weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *min_f) {
+weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit) {
     index_t indices[4];
     weight_t min = -1;
     size_t count = 0;
@@ -627,16 +611,16 @@ weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *
         do {indices[1] = A[rand() % A.size()]->index;} while (indices[0] == indices[1]);
         indices[2] = B[rand() % B.size()]->index;
         do {indices[3] = B[rand() % B.size()]->index;} while (indices[2] == indices[3]);
-        count += neighbor_search_star(input, A, B, indices, &min, min_f);
+        count += neighbor_search_star(input, A, B, indices, &min);
         // std::cout << i << ' ' << min << std::endl;
     }
     //std::cout << "heuristic iter: " << count << std::endl;
     return min;
 }
 
-weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *min_f) {
+weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min) {
     weight_t current_f[3];
-    weight_t current_score = get_pvalue_star(input, current, current_f);
+    weight_t current_score = get_pvalue_star(input, current);
     size_t k = 1;
     while (true) {
         index_t temp[4], next[4];
@@ -647,7 +631,7 @@ weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vect
             index_t new_index = A[i]->index;
             if (new_index == current[0] || new_index == current[1]) continue;
             temp[0] = new_index;
-            temp_score = get_pvalue_star(input, temp, temp_f); k ++;
+            temp_score = get_pvalue_star(input, temp); k ++;
             if (next_score < 0 || temp_score > next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -656,7 +640,7 @@ weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vect
             }
             temp[0] = current[0];
             temp[1] = new_index;
-            temp_score = get_pvalue_star(input, temp, temp_f); k ++;
+            temp_score = get_pvalue_star(input, temp); k ++;
             if (next_score < 0 || temp_score > next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -669,7 +653,7 @@ weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vect
             index_t new_index = B[i]->index;
             if (new_index == current[2] || new_index == current[3]) continue;
             temp[2] = new_index;
-            temp_score = get_pvalue_star(input, temp, temp_f); k ++;
+            temp_score = get_pvalue_star(input, temp); k ++;
             if (next_score < 0 || temp_score > next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -678,7 +662,7 @@ weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vect
             }
             temp[2] = current[2];
             temp[3] = new_index;
-            temp_score = get_pvalue_star(input, temp, temp_f); k ++;
+            temp_score = get_pvalue_star(input, temp); k ++;
             if (next_score < 0 || temp_score > next_score) {
                 next_score = temp_score;
                 for (index_t j = 0; j < 4; j ++) 
@@ -695,12 +679,11 @@ weight_t SpeciesTree::neighbor_search_star(std::vector<Tree *> &input, std::vect
     }
     if (*min < 0 || *min < current_score) {
         *min = current_score;
-        min_f[0] = current_f[0]; min_f[1] = current_f[1]; min_f[2] = current_f[2];
     }
     return k;
 }
 
-weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, weight_t *f) {
+weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices) {
     index_t temp[4];
     for (index_t i = 0; i < 4; i ++) 
         temp[i] = indices[i];
@@ -713,9 +696,6 @@ weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, w
             index_t topology = t->get_quartet(temp);
             if (topology >= 0) qCF[topology] += 1;
         }
-        f[0] = qCF[0];
-        f[1] = qCF[1];
-        f[2] = qCF[2];
 
         /*
         std::sort(qCF, qCF + 3);
@@ -730,62 +710,28 @@ weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, w
         */
 
         if ((qCF[0] + qCF[1] + qCF[2]) == 0)
-            pvalues[q] = std::make_pair(1.0, f);
+            pvalues[q] = 1.0;
         else
-            pvalues[q] = std::make_pair(pvalue(qCF), f);
+            pvalues[q] = pvalue(qCF);
     }
 
-    auto elem = pvalues[q];
-    f[0] = elem.second[0];
-    f[1] = elem.second[1];
-    f[2] = elem.second[2];
-
-    if ((f[0] > input.size()) || (f[1] > input.size()) || (f[2] > input.size())) {
-        //std::cout << "Something bad happened: pvalues[q] =" << std::endl;
-        //std::cout << elem.first << std::endl;
-        //std::cout << elem.second[0] << std::endl;
-        //std::cout << elem.second[1] << std::endl;
-        //std::cout << elem.second[2] << std::endl;
-
-        //std::cout << "Recomputing..." << std::endl;
-        weight_t qCF[3] = {0, 0, 0};
-        for (Tree *t : input) {
-            index_t topology = t->get_quartet(temp);
-            if (topology >= 0) qCF[topology] += 1;
-        }
-        f[0] = qCF[0];
-        f[1] = qCF[1];
-        f[2] = qCF[2];
-        weight_t score = pvalue(qCF);
-
-        //std::cout << "Recomputed: pvalues[q] =" << std::endl;
-        //std::cout << score << std::endl;
-        //std::cout << f[0] << std::endl;
-        //std::cout << f[1] << std::endl;
-        //std::cout << f[2] << std::endl;
-
-        elem.first = score;
-        elem.second[0] = f[0];
-        elem.second[1] = f[1];
-        elem.second[2] = f[2];
-    }
-
-    return elem.first;
+    return pvalues[q];
 }
 
-weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indices, weight_t *f) {
+weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indices) {
     index_t temp[4];
     for (index_t i = 0; i < 4; i ++) 
         temp[i] = indices[i];
     std::sort(temp, temp + 4);
     quartet_t q = join(temp);
+
     if (pvalues_star.find(q) == pvalues_star.end()) {
         weight_t qCF[3] = {0, 0, 0};
         for (Tree *t : input) {
             index_t topology = t->get_quartet(temp);
             if (topology >= 0) qCF[topology] += 1;
         }
-        f[0] = qCF[0]; f[1] = qCF[1]; f[2] = qCF[2];
+        
         /*
         std::sort(qCF, qCF + 3);
         std::vector<weight_t> all = pvalue_all(indices);
@@ -798,13 +744,11 @@ weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indic
         assert(verification);
         */
         if ((qCF[0] + qCF[1] + qCF[2]) == 0)
-            pvalues_star[q] = std::make_pair(1.0, f);
+            pvalues_star[q] = 1.0;
         else
-            pvalues_star[q] = std::make_pair(pvalue_star(qCF), f);
+            pvalues_star[q] = pvalue_star(qCF);
     }
-    auto elem = pvalues_star[q];
-    f[0] = elem.second[0]; f[1] = elem.second[1]; f[2] = elem.second[2];
-    return elem.first;
+    return pvalues_star[q];
 }
 
 index_t Tree::get_quartet(index_t *indices) {

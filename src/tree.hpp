@@ -181,7 +181,7 @@ class SpeciesTree : public Tree {
         index_t artifinyms;
         std::string mode;
         unsigned long int iter_limit;
-        std::unordered_map<quartet_t, std::pair<weight_t, weight_t *>> pvalues, pvalues_star;
+        std::unordered_map<quartet_t,weight_t> pvalues, pvalues_star;
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
         Node *construct_stree(std::unordered_map<quartet_t, weight_t> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -193,17 +193,17 @@ class SpeciesTree : public Tree {
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
         #if ENABLE_TOB
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f, index_t *minimizer);
-        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *f);
-        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
-        weight_t neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min, weight_t *f);
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f, index_t *minimizer);
-        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *f);
-        weight_t search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer);
-        weight_t search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, weight_t *min_f, index_t* minimizer);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, index_t *minimizer);
+        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit);
+        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
+        weight_t neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
+        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *minimizer);
+        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B);
+        weight_t search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
+        weight_t search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
         Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
-        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices, weight_t *f);
-        weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices, weight_t *f);
+        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices);
+        weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices);
         #endif  // ENABLE_TOB
 };
 
