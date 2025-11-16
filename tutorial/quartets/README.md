@@ -1,5 +1,5 @@
-TREE-QMC Quartet Input Tutorial
-===============================
+Quartet Input Tutorial
+======================
 
 This tutorial shows how to run TREE-QMC to reconstruct a tree from input quartets.
 

@@ -64,12 +64,12 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
 
     add_r_libpaths_and_load(RINS);
     for (Tree *t : input) t->LCA_preprocessing();
-    
+
     display->refine();
-    
+
     this->dict = display->dict;
-    
-    std::string mode = "n";
+
+    //std::string mode = "n";
     //display->annotate(input, mode);
     
     std::vector<Node *> internal;
@@ -80,45 +80,55 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
 
     std::unordered_set<Node *> false_positive;
     for (index_t i = 0; i < internal.size(); i ++) {
-        std::cout << "Testing branch " << i << ", ";
+        std::cout << "Testing branch id " << i << ", ";
+        internal[i]->blob_id = i;
+
         if (internal[i]->isfake) {
             false_positive.insert(internal[i]);
             std::cout << "fake ***" << std::endl;
             continue;
         }
 
-        weight_t min, max;
+        // Search for min p-value for quartet tree tests
+        weight_t min;
         index_t minimizer[4];
-        
-        if (three_fix_one_alter) {
+        if (three_fix_one_alter)
             min = search_3f1a(input, &quads[i], minimizer);
-        } else {
-            min = search_quard(input, &quads[i], minimizer);
-        }
-        internal[i]->min_pvalue = min;
-        weight_t keep[3];
-        get_qCFs(input, minimizer, keep);
-        internal[i]->min_f[0] = keep[0];
-        internal[i]->min_f[1] = keep[1];
-        internal[i]->min_f[2] = keep[2];
-        internal[i]->min_pvalue = min;
-
-        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
-        //    max = 1.0;
-        //else
-        //    max = pvalue_star(internal[i]->f);
-        if ((internal[i]->min_f[0] + internal[i]->min_f[1] + internal[i]->min_f[2]) == 0)
-            max = 1.0;
         else
-            max = pvalue_star(internal[i]->min_f);
-        internal[i]->max_pvalue = max;
+            min = search_quard(input, &quads[i], minimizer);
+        internal[i]->min_pvalue = min;
 
-        std::cout << "QTT: " << min << " ";
-        std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
-        std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
-        std::cout << "QST: " << max << " ";
-        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        // Get qCFs that yielded the min p-value
+        weight_t min_f[3];
+        get_qCFs(input, minimizer, min_f);
+        internal[i]->min_f[0] = min_f[0];
+        internal[i]->min_f[1] = min_f[1];
+        internal[i]->min_f[2] = min_f[2];
+
+        // Apply quartet star test
+        weight_t max = -1.0;
+        if ((min_f[0] + min_f[1] + min_f[2]) > 0)
+            max = pvalue_star(min_f);
+        internal[i]->max_pvalue = max;
+        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) > 0)
+        //    max = pvalue_star(internal[i]->f);
+
+        // Write to standard out
+        std::cout << "QTT: " << min << "; ";
+        std::cout << "QST: " << max << "; ";
+        std::cout << "qCF: [" << min_f[0] << "/" << min_f[1] << "/" << min_f[2] << "]; ";
+        std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "]";
         std::cout << std::endl;
+
+        //std::cout << "QTT: " << min << " ";
+        //std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        //std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
+        //std::cout << "QST: " << max << " ";
+        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        //std::cout << std::endl;
+
+        // Write to table... include branch id...
+        // TODO: EKM
     }
 
     if (display->root->children.size() == 2) {
@@ -139,68 +149,106 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
     for (Tree *t : input) t->LCA_preprocessing();
     this->dict = display->dict;
     display->refine();
-    
-    std::string mode = "n";
+
+    //std::string mode = "n";
     //display->annotate(input, mode);
-    
+
     std::vector<Node *> internal;
     std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> bips;
     display->get_bipartitions(&internal, &bips);
     std::cout << bips.size() << " branches to test" << std::endl;
     std::unordered_set<Node *> false_positive;
     size_t iter_limit = iter_limit_blob;
-    
-    for (index_t i = 0; i < internal.size(); i ++) {
-        std::cout << "Testing branch " << i << ", ";
+
+    for (std::size_t i = 0; i < internal.size(); i ++) {
+        std::cout << "Testing branch id " << i << ", ";
+        internal[i]->blob_id = i;
+
         if (internal[i]->isfake) {
             false_positive.insert(internal[i]);
             std::cout << "fake ***" << std::endl;
             continue;
         }
 
-        weight_t min, max;
+        // Search for min p-value for quartet tree tests
+        weight_t min;
         index_t minimizer[4];
-        if (iter_limit != 0) {
+        if (iter_limit != 0)
             min = search(input, bips[i].first, bips[i].second, iter_limit, minimizer);
-            // max = search_star(input, bips[i].first, bips[i].second, iter_limit, internal[i]->max_f);
-        }
-        else {
-            min = search(input, bips[i].first, bips[i].second, minimizer);
-            // max = search_star(input, bips[i].first, bips[i].second, internal[i]->max_f);
-        }
-        internal[i]->min_pvalue = min;
-
-        weight_t keep[3];
-        get_qCFs(input, minimizer, keep);
-        internal[i]->min_f[0] = keep[0];
-        internal[i]->min_f[1] = keep[1];
-        internal[i]->min_f[2] = keep[2];
-        internal[i]->min_pvalue = min;
-
-        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
-        //    max = 1.0;
-        //else
-        //    max = pvalue_star(internal[i]->f);
-        if ((internal[i]->min_f[0] + internal[i]->min_f[1] + internal[i]->min_f[2]) == 0)
-            max = 1.0;
         else
-            max = pvalue_star(internal[i]->min_f);
+            min = search(input, bips[i].first, bips[i].second, minimizer);
+        internal[i]->min_pvalue = min;
 
+        // Get qCFs that yielded the min p-value
+        weight_t min_f[3];
+        get_qCFs(input, minimizer, min_f);
+        internal[i]->min_f[0] = min_f[0];
+        internal[i]->min_f[1] = min_f[1];
+        internal[i]->min_f[2] = min_f[2];
+
+        // Appy quartet star test
+        weight_t max = -1.0;
+        if ((min_f[0] + min_f[1] + min_f[2]) > 0)
+            max = pvalue_star(min_f);
+        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) > 0)
+        //    max = pvalue_star(internal[i]->f);
+        //if (iter_limit != 0)
+        //    max = search_star(input, bips[i].first, bips[i].second, iter_limit);
+        //else
+        //    max = search_star(input, bips[i].first, bips[i].second);
         internal[i]->max_pvalue = max;
 
-        std::cout << "QTT: " << min << " ";
-        std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        // Write to standard out
+        std::cout << "QTT: " << min << "; ";
+        std::cout << "QST: " << max << "; ";
+        std::cout << "qCF: [" << min_f[0] << "/" << min_f[1] << "/" << min_f[2] << "]; ";
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
-        std::cout << "QST: " << max << " ";
-        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
         std::cout << std::endl;
+
+        //std::cout << "QTT: " << min << " ";
+        //std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        //std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
+        //std::cout << "QST: " << max << " ";
+        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        //std::cout << std::endl;
+
+        // Write to a table...
     }
     if (display->root->children.size() == 2) 
         false_positive.insert(display->root->children[1]);
-    
+
     root = build_refinement(display->root, false_positive);
 }
 
+
+std::string SpeciesTree::to_string_pvalue() {
+    return display_tree_pvalue(root) + ";";
+}
+
+std::string SpeciesTree::display_tree_pvalue(Node *root) {
+    if (root->children.size() == 0) 
+        return dict->index2label(root->index);
+    std::string s = "(";
+    for (Node * node : root->children) 
+        s += display_tree_pvalue(node) + ",";
+    s[s.size() - 1] = ')';
+    if (root->parent != NULL && (root->parent->parent != NULL || (root->parent->parent == NULL && root == root->parent->children[0]))) {
+        std::ostringstream ss;
+        ss << std::scientific << std::setprecision(12) 
+                              << "'[" 
+                              << "id=" << std::to_string(root->blob_id)
+                              << ";qtt_p=" << (double) root->min_pvalue
+                              << ";qst_p=" << (double) root->max_pvalue 
+                              << ";qcf_1=" << std::to_string((int) root->min_f[0])
+                              << ";qcf_2=" << std::to_string((int) root->min_f[1])
+                              << ";qcf_3=" << std::to_string((int) root->min_f[2])
+                              << "]'";
+        return s + ss.str();
+    }
+    else {
+        return s;
+    }
+}
 
 Node *SpeciesTree::build_refinement(Node *root, std::unordered_set<Node *> false_positive) {
     if (root->children.size() == 0) {
@@ -744,7 +792,7 @@ weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indic
         assert(verification);
         */
         if ((qCF[0] + qCF[1] + qCF[2]) == 0)
-            pvalues_star[q] = 1.0;
+            pvalues_star[q] = -1.0;  // set to -1 so wouldn't impact search for max
         else
             pvalues_star[q] = pvalue_star(qCF);
     }

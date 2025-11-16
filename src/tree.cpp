@@ -33,10 +33,6 @@ std::string Tree::to_string_basic() {
     return display_tree_basic(root) + ";";
 }
 
-std::string Tree::to_string_pvalue() {
-    return display_tree_pvalue(root) + ";";
-}
-
 size_t Tree::refine() {
     bool flag = root->children.size() == 3;
     size_t count = refine_tree(root);
@@ -79,6 +75,23 @@ weight_t ***Tree::build_graph(Taxa &subset) {
 
 index_t Tree::pseudonym() {
     return - (++ pseudonyms);
+}
+
+std::pair<std::size_t, std::size_t> parse_branch_info(std::string branchinfo, std::string key) {
+    std::size_t start = branchinfo.find(key);
+
+    // Check key was found
+    if (start == std::string::npos)
+        return std::make_pair(std::string::npos, std::string::npos);
+
+    start += key.length();
+
+    // Get length of value associated with the key
+    std::size_t length = branchinfo.substr(start, std::string::npos).find(";");
+    if (length == std::string::npos)
+        length = branchinfo.substr(start, std::string::npos).find("]");
+
+    return std::make_pair(start, length);
 }
 
 Node *Tree::build_tree(const std::string &newick,
@@ -134,9 +147,9 @@ Node *Tree::build_tree(const std::string &newick,
         int i = newick.length() - 1;
         while (newick.at(i) != ')') i --;
         std::string branch = newick.substr(i + 1, std::string::npos);
-        if (branch.find(";") == std::string::npos) {
-            // Get internal branch and support
-            
+
+        if (branch[0] != ';') {            
+            // Separate branch information into support and length
             sep = branch.find(":");
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
@@ -147,25 +160,33 @@ Node *Tree::build_tree(const std::string &newick,
                 support = branch.substr(0, std::string::npos);
                 //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
+
             if (support.size() > 0) {
                 if (support == "PCS")
                     pcs_node = root;
-                else if (support[0] == '^') {
-                    std::size_t sp1 = support.find("*");
-                    std::size_t sp2 = support.find("'");
-                    s2d(support.substr(1, sp1 - 1), &root->min_pvalue);
-                    s2d(support.substr(sp1 + 1, sp2 - sp1 - 1), &root->max_pvalue);
-//		    std::cout << support << " " << support.substr(1, sp1) << " " << support.substr(sp1+ 1, sp2) << std::endl;
-//                    std::cout << root->min_pvalue << " " << root->max_pvalue << std::endl;
-                }
                 else {
-                    root->support = std::stod(support);
+                    auto p1 = parse_branch_info(support, "blob_id=");
+                    if (p1.first != std::string::npos) {
+                        auto p2 = parse_branch_info(support, "qtt_p=");
+                        auto p3 = parse_branch_info(support, "qst_p=");
+
+                        s2ul(support.substr(p1.first, p1.second), &root->blob_id);
+                        s2d(support.substr(p2.first, p2.second), &root->min_pvalue);
+                        s2d(support.substr(p3.first, p3.second), &root->max_pvalue);
+
+                        //std::cout << "Parsing " << support << std::endl;
+                        //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                    } else {
+                        root->support = std::stod(support);  // default
+                    }
                 }
+            } else {
+                // allows user to change default support
+                // useful because default is support min for iqtree abayes
+                // but is max for other use cases
+                root->support = this->support_default; 
             }
-            else root->support = this->support_default;  // allows user to change default support
-                                                         // useful because default is support min for iqtree abayes
-                                                         // but is max for other use cases
-//            std::cout << root->support << " " << support << std::endl;
+            //std::cout << root->support << " " << support << std::endl;
         }
         //else {
         //    std::cout << "Found root" << std::endl;
@@ -213,24 +234,6 @@ std::string Tree::display_tree_index(Node *root) {
     return s;
 }
 
-std::string Tree::display_tree_pvalue(Node *root) {
-    if (root->children.size() == 0) 
-        return dict->index2label(root->index);
-    std::string s = "(";
-    for (Node * node : root->children) 
-        s += display_tree_pvalue(node) + ",";
-    s[s.size() - 1] = ')';
-    if (root->parent != NULL && (root->parent->parent != NULL || (root->parent->parent == NULL && root == root->parent->children[0]))) {
-        std::ostringstream ss, ss2;
-    	ss << std::scientific << "^" << std::setprecision(12) << (double) root->min_pvalue << "*" << (double) root->max_pvalue; 
-    	ss2 << "'^[" << root->min_f[0] << "/" << root->min_f[1] << "/" << root->min_f[2] << "]";
-    	ss2 << "*[" << root->f[0] << "/" << root->f[1] << "/" << root->f[2] << "]'";
-    	return s + ss.str() + ss2.str();
-    }
-    else {
-        return s;
-    }
-}
 
 size_t Tree::refine_tree(Node *root) {
     size_t total = 0;

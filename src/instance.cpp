@@ -12,7 +12,7 @@ Instance::Instance(int argc, char **argv) {
     stree_file = "";
     table_file = "";
     root_str = "";
-    pvalue_file = "";
+    //pvalue_file = "";
 
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
     execute_mode = "0";  // use fast algorithm
@@ -96,9 +96,7 @@ Instance::Instance(int argc, char **argv) {
 
     dict->update_singletons();
 
-    if (pvalue_file != "") {
-        input_pvalues();
-    }
+    // if (pvalue_file != "") input_pvalues();
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
@@ -377,7 +375,7 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "--beta") {
             beta = std::stod(argv[++ i]);
         }
-        else if (opt == "--pvalue") {
+        /*else if (opt == "--pvalue") {
             if (i < argc - 1) {
                 pvalue_file = argv[++ i];
             }
@@ -385,7 +383,7 @@ int Instance::parse(int argc, char **argv) {
                 std::cout << "\nERROR: No pvalue file specified" << std::endl;
                 return 2;
             }
-        }
+        }*/
         else if (opt == "--store_pvalue") {
             store_pvalue = true;
         }
@@ -1132,6 +1130,8 @@ void Instance::input_quartets_phylonetworks() {
 }
 
 
+/*
+// Reads results of TINNiK tests from file 
 void Instance::input_pvalues() {
     std::ifstream fin(pvalue_file);
     if (fin.fail()) {
@@ -1196,3 +1196,4 @@ void Instance::input_pvalues() {
 
     fin.close();
 }
+*/

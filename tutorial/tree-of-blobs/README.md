@@ -1,25 +1,30 @@
 TOB-QMC Tutorial
 =================
 
-This tutorial shows how to run TREE-QMC to reconstruct a tree of blobs (TOB), which requires TREE-QMC to be built with R.
-
----
+This tutorial shows how to run TREE-QMC to reconstruct a tree of blobs (TOB) and explore signals of network-like evolution in your data. TOB-QMC requires TREE-QMC to be built with R.
 
 BUILD
------
+=====
 
-Requirements
+Requirements:
 * [cmake](https://cmake.org/download/)
 * [R](https://www.r-project.org/)
 * [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
 * [RInside](https://cran.r-project.org/web/packages/RInside/index.html) 
 * [MSCquartets](https://cran.r-project.org/web/packages/MSCquartets/)
 
-**Step 1.** If cmake isn't already installed on your system, install cmake version 3.18 or later by following the instructions on the [cmake official website](https://cmake.org/download/). If you are using a cluster, you may be able to load cmake as a module. Type `module avail cmake` to see the available packages and then load cmake, if available, with the `module load <package>` command.
+**Step 1.** If cmake version 3.18 or later isn't already installed on your system, install cmake by following the instructions on the [cmake official website](https://cmake.org/download/). If you are using a cluster, you may be able to load cmake as a module. Type 
+```
+module avail cmake
+```
+to see the available modules. If cmake is available, load it by typing
+```
+module load <module name>
+```
 
-**Step 2.** If R isn't already installed on your system, install R following the instructions on the [R official website](https://www.r-project.org/). If you are using a cluster, you may be able to load R as a module. Type `module avail R` to see the available packages and then load R, if available, with the `module load <package>` command. 
+**Step 2.** If R isn't already installed on your system, install R following the instructions on the [R official website](https://www.r-project.org/). If you are using a cluster, you may be able to load R as a module. Type `module avail R` to see the available packages. If R is available, load it by typing `module load <module name>`.
 
-**Step 3.** Start the R console by typing `R` into the terminal as a commandline instruction and then install packages by typing
+**Step 3.** Start the R console by typing `R` into the terminal as a commandline instruction and install the depedencies with the following R commands:
 ```
 install.packages('Rcpp', repos='https://cloud.r-project.org/')
 install.packages('RInside', repos='https://cloud.r-project.org/')
@@ -36,27 +41,34 @@ to install packages into? (yes/No/cancel)
 ```
 Just type `yes` to install packages into a personal library.
 
-**Step 4.** Build TREE-QMC.
+**Step 4.** Now you are ready to download and build TOB-QMC. Just type the following commands:
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC
-mkdir -p build
-cd build
-cmake ..              
+mkdir -p build && cd build
+cmake ..
 cmake --build . -j
 ```
 
-**Step 5.** Add TREE-QMC build directory to your path.
+**Step 5.** Lastly, add `build` directory to your `$PATH` environment variable by typing
 ```
-TREEQMC_PATH=$(pwd)
-export PATH="$TREEQMC_PATH:$PATH"
+export PATH="$(pwd):$PATH"
+cd ..
 ```
+so that your system can find `tree-qmc` from other directories (and then return to the next directory up so you are ready for the tutorial below). Even better, add the following line
+```
+export PATH="<path to TREE-QMC>:$PATH"
+```
+to your `~/.bash_profile` file or your `~/.bashrc` file so that your system can find `tree-qmc` whenever you start a new terminal instance.
+
 
 TUTORIAL
------
-In this tutorial, we will reconstruct a tree of blobs (TOB) for the bee subfamily *Nomiinae* (31 taxa) given [852 UCE gene trees](nomiinae_gene_trees.txt). To begin, go to tutorial directory.
+========
+In this tutorial, we will reconstruct a tree of blobs (TOB) and explore signals of network-like evolution for the bee subfamily *Nomiinae*. The phylogenomic data set has 31 taxa and [852 UCE gene trees](nomiinae_gene_trees.txt); see []() and []() to learn more about the data. 
+
+To begin, go to tutorial directory.
 ```
-cd ../tutorial/tree-of-blobs/nomiinae
+cd TREE-QMC/tutorial/tree-of-blobs/nomiinae
 ```
 To run TOB-QMC in default mode, type:
 ```
