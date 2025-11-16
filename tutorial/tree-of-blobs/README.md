@@ -50,14 +50,13 @@ cmake --build . -j
 ```
 TREEQMC_PATH=$(pwd)
 export PATH="$TREEQMC_PATH:$PATH"
-cd ..
 ```
 
 TUTORIAL
 -----
 In this tutorial, we will reconstruct a tree of blobs (TOB) for the bee subfamily *Nomiinae* (31 taxa) given [852 UCE gene trees](nomiinae_gene_trees.txt). To begin, go to tutorial directory.
 ```
-cd tutorial/tree-of-blobs/nomiinae
+cd ../tutorial/tree-of-blobs/nomiinae
 ```
 To run TOB-QMC in default mode, type:
 ```
@@ -107,7 +106,7 @@ tree-qmc \
 ```
 Then type
 ```
-cat nomiinae_base_tree_psearch_exhaustive.log
+cat nomiinae_psearch_exhaustive.log
 ```
 to look at the log file.
 
