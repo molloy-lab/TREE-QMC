@@ -126,9 +126,6 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         //std::cout << "QST: " << max << " ";
         //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
         //std::cout << std::endl;
-
-        // Write to table... include branch id...
-        // TODO: EKM
     }
 
     if (display->root->children.size() == 2) {
@@ -236,7 +233,7 @@ std::string SpeciesTree::display_tree_pvalue(Node *root) {
         std::ostringstream ss;
         ss << std::scientific << std::setprecision(12) 
                               << "'[" 
-                              << "id=" << std::to_string(root->blob_id)
+                              << "blob_id=" << std::to_string(root->blob_id)
                               << ";qtt_p=" << (double) root->min_pvalue
                               << ";qst_p=" << (double) root->max_pvalue 
                               << ";qcf_1=" << std::to_string((int) root->min_f[0])

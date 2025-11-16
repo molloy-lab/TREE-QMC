@@ -177,7 +177,14 @@ Node *Tree::build_tree(const std::string &newick,
                         //std::cout << "Parsing " << support << std::endl;
                         //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
                     } else {
-                        root->support = std::stod(support);  // default
+                        try {
+                            root->support = std::stod(support);  // default
+                        } catch (const std::invalid_argument& e) {
+                            std::cerr << "Unable to parse branch support " << support << "': " << e.what() << std::endl;
+                            exit(1);
+                        } //catch (const std::out_of_range& e) {
+                        //    std::cerr << "Out of range error for '" << invalid_str << "': " << e.what() << std::endl;
+                        //}
                     }
                 }
             } else {
