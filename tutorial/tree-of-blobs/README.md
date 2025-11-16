@@ -53,7 +53,7 @@ cmake --build . -j
 **Step 5.** Lastly, add `build` directory to your `$PATH` environment variable by typing
 ```
 export PATH="$(pwd):$PATH"
-cd ..
+cd ../..
 ```
 so that your system can find `tree-qmc` from other directories (and then return to the next directory up so you are ready for the tutorial below). Even better, add the following line
 ```
