@@ -55,74 +55,79 @@ cd ..
 
 TUTORIAL
 -----
-**Step 1.** Go to tutorial directory.
+In this tutorial, we will reconstruct a tree of blobs (TOB) for the bee subfamily *Nomiinae* (31 taxa) given [852 UCE gene trees](nomiinae_gene_trees.txt). To begin, go to tutorial directory.
 ```
-cd tutorial/tree-of-blobs
+cd tutorial/tree-of-blobs/nomiinae
 ```
-
-**Step 2.** Run TOB-QMC on the [example input data](nomiinae_gene_trees.txt). The example data file contains gene trees for the bee subfamily *Nomiinae* estimated for 852 UCEs.
-
-To infer a tree of blobs, our approach requires that you first build a base tree with branches annotated by the minimum p-value found from applying hypothesis tests to 4-taxon subsets around each edge. After, edges are contracted based on the alpha and beta hyperparameter values.
-
-*Below, we describe three different ways of running TOB-QMC to get a base tree.*
-
-Build a base tree using the bipartition search heuristic.
----
-This approach can be used with TOB-QMC by using the `--store_pvalue --iter_limit_blob` flags, along with one of the preset options to specify the type of branch support in the input. Try using the following command:
-```
-tree-qmc \
-    --iter_limit_blob 2178 \
-    --store_pvalue \
-    --root Lasioglossum_albipes \
-    -i nomiinae_gene_trees.tre \
-    -o nomiinae_base_tree_default.tre
-```
-which specifies the maximum number of iterations for each branch. By default, we recommand set it to be $2n^2$, where $n$ is the number of taxa. In this example, it is $1922$ because there are $31$ taxa.
-
-**Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
-
-Build a base tree by exhaustive testing all 4-taxon subsets around each branch (bipartition)
----
-This approach can be used with TREE-QMC, by simply set `--iter_limit_blob 0`. Try using the following command:
-```
-tree-qmc \
-    --iter_limit_blob 0 \
-    --store_pvalue \
-    --root Lasioglossum_albipes \
-    -i nomiinae_gene_trees.tre \
-    -o nomiinae_base_tree_exhaustive.tre
-```
-
-Build a base tree by using the 3-fix-1-alter (3f1a) search heuristic.
----
-The 3f1a search algorithm is statistically consistent and only samples $\Theta(n)$ quartets for each branch. To run the 3-fix-1-alter algorithm, use the command:
-```
-tree-qmc \
-    --3f1a \
-    --store_pvalue \
-    --root Lasioglossum_albipes \
-    -i nomiinae_gene_trees.tre \
-    -o nomiinae_base_tree_3f1a.tre
-```
-**IMPORTANT:** We only recommand use this algorithm all quartet concordance factors are close to their expectation. In our experimental study, the default (bipartition search heuristic) outperforms the 3f1a algorithm.
-
-Contract branches based on hyperparameter thresholds.
----
-Once you have the base tree, TOB-QMC can contract branches based on the alpha and beta hyperparameters to infer a tree of blobs. Use the command:
+To run TOB-QMC in default mode, type:
 ```
 tree-qmc \
     --blob \
-    --alpha 1e-6 \
-    --beta 0.95 \
-    --load_pvalue \
-    -i nomiinae_base_tree_default.tre \
-    -o nomiinae_tob_default.tre
+    -i nomiinae_gene_trees.tre \
+    -o tob_default_nominaee.tre
 ```
-which sets the $\alpha$ and $\beta$ hyperparameters to $10^{-6}$ and $0.95$, respectively.
-This contracts one branch for the genus Stictonomia based on the following tree-test:
+*Tip:* Add `--override` to the command above or change the output file name.
+
+The command above reconstructs a TOB in three steps:
+1. build a base tree (also called a refinement tree)
+2. search for network-like-signal around each edge in the base tree (i.e., search for mininum p-value by applying TINNiK's tree and star tests to 4-taxon subsets around each edge in the base tree)
+3. contract edges in the base tree applying significance levels for hypothesis testing. 
+
+However, the output TOB is binary (try plotting it in [IcyTree](https://icytree.org)), and you don't learn much about your data. Instead, it is helpful to run each step of TOB-QMC independently. Instead, it can be helpful to execute each step separately
+
+Step 1: Build a base (or refinement tree) with TREE-QMC
+---
+```
+../../../build/tree-qmc \
+    --root Lasioglossum_albipes \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_base_tree.tre
+```
+
+Step 2: Annotated branches by minimum p-value found from hypothesis testing
+---
+There are several different heuristics you can use to search for a minimum p-value, with commands at the end of this tutorial. 
+**Bipartition search heuristic:** To execute the default search for step 2, type
+```
+tree-qmc \
+    --blobsearchonly nomiinae_base_tree.tre \
+    --store_pvalue \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_psearch_default.tre
+```
+The bipartition search samples 2 taxa on either side of each branch. The default maximum number of 4-taxon subsets to tests is two times the number of species squared. To change the default, use the command `--iter_limit_blob <num>`. For large data sets, we recommend setting the iteration limit to one fourth the number of taxa squared. For small data sets, we recommend exhaustive search around the branch (bipartition). To execute exhaustive search, type
+```
+tree-qmc \
+    --blobsearchonly nomiinae_base_tree.tre \
+    --store_pvalue \
+    --iter_limit_blob 0 \
+    -i nomiinae_gene_trees.tre \
+    -o nomiinae_psearch_exhaustive.tre \
+    &> nomiinae_psearch_exhaustive.log
+```
+Then type
+```
+cat nomiinae_base_tree_psearch_exhaustive.log
+```
+to look at the log file.
+
+Step 3: Contract branches based on hyperparameter thresholds
+---
+A major challenge with hypothesis testing in this context is selecting the hyperparameters alpha and beta for the quartet tree test (QTT) and the quartet star test (QST), respectively. However, if you look at the log file, it appears that there is one branch with some signal of hybridization; specifically, line
 ```
 QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
 ```
-This line in the logfile from constructing the base tree shows that the min p-value found around the branch is 1.36381e-07. This p-value occurs for quartet concordance factors (qCFs) equal to 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution (otherwise we expect the two lower qCFs to be equal to each other). We confirmed this signal by testing all other 4-taxon subsets around the branch; see [script](test_around_branch_with_TINNiK.R) and [results](test_around_branch_output.txt). However, it is worth noting that the four taxa subsets appear in a relative small fraction of the 852 UCE trees (114-183).
+indicates a min p-value of 1.36381e-07 for qCFs of 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution because the two smaller values are not equal to each other. Type
+```
+tree-qmc \
+    --alpha 1e-6 \
+    --beta 0.95 \
+    --load_pvalue \
+    -i nomiinae_psearch_exhaustive.tre \
+    -o nomiinae_psearch_exhaustive_a1e-6_b0.95_tob.tre
+```
+to contract this branch, associated with the genus Stictonomia. Lastly, try plotting the final TOB in [IcyTree](https://icytree.org).
 
-**Tip:** Add `--override` to the command above or change the output file name if you would like to try different settings for the maximum number of iterations and want to overwrite the output base tree file.
+Step 4: Confirming network-like signals
+---
+We confirmed this signal by testing all other 4-taxon subsets around the branch; see [script](test_around_branch_with_TINNiK.R) and [results](test_around_branch_output.txt). However, it is worth noting that the four taxa subsets appear in a relative small fraction of the 852 UCE trees (114-183).

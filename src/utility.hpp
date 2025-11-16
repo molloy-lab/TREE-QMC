@@ -17,6 +17,7 @@
 #include <queue>
 #include <stack>
 #include <deque>
+#include <limits>
 
 #if ENABLE_TOB
 #include <RInside.h>
@@ -65,7 +66,7 @@ const std::string help_info =
 "        Input file, typically with gene trees in newick format (required)\n"
 "[(--quartets)]\n"
 "        Input are (weighted) quartets, either in qCF format or format below\n"
-"        Note: only n0 and n2 normalization are implemented for quartet input currently\n"
+"        Note: only n0 and n2 normalization are implemented for quartet input\n"
 "[(--quartetformat) <format string>]\n"
 "        Specify a format of the input quartets\n"
 "        Examples: \"((___,___),(___,___));___\" for ((A,B),(C,D));1.234 (default)\n"
@@ -124,13 +125,13 @@ const std::string help_info =
 #if ENABLE_TOB
 "Tree of Blobs Options:\n"
 "[(--blob)]\n"
-"        Compute the tree of blobs directed from the input gene trees\n"
+"        Compute the tree of blobs from the input gene trees\n"
 "[(--store_pvalue)]\n"
-"        Run TREE-QMC and store min p-value found for each branch, then exit\n"
+"        Store min p-value found for each branch, then exit\n"
 "[(--3f1a)]\n"
-"        Use 3-fix-1-alter search algorithm for minimum p-value\n"
+"        Use 3-fix-1-alter algorithm for minimum p-value search\n"
 "[(--iter_limit_blob) <non-negative integer>]\n"
-"        Maximum number of iterations for default bipartition search algorithm for\n"
+"        Maximum number of iterations for default (bipartition) search algorithm for\n"
 "        min p-value (default: two times the number of taxa squared)\n"
 "        Set to 0 to perform exhaustive search for min p-value\n"
 "[(--load_pvalue)]\n"
@@ -139,6 +140,8 @@ const std::string help_info =
 "        Hyperparameter for hypothesis testing with tree-test (default: 1e-7)\n"
 "[(--beta <float number>)]\n"
 "        Hyperparameter for hypothesis testing with star-test (default: 0.95)\n"
+"[(--blobsearchonly) <base tree file>]\n"
+"        Perform hypothesis testing on input base tree\n"
 "\n"
 #endif  // ENABLE_TOB
 "Experimental/Advanced Options:\n"

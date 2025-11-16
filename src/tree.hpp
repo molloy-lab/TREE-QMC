@@ -164,9 +164,9 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display,  weight_t alpha, weight_t beta, unsigned long int iter_limit_blob);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict,  SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob, bool three_fix_one_alter);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool quard);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool is_quard);
+
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);

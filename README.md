@@ -76,7 +76,7 @@ Input Options:
         Input file, typically with gene trees in newick format (required)
 [(--quartets)]
         Input are (weighted) quartets, either in qCF format or format below
-        Note: only n0 and n2 normalization are implemented for quartet input currently
+        Note: only n0 and n2 normalization are implemented for quartet input
 [(--quartetformat) <format string>]
         Specify a format of the input quartets
         Examples: "((___,___),(___,___));___" for ((A,B),(C,D));1.234 (default)
@@ -134,13 +134,13 @@ Branch Support and Utility Options:
 
 Tree of Blobs Options:
 [(--blob)]
-        Compute the tree of blobs directed from the input gene trees
+        Compute the tree of blobs from the input gene trees
 [(--store_pvalue)]
-        Run TREE-QMC and store min p-value found for each branch, then exit
+        Store min p-value found for each branch, then exit
 [(--3f1a)]
-        Use 3-fix-1-alter search algorithm for minimum p-value
+        Use 3-fix-1-alter algorithm for minimum p-value search
 [(--iter_limit_blob) <non-negative integer>]
-        Maximum number of iterations for default bipartition search algorithm for
+        Maximum number of iterations for default (bipartition) search algorithm for
         min p-value (default: two times the number of taxa squared)
         Set to 0 to perform exhaustive search for min p-value
 [(--load_pvalue)]
@@ -149,6 +149,8 @@ Tree of Blobs Options:
         Hyperparameter for hypothesis testing with tree-test (default: 1e-7)
 [(--beta <float number>)]
         Hyperparameter for hypothesis testing with star-test (default: 0.95)
+[(--blobsearchonly) <base tree file>]
+        Perform hypothesis testing on input base tree
 
 Experimental/Advanced Options:
 [(-w|--weight) <character>]

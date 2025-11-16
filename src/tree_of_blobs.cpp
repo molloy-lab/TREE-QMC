@@ -2,13 +2,40 @@
 #include "tree.hpp"
 #include "rlib_dirs.hpp"
 
+
+SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta) {
+    std::cout << "Contracting branches with alpha = " << alpha << " and beta = " << beta << std::endl;
+
+    this->dict = dict;
+    
+    std::vector<Node *> internal;
+    std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> bips;
+    
+    input->get_bipartitions(&internal, &bips);
+    
+    std::cout << bips.size() << " branches to test" << std::endl;
+    std::unordered_set<Node *> false_positive;
+    
+    for (index_t i = 0; i < internal.size(); i ++) {
+        if (internal[i]->min_pvalue < alpha || internal[i]->max_pvalue > beta) 
+            false_positive.insert(internal[i]);
+    }
+    
+    root = build_refinement(input->root, false_positive);
+}
+
 // quard
 
 // 3 fix 1 alter search algorithm O(n^2)
-SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool is_quard) {
+SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, 
+                         SpeciesTree* display, 
+                         // EKM weight_t alpha, weight_t beta, 
+                         unsigned long int iter_limit_blob, 
+                         bool three_fix_one_alter, 
+                         bool is_quard) {
     
-    if (! three_fix_one_alter && !is_quard) {
-       SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob);
+    if (!three_fix_one_alter && !is_quard) {
+       SpeciesTree(input, dict, display, iter_limit_blob);
        return;
     }
     
@@ -18,27 +45,26 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
         std::cout << "Constructing tree of blobs using 3-fix-1-alter search" << std::endl;
     }
 
-    
     add_r_libpaths_and_load(RINS);
     for (Tree *t : input) t->LCA_preprocessing();
+    
     display->refine();
+    
     this->dict = display->dict;
+    
     std::string mode = "n";
     display->annotate(input, mode);
+    
     std::vector<Node *> internal;
     
     std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> quads;
-    
-    
     display->get_quardpartitions(&internal, &quads, dict);
-    
-
     std::cout << quads.size() << " branches to test" << std::endl;
 
     std::unordered_set<Node *> false_positive;
     for (index_t i = 0; i < internal.size(); i ++) {
         std::cout << "Testing branch " << i << ", ";
-        if ((alpha >= 0 || beta <= 1) && internal[i]->isfake) {
+        if (internal[i]->isfake) {
             false_positive.insert(internal[i]);
             std::cout << "fake ***" << std::endl;
             continue;
@@ -64,39 +90,23 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
  	    std::cout << "QST: " << max << " ";
         std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
-        if (min < alpha || max > beta) {
-            false_positive.insert(internal[i]);
-            std::cout << " ***";
-        }
         std::cout << std::endl;
     }
-    if (display->root->children.size() == 2) {false_positive.insert(display->root->children[1]);}
+
+    if (display->root->children.size() == 2) {
+        false_positive.insert(display->root->children[1]);
+    }
+
     this->dict = display->dict;
     root = build_refinement(display->root, false_positive);
-    
 }
 
 
-
-// O(n*cn*klogn), O(kn^3logn) if c is O(n) 
-
-SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta) {
-    std::cout << "Constructing tree of blobs from annotated species tree" << std::endl;
-    this->dict = dict;
-    std::vector<Node *> internal;
-    std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> bips;
-    input->get_bipartitions(&internal, &bips);
-    std::cout << bips.size() << " branches to test" << std::endl;
-    std::unordered_set<Node *> false_positive;
-    for (index_t i = 0; i < internal.size(); i ++) {
-        if (internal[i]->min_pvalue < alpha || internal[i]->max_pvalue > beta) 
-            false_positive.insert(internal[i]);
-    }
-    root = build_refinement(input->root, false_positive);
-}
-
-
-SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, weight_t alpha, weight_t beta, unsigned long int iter_limit_blob) {
+// O(n*cn*klogn), O(kn^3logn) if c is O(n)
+SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, 
+                         SpeciesTree* display, 
+                         // EKM weight_t alpha, weight_t beta, 
+                         unsigned long int iter_limit_blob) {
     std::cout << "Constructing tree of blobs" << std::endl;
     add_r_libpaths_and_load(RINS);
     for (Tree *t : input) t->LCA_preprocessing();
@@ -110,9 +120,10 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
     std::cout << bips.size() << " branches to test" << std::endl;
     std::unordered_set<Node *> false_positive;
     size_t iter_limit = iter_limit_blob;
+    
     for (index_t i = 0; i < internal.size(); i ++) {
         std::cout << "Testing branch " << i << ", ";
-        if ((alpha >= 0 || beta <= 1) && internal[i]->isfake) {
+        if (internal[i]->isfake) {
             false_positive.insert(internal[i]);
             std::cout << "fake ***" << std::endl;
             continue;
@@ -140,10 +151,6 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
         std::cout << "QST: " << max << " ";
         std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
-        if (min < alpha || max > beta) {
-            false_positive.insert(internal[i]);
-            std::cout << " ***";
-        }
         std::cout << std::endl;
     }
     if (display->root->children.size() == 2) 
@@ -151,6 +158,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* di
     
     root = build_refinement(display->root, false_positive);
 }
+
 
 Node *SpeciesTree::build_refinement(Node *root, std::unordered_set<Node *> false_positive) {
     if (root->children.size() == 0) {
@@ -291,7 +299,9 @@ void Tree::get_quardpartitions(Node *root, std::vector<Node *> *internal, std::v
     }
 }
 
-void Tree::get_quardpartitions(std::vector<Node *> *internal, std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> *quards, Dict *dict) {
+void Tree::get_quardpartitions(std::vector<Node *> *internal, 
+                               std::vector<std::tuple<std::vector<Node *>,
+                               std::vector<Node *>, std::vector<Node *>,std::vector<Node *>>> *quards, Dict *dict) {
     std::unordered_set<uint64_t> seen_edges;
     get_quardpartitions(root, internal, quards, &seen_edges, dict);
 }
@@ -312,8 +322,6 @@ std::string Tree::display_quardpartitions(std::vector<Node *> &A, std::vector<No
     s = s.substr(0, s.size() - 1);
     return s;
 }
-
-
 
 
 weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *min_f, index_t* minimizer) {

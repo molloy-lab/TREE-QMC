@@ -1,5 +1,6 @@
 #include "instance.hpp"
 
+
 extern bool DEBUG_MODE;
 
 Instance::Instance(int argc, char **argv) {
@@ -25,25 +26,27 @@ Instance::Instance(int argc, char **argv) {
     rootonly = false;
     pcsonly = false;
     quartet_format = "((___,___),(___,___));___";
+
     blob = false;
     store_pvalue = false;
     load_pvalue = false;
-    override_file = false;
     three_fix_one_alter = false;
     quard = false;
+
+    override_file = false;
 
     support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
-    
-    alpha = -1;
-    beta = 2;
+
+    alpha = 1e-7;
+    beta = 0.95;
 
     refine_seed = 12345;
     cut_seed = 1;
     iter_limit = 10;
-    iter_limit_blob = 0;
+    iter_limit_blob = std::numeric_limits<unsigned long int>::max();
 
     dict = NULL;
     output = NULL;
@@ -140,43 +143,52 @@ long long Instance::solve() {
     std::string mode = normal_mode + execute_mode + taxa_mode + weight_mode;
 
     auto start = std::chrono::high_resolution_clock::now();
-    
-    if (stree_file != "") {
-        output = new SpeciesTree(stree_file, dict);
-    } if (data_mode == "q") {
-        output = new SpeciesTree(quartets, dict, mode, iter_limit, output_file);
+
+    // Build or read species tree
+    if (load_pvalue) {
+        std::cout << "Loading species tree with p-values" << root_str << std::endl;
+        output = new SpeciesTree(input[0], dict, alpha, beta);
     } else {
-        if (store_pvalue) {
-            #if ENABLE_TOB
-            SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-            output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
-            delete output;
-            output = display;
-            #else
-                std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
-                exit(1);
-            #endif  // ENABLE_TOB
-        }
-        else if (blob) {
-            #if ENABLE_TOB
-            if (load_pvalue) {
-                output = new SpeciesTree(input[0], dict, alpha, beta);
-            }
-            else {
-                SpeciesTree *display = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-                output = new SpeciesTree(input, dict, display, alpha, beta, iter_limit_blob, three_fix_one_alter, quard);
-                std::cout << "Display tree with pvalues:" << std::endl;
-                std::cout << display->to_string_pvalue() << std::endl;
-                delete display;
-            }
-            #else
-                std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
-                exit(1);
-            #endif  // ENABLE_TOB
-        }
-        else {
+        if (stree_file != "") {
+            std::cout << "Loading species tree" << root_str << std::endl;
+            output = new SpeciesTree(stree_file, dict);
+        } else if (data_mode == "q") {
+            output = new SpeciesTree(quartets, dict, mode, iter_limit, output_file);
+        } else {
             output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
         }
+    }
+
+    if (root_str != "") {
+        std::cout << "Rooting species tree at " << root_str << std::endl;
+        output->root_at_clade(outgroup_taxon_set);
+    }
+
+    std::cout << "Printing output tree:" << std::endl;
+    std::cout << output->to_string_basic() << std::endl;
+
+    if (!load_pvalue && (store_pvalue || blob)) {
+        #if ENABLE_TOB
+            if (!three_fix_one_alter) {
+                if (iter_limit_blob == std::numeric_limits<unsigned long int>::max()) {
+                    iter_limit_blob = 2 * dict->size() * dict->size();
+                    std::cout << "Setting blob iteration limit to 2*ntaxa^2 = " << iter_limit_blob << std::endl;
+                }
+            }
+            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, quard);
+            delete display;
+            std::cout << "Printing output tree with pvalues:" << std::endl;
+            std::cout << output->to_string_pvalue() << std::endl;
+        #else
+            std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
+            exit(1);
+        #endif  // ENABLE_TOB
+    }
+
+    if (!load_pvalue && !store_pvalue && blob) {
+        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta);
+        delete output;
+        output = tmp;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -194,15 +206,6 @@ SpeciesTree *Instance::get_solution() {
 void Instance::output_solution() {
     if (execute_mode == "2" || execute_mode == "3") return;
 
-    std::cout << "Printing species tree" << std::endl;
-    std::cout << output->to_string_basic() << std::endl;
-
-    if (root_str != "") {
-        std::cout << "Rooting species tree" << std::endl;
-        output->root_at_clade(outgroup_taxon_set);
-        std::cout << output->to_string_basic() << std::endl;  // want to write for root only
-    }
-
     // compute pcs for specified branch, then exit
     if (pcsonly) {
         std::cout << "Writing PCS" << std::endl;
@@ -210,7 +213,7 @@ void Instance::output_solution() {
         if (output_file != "") {
             std::ifstream fin(output_file);
             if (!fin.fail()) {
-//                std::cout << override_file << std::endl;
+                //std::cout << override_file << std::endl;
                 if (!override_file) {
                     std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
                     output_file = "";
@@ -391,6 +394,16 @@ int Instance::parse(int argc, char **argv) {
             score_mode = "1";
             if (i < argc - 1) {
                 stree_file = argv[++ i];
+            }
+            else  {
+                std::cout << "\nERROR: No species tree file specified" << std::endl;
+                return 2;
+            }
+        }
+        else if (opt == "--blobsearchonly") {
+            if (i < argc - 1) {
+                stree_file = argv[++ i];
+                std::cout << "Need to read " << stree_file << std::endl;
             }
             else  {
                 std::cout << "\nERROR: No species tree file specified" << std::endl;
@@ -1118,14 +1131,18 @@ void Instance::input_pvalues() {
         std::cout << "\nERROR: Unable to open pvalue file " << pvalue_file << std::endl;
         exit(1);
     }
+
     std::cout << "Reading pvalue file" << std::endl;
     index_t N = dict->size();
     size_t Q = N * (N - 1) * (N - 2) * (N - 3) / 24;
     std::vector<std::string> labels;
+
     for (index_t i = 0; i < N; i ++)
         labels.push_back(dict->index2label(i));
+
     std::sort(labels.begin(), labels.end());
     std::vector<std::vector<index_t>> quartets;
+
     for (index_t i = 0; i < N; i ++) {
         std::vector<index_t> line;
         for (size_t j = 0; j < Q; j ++) {
@@ -1137,6 +1154,7 @@ void Instance::input_pvalues() {
         quartets.push_back(line);
         // std::cout << i << std::endl;
     }
+
     std::vector<std::vector<weight_t>> pvalues;
     for (index_t i = 0; i < 5; i ++) {
         std::vector<weight_t> line;
@@ -1149,6 +1167,7 @@ void Instance::input_pvalues() {
         pvalues.push_back(line);
         // std::cout << i << std::endl;
     }
+
     for (size_t i = 0; i < Q; i ++) {
         index_t indices[4], k = 0;
         for (index_t j = 0; j < N; j ++) {
