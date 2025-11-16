@@ -3,6 +3,24 @@
 #include "rlib_dirs.hpp"
 
 
+void get_qCFs(std::vector<Tree *> &input, index_t *indices, weight_t *qCFs) {
+    index_t temp[4];
+    for (index_t i = 0; i < 4; i ++) 
+        temp[i] = indices[i];
+    std::sort(temp, temp + 4);
+    quartet_t q = join(temp);
+
+    weight_t f[3] = {0, 0, 0};
+    for (Tree *t : input) {
+        index_t topology = t->get_quartet(temp);
+        if (topology >= 0) f[topology] += 1;
+    }
+    qCFs[0] = f[0];
+    qCFs[1] = f[1];
+    qCFs[2] = f[2];
+}
+
+
 SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta) {
     std::cout << "Contracting branches with alpha = " << alpha << " and beta = " << beta << std::endl;
 
@@ -79,6 +97,12 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             min = search_quard(input, &quads[i], internal[i]->min_f, minimizer);
         }
         internal[i]->min_pvalue = min;
+        weight_t keep[3];
+        get_qCFs(input, minimizer, keep);
+        internal[i]->min_f[0] = keep[0];
+        internal[i]->min_f[1] = keep[1];
+        internal[i]->min_f[2] = keep[2];
+        internal[i]->min_pvalue = min;
 
         //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
         //    max = 1.0;
@@ -135,6 +159,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             std::cout << "fake ***" << std::endl;
             continue;
         }
+
         weight_t min, max;
         index_t minimizer[4];
         if (iter_limit != 0) {
@@ -145,6 +170,13 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             min = search(input, bips[i].first, bips[i].second, internal[i]->min_f, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, internal[i]->max_f);
         }
+        internal[i]->min_pvalue = min;
+
+        weight_t keep[3];
+        get_qCFs(input, minimizer, keep);
+        internal[i]->min_f[0] = keep[0];
+        internal[i]->min_f[1] = keep[1];
+        internal[i]->min_f[2] = keep[2];
         internal[i]->min_pvalue = min;
 
         //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
@@ -766,7 +798,7 @@ weight_t SpeciesTree::get_pvalue_star(std::vector<Tree *> &input, index_t *indic
         assert(verification);
         */
         if ((qCF[0] + qCF[1] + qCF[2]) == 0)
-            pvalues[q] = std::make_pair(1.0, f);
+            pvalues_star[q] = std::make_pair(1.0, f);
         else
             pvalues_star[q] = std::make_pair(pvalue_star(qCF), f);
     }
