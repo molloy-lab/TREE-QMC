@@ -5,57 +5,56 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods. Unlike ASTRAL, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao. This approach is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** and evaluate signals of gene flow and other network-level evolutionary processes.
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods; see [Han & Molloy, 2023](https://doi.org/10.1101/gr.277629.122), [2025](https://academic.oup.com/sysbio/advance-article/doi/10.1093/sysbio/syaf009/8042591?utm_source=authortollfreelink&utm_campaign=sysbio&utm_medium=email&guestAccessKey=24c3e656-5c43-482a-8cdd-c7fa757798d0). Unlike ASTRAL, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao. This approach is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** and evaluate signals of gene flow and other network-level evolutionary processes; see [Dai et al., 2024](https://doi.org/10.1101/2025.11.05.686850).
+
 
 TUTORIALS
 ---------
-Check out: 
-+ [tutorial for gene tree](tutorial/gene-trees/README.md)
-+ [tutorial for multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
-+ [tutorial for character matrices](tutorial/characters/README.md)
+Check out:
++ [tutorial for tree of blobs (TOB) reconstruction and exploration of network-like evolution](tutorial/tree-of-blobs/README.md)
++ [tutorial for species/population tree estimation from gene trees](tutorial/gene-trees/README.md)
++ [tutorial for species/population tree estimation from multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
++ [tutorial for species/population tree estimation character matrices](tutorial/characters/README.md)
 + [tutorial for Partitioned Coalescence Support (PCS)](tutorial/characters/README.md)
-+ [tutorial for tree of blobs (TOB)](tutorial/tree-of-blobs/README.md)
 + [tutorial for quartet inputs](tutorial/quartets/README.md)
 
-TIPS
-----
-**Tip #1.** Add the directory containing the `tree-qmc` binary to your `PATH` environment variable so that you can type `tree-qmc` instead of `<path to tree-qmc binary>/tree-qmc`. For bash, this can be done by adding
-```
-export PATH=$PATH:"path to tree-qmc binary"
-```
-to your `~/.bash_profile` file or your `~/.bashrc` file.
-
-**Tip #2.** Hidden symbols in your input data file can cause strange problems. If you are having strange output messages, try removing the hidden `\r` symbol from your input files with the following command 
-```
-cat <input file> | tr -d '\r' > <clean input file>
-```
-running TREE-QMC again.
 
 BUILD
 -----
+Check out the [tree of blobs tutorial](tutorial/tree-of-blobs/README.md) for build instructions.
 To build TREE-QMC *without* tree of blobs functionality use the following commands:
 ```
 git clone htts://github.com/molloy-lab/TREE-QMC
-cd TREE-QMC
-cd external/MQLib
+cd TREE-QMC/external/MQLib
 make
-cd ../../
+cd ../../ && mkdir -p build && cd build
 g++ -std=c++11 -O2 \
-    -I external/MQLib/include \
-    -I external/toms743 \
+    -I ../external/MQLib/include \
+    -I ../external/toms743 \
     -o tree-qmc \
-    src/*.cpp \
-    external/toms743/toms743.cpp \
-    external/MQLib/bin/MQLib.a -lm \
-    -DVERSION=\"$(cat version.txt)\"
+    ../src/*.cpp \
+    ../external/toms743/toms743.cpp \
+    ../external/MQLib/bin/MQLib.a \
+    -lm \
+    -DVERSION=\"$(cat ../version.txt)\"
 ```
-Otherwise go to the [tree of blobs tutorial](tutorial/tree-of-blobs/README.md) for build instructions.
+Lastly, add `build` directory to your `$PATH` environment variable by typing
+```
+export PATH="$(pwd):$PATH"
+```
+so that your system can find `tree-qmc` from other directories.
+Even better, add the following line
+```
+export PATH="<path to TREE-QMC>:$PATH"
+```
+to your `~/.bash_profile` file or your `~/.bashrc` file so that your system can find `tree-qmc` whenever you start a new terminal instance.
+
 
 USAGE
 -----
 To see the TREE-QMC usage options, type command:
 ```
-./tree-qmc -h
+tree-qmc -h
 ```
 
 The output help message should be
@@ -223,6 +222,16 @@ If you use TOB-QMC in your work, please cite:
   https://doi.org/10.1186/s13015-024-00266-2
 ================================================================================
 ```
+
+
+TIPS
+----
+Hidden symbols in your input data file can cause very strange problems!! If you are having strange problems, try removing the hidden `\r` symbol from your input files with the following command 
+```
+cat <input file> | tr -d '\r' > <clean input file>
+```
+and then running TREE-QMC on the cleaned data file. This is a common issue if your input files were created on a Windows operating system.
+
 
 ACKNOWLEDGEMENTS
 ----------------
