@@ -53,7 +53,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
     this->dict = display->dict;
     
     std::string mode = "n";
-    display->annotate(input, mode);
+    //display->annotate(input, mode);
     
     std::vector<Node *> internal;
     
@@ -69,6 +69,7 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             std::cout << "fake ***" << std::endl;
             continue;
         }
+
         weight_t min, max;
         index_t minimizer[4];
         
@@ -77,19 +78,23 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         } else {
             min = search_quard(input, &quads[i], internal[i]->min_f, minimizer);
         }
-        
-        if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+        internal[i]->min_pvalue = min;
+
+        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+        //    max = 1.0;
+        //else
+        //    max = pvalue_star(internal[i]->f);
+        if ((internal[i]->min_f[0] + internal[i]->min_f[1] + internal[i]->min_f[2]) == 0)
             max = 1.0;
         else
-            max = pvalue_star(internal[i]->f);
-
-        internal[i]->min_pvalue = min;
+            max = pvalue_star(internal[i]->min_f);
         internal[i]->max_pvalue = max;
+
         std::cout << "QTT: " << min << " ";
-        std::cout << "[" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
- 	    std::cout << "QST: " << max << " ";
-        std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        std::cout << "QST: " << max << " ";
+        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
         std::cout << std::endl;
     }
 
@@ -112,8 +117,10 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
     for (Tree *t : input) t->LCA_preprocessing();
     this->dict = display->dict;
     display->refine();
+    
     std::string mode = "n";
-    display->annotate(input, mode);
+    //display->annotate(input, mode);
+    
     std::vector<Node *> internal;
     std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> bips;
     display->get_bipartitions(&internal, &bips);
@@ -134,23 +141,28 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             min = search(input, bips[i].first, bips[i].second, iter_limit, internal[i]->min_f, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, iter_limit, internal[i]->max_f);
         }
-	else {
+        else {
             min = search(input, bips[i].first, bips[i].second, internal[i]->min_f, minimizer);
             // max = search_star(input, bips[i].first, bips[i].second, internal[i]->max_f);
-	}
+        }
+        internal[i]->min_pvalue = min;
 
-        if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) == 0)
+        //    max = 1.0;
+        //else
+        //    max = pvalue_star(internal[i]->f);
+        if ((internal[i]->min_f[0] + internal[i]->min_f[1] + internal[i]->min_f[2]) == 0)
             max = 1.0;
         else
-            max = pvalue_star(internal[i]->f);
-        internal[i]->min_pvalue = min;
+            max = pvalue_star(internal[i]->min_f);
+
         internal[i]->max_pvalue = max;
 
         std::cout << "QTT: " << min << " ";
-        std::cout << "[" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
         std::cout << "QST: " << max << " ";
-        std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
         std::cout << std::endl;
     }
     if (display->root->children.size() == 2) 
@@ -224,10 +236,8 @@ std::string Tree::display_bipartition(std::vector<Node *> &A, std::vector<Node *
     return s;
 }
 
-
 void Tree::get_quardpartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B, std::vector<Node *> *C, std::vector<Node *> *D, Dict *dict) {
-    
-    std::cout << "Getting quardpartition for node " << root->index << std::endl;
+    //std::cout << "Getting quardpartition for node " << root->index << std::endl;
 
     std::vector<Node *> leaves;
     get_leaves(this->root, &leaves);
@@ -324,7 +334,11 @@ std::string Tree::display_quardpartitions(std::vector<Node *> &A, std::vector<No
 }
 
 
-weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *min_f, index_t* minimizer) {
+weight_t SpeciesTree::search(std::vector<Tree *> &input, 
+                             std::vector<Node *> &A, 
+                             std::vector<Node *> &B, 
+                             weight_t *min_f, 
+                             index_t* minimizer) {
     index_t i[4];
     weight_t min = -1;
     size_t count = 0;
@@ -339,11 +353,17 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A,
                     temp[3] = B[i[3]]->index;
                     count ++;
                     weight_t f[3];
+
                     weight_t score = get_pvalue(input, temp, f);
                     if (min < 0 || score < min) {
                         min = score;
-                        min_f[0] = f[0]; min_f[1] = f[1]; min_f[2] = f[2];
-                        minimizer[0] = temp[0]; minimizer[1] = temp[1]; minimizer[2] = temp[2]; minimizer[3] = temp[3];
+                        min_f[0] = f[0]; 
+                        min_f[1] = f[1]; 
+                        min_f[2] = f[2];
+                        minimizer[0] = temp[0]; 
+                        minimizer[1] = temp[1]; 
+                        minimizer[2] = temp[2]; 
+                        minimizer[3] = temp[3];
                     }
                 }
             }
@@ -447,7 +467,10 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
     return min;
 }
 
-weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, weight_t *min_f) {
+weight_t SpeciesTree::search_star(std::vector<Tree *> &input, 
+                                  std::vector<Node *> &A,
+                                  std::vector<Node *> &B,
+                                  weight_t *min_f) {
     index_t i[4];
     weight_t min = -1;
     size_t count = 0;
@@ -475,7 +498,12 @@ weight_t SpeciesTree::search_star(std::vector<Tree *> &input, std::vector<Node *
     return min;
 }
 
-weight_t SpeciesTree::search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, weight_t *min_f, index_t* minimizer) {
+weight_t SpeciesTree::search(std::vector<Tree *> &input, 
+                             std::vector<Node *> &A,
+                             std::vector<Node *> &B,
+                             size_t iter_limit,
+                             weight_t *min_f,
+                             index_t* minimizer) {
     index_t indices[4];
     weight_t min = -1;
     size_t count = 0;
@@ -646,13 +674,17 @@ weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, w
         temp[i] = indices[i];
     std::sort(temp, temp + 4);
     quartet_t q = join(temp);
+
     if (pvalues.find(q) == pvalues.end()) {
         weight_t qCF[3] = {0, 0, 0};
         for (Tree *t : input) {
             index_t topology = t->get_quartet(temp);
             if (topology >= 0) qCF[topology] += 1;
         }
-        f[0] = qCF[0]; f[1] = qCF[1]; f[2] = qCF[2];
+        f[0] = qCF[0];
+        f[1] = qCF[1];
+        f[2] = qCF[2];
+
         /*
         std::sort(qCF, qCF + 3);
         std::vector<weight_t> all = pvalue_all(indices);
@@ -664,14 +696,48 @@ weight_t SpeciesTree::get_pvalue(std::vector<Tree *> &input, index_t *indices, w
         }
         assert(verification);
         */
+
         if ((qCF[0] + qCF[1] + qCF[2]) == 0)
             pvalues[q] = std::make_pair(1.0, f);
         else
             pvalues[q] = std::make_pair(pvalue(qCF), f);
-
     }
+
     auto elem = pvalues[q];
-    f[0] = elem.second[0]; f[1] = elem.second[1]; f[2] = elem.second[2];
+    f[0] = elem.second[0];
+    f[1] = elem.second[1];
+    f[2] = elem.second[2];
+
+    if ((f[0] > input.size()) || (f[1] > input.size()) || (f[2] > input.size())) {
+        //std::cout << "Something bad happened: pvalues[q] =" << std::endl;
+        //std::cout << elem.first << std::endl;
+        //std::cout << elem.second[0] << std::endl;
+        //std::cout << elem.second[1] << std::endl;
+        //std::cout << elem.second[2] << std::endl;
+
+        //std::cout << "Recomputing..." << std::endl;
+        weight_t qCF[3] = {0, 0, 0};
+        for (Tree *t : input) {
+            index_t topology = t->get_quartet(temp);
+            if (topology >= 0) qCF[topology] += 1;
+        }
+        f[0] = qCF[0];
+        f[1] = qCF[1];
+        f[2] = qCF[2];
+        weight_t score = pvalue(qCF);
+
+        //std::cout << "Recomputed: pvalues[q] =" << std::endl;
+        //std::cout << score << std::endl;
+        //std::cout << f[0] << std::endl;
+        //std::cout << f[1] << std::endl;
+        //std::cout << f[2] << std::endl;
+
+        elem.first = score;
+        elem.second[0] = f[0];
+        elem.second[1] = f[1];
+        elem.second[2] = f[2];
+    }
+
     return elem.first;
 }
 

@@ -113,7 +113,7 @@ Step 3: Contract branches based on hyperparameter settings
 ---
 A major challenge with hypothesis testing in this context is selecting the hyperparameters alpha and beta for the quartet tree test (QTT) and the quartet star test (QST), respectively. However, if you look at the log file, it appears that there is one branch with some signal of hybridization; specifically, line
 ```
-QTT: 1.36381e-07 [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi]
+QTT: 1.36381e-07 qCF: [69/80/21] minimizer: [Nomiapis_bispinosa/Stictonomia_sangaensis/Stictonomia_aliceae/Stictonomia_schubotzi] QST: 2.85792e-08 
 ```
 indicates a min p-value of 1.36381e-07 for qCFs of 69, 80, and 21. These qCFs are suggestive of non-tree-like evolution because the two smaller values are not equal to each other. To contract the branch, type
 ```
