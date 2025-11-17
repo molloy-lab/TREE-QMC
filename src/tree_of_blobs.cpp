@@ -337,7 +337,6 @@ void Tree::get_quardpartition(Node *root, std::vector<Node *> *A, std::vector<No
 
     } else if (root != this->root && root->parent == this->root){
         s_1 = (this->root->children[0] == root) ? this->root->children[1]->children[0] : this->root->children[0]->children[0];
-
     }
 
     std::unordered_set<Node *> leaf_set1;
@@ -525,7 +524,11 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
             weight_t score = get_pvalue(input, cur_quart);
             if (min < 0 || score < min) {
                 i[alter] = temp[alter];
-                minimizer[0] = cur_quart[0]; minimizer[1] = cur_quart[1]; minimizer[2] = cur_quart[2]; minimizer[3] = cur_quart[3];
+                minimizer[0] = cur_quart[0];
+                minimizer[1] = cur_quart[1];
+                minimizer[2] = cur_quart[2];
+                minimizer[3] = cur_quart[3];
+                min = score;
             }
         }
     }
