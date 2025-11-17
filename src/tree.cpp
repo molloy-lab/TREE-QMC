@@ -165,6 +165,7 @@ Node *Tree::build_tree(const std::string &newick,
                 if (support == "PCS")
                     pcs_node = root;
                 else {
+                    #if ENABLE_TOB
                     auto p1 = parse_branch_info(support, "blob_id=");
                     if (p1.first != std::string::npos) {
                         auto p2 = parse_branch_info(support, "qtt_p=");
@@ -177,6 +178,7 @@ Node *Tree::build_tree(const std::string &newick,
                         //std::cout << "Parsing " << support << std::endl;
                         //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
                     } else {
+                    #endif  // ENABLE_TOB
                         try {
                             root->support = std::stod(support);  // default
                         } catch (const std::invalid_argument& e) {
@@ -185,7 +187,9 @@ Node *Tree::build_tree(const std::string &newick,
                         } //catch (const std::out_of_range& e) {
                         //    std::cerr << "Out of range error for '" << invalid_str << "': " << e.what() << std::endl;
                         //}
+                    #if ENABLE_TOB
                     }
+                    #endif  // ENABLE_TOB
                 }
             } else {
                 // allows user to change default support

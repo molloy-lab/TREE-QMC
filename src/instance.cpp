@@ -278,13 +278,16 @@ void Instance::output_solution() {
         }
     }
     fin.close();
+
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
             if (score_mode == "1")
                 fout << output->to_string_annotated(brln_mode) << std::endl;
+            #if ENABLE_TOB
             else if (store_pvalue) 
                 fout << output->to_string_pvalue() << std::endl;
+            #endif  // ENABLE_TOB
             else 
                 fout << output->to_string_basic() << std::endl;
             fout.close();
@@ -295,8 +298,10 @@ void Instance::output_solution() {
 
     if (score_mode == "1")
         std::cout << output->to_string_annotated(brln_mode) << std::endl;
+    #if ENABLE_TOB
     else if (store_pvalue) 
         std::cout << output->to_string_pvalue() << std::endl;
+    #endif  // ENABLE_TOB
     else
         std::cout << output->to_string_basic() << std::endl;
 }

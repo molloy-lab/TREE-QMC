@@ -24,7 +24,7 @@ BUILD
 Check out the [tree of blobs tutorial](tutorial/tree-of-blobs/README.md) for build instructions.
 To build TREE-QMC *without* tree of blobs functionality use the following commands:
 ```
-git clone htts://github.com/molloy-lab/TREE-QMC
+git clone https://github.com/molloy-lab/TREE-QMC
 cd TREE-QMC/external/MQLib
 make
 cd ../../ && mkdir -p build && cd build
