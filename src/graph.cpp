@@ -11,6 +11,16 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
     graph[1] = Matrix::new_mat(size);
     if (verbose > "1") count[1] = count[2] = count[3] = 0;
     for (Tree *tree : trees) {
+        // std::cout << tree->to_string() << "\n";
+        // std::vector<Node *> new_nodes;
+        // tree->get_all_nodes(tree->find_node(-1),new_nodes);
+        // // std::cout << "\nnumber of nodes: " << new_nodes.size() << "\n";
+        // for (Node *n : new_nodes) {
+        //     n->print_leaves_below_index();
+        //     std::cout << "\n";
+        // }
+        // std::cout << "display dup ndes result: ";
+        // tree->display_dup_nodes();
         std::unordered_map<index_t, index_t> valid = tree->get_indices();
         subset.weight_update(valid);
         weight_t ***subgraph;
@@ -23,6 +33,8 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
                 if (subgraph[0][i][j] > 0 || subgraph[1][i][j] > 0) {
                     index_t i_ = index2index[subset.root_at(i)];
                     index_t j_ = index2index[subset.root_at(j)];
+                    // std::cout << "bad," << i_ << "(" << i << ")" << "," << j_ << "(" << j << ")" << ": " << subgraph[1][i][j] << "\n";
+                    // std::cout << "good," << i_ << "," << j_ << ": " << subgraph[0][i][j] << "\n";
                     graph[0][i_][j_] += subgraph[0][i][j];
                     graph[1][i_][j_] += subgraph[1][i][j];
                 }

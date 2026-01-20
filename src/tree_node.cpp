@@ -7,9 +7,7 @@ Node::Node(index_t index) {
     parent = NULL;
     size = -1;
     isfake = false;
-    #if ENABLE_TOB
-        min_pvalue = 1;
-    #endif  // ENABLE_TOB
+    duplication = false;
 }
 
 Node::Node(index_t index, bool isfake) {
@@ -18,6 +16,7 @@ Node::Node(index_t index, bool isfake) {
     parent = NULL;
     size = -1;
     this->isfake = isfake;
+    duplication = false;
 }
 
 Node::~Node() {

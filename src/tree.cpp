@@ -7,13 +7,20 @@ Tree::Tree() {
 Tree::Tree(const std::string &newick,
            Dict *dict,
            const std::unordered_map<std::string, std::string> &indiv2taxon,
-           weight_t support_low, weight_t support_default) {
+           weight_t support_low, weight_t support_default, std::string &tagged) {
     pseudonyms = 0;
     this->dict = dict;
     this->support_low = support_low;
     this->support_default = support_default;
     this->pcs_node = NULL;
-    root = build_tree(newick, indiv2taxon);
+    if (tagged == "1"){
+        root = build_tree(newick, indiv2taxon, tagged);
+    }
+    else {
+        root = build_tree(newick, indiv2taxon);
+    }
+    // display_dup_nodes();
+    
 }
 
 Tree::~Tree() {
@@ -38,6 +45,133 @@ size_t Tree::refine() {
     size_t count = refine_tree(root);
     if (flag) count -= 1;
     return count;
+}
+
+void Tree::get_nodes(Node *root, std::vector<Node *> &nodes) {
+    // std::cout << root->index << ",";
+    if (root->parent != NULL && root->parent->parent != NULL) {
+        nodes.push_back(root);
+    }
+    // nodes.push_back(root);
+    if (root->children.size() != 0) 
+        for (Node *child : root->children) 
+            get_nodes(child, nodes);
+
+}
+
+void Tree::get_all_nodes(Node *root, std::vector<Node *> &nodes) {
+    std::cout << root->index << ",";
+    nodes.push_back(root);
+    // nodes.push_back(root);
+    if (root->children.size() != 0) 
+        for (Node *child : root->children) 
+            get_all_nodes(child, nodes);
+
+} // this function is only for testing
+
+void Tree::reset_duplications(Node *node) {
+    node->duplication = false;
+    if (node->children.size() != 0) 
+        for (Node *child : node->children) 
+            reset_duplications(child);
+}
+
+void Tree::display_dup_nodes(){
+    std::cout << display_tree_index(root) << "\n";
+    std::cout << display_dup_tree(root) << "\n";
+    std::vector<Node *> nodes;
+    get_all_nodes(root,nodes);
+    std::cout << "\n";
+    for (Node *n : nodes) {
+        std::cout << n->index << "," << dict->index2label(n->index) << ":" << n->duplication << "\n";
+    }
+}
+
+std::string Tree::display_dup_tree(Node *root){
+    if (root->children.size() == 0) 
+        return std::to_string(root->index);
+    std::string s = "(";
+    for (Node * node : root->children) 
+        s += display_dup_tree(node) + ",";
+    s[s.size() - 1] = ')';
+    s += std::to_string(root->index);
+    return s;
+}
+
+void Tree::root_and_tag() {
+    // loop over all edges, root at that edge, tag, compute the score, keep min score
+    std::vector<Node *> nodes;
+    get_nodes(root,nodes);
+    // std::cout << "before tag\n";
+    int cur_min = tag(root);
+    Node *cur_root = root;
+    // std::cout << "before for loop\n";
+    for (Node *n : nodes) {
+        Tree *temp_tree = this;
+        temp_tree->reroot_on_edge_above_node(n);
+        int temp_min = temp_tree->tag(temp_tree->root);
+
+        if (temp_min < cur_min) {
+            cur_min = temp_min;
+            cur_root = n;
+        }
+        temp_tree->reset_duplications(temp_tree->root);
+    }
+    if (cur_root != root) reroot_on_edge_above_node(cur_root);
+    reset_duplications(root);
+    tag(root);
+}
+
+int Tree::tag(Node *n) {
+    if (n->is_leaf()) return 0;
+    else {
+        int score;
+        Node *c0 = n->children[0];
+        Node *c1 = n->children[1];
+        score = tag(c0) + tag(c1);
+
+        std::vector<Node *> c0_leaves, c1_leaves, n_leaves;
+        std::unordered_set<std::string> c0_spec, c1_spec, n_spec;
+        get_leaves(c0, &c0_leaves);
+        get_leaves(c1, &c1_leaves);
+        get_leaves(n, &n_leaves);
+        bool mut_exclusive = 1;
+        for (Node *leaf : c0_leaves) {
+            c0_spec.emplace(dict->index2label(leaf->index));
+        }
+        for (Node *leaf : c1_leaves) {
+            if (c0_spec.find(dict->index2label(leaf->index)) != c0_spec.end()){
+                mut_exclusive = 0;
+            }
+            c1_spec.emplace(dict->index2label(leaf->index));
+        }
+        for (Node *leaf : n_leaves) {
+            n_spec.emplace(dict->index2label(leaf->index));
+        }
+
+        // if set of species below c0 is mutually exclusive with set of species 
+        // below c1, node is speciation
+        if (mut_exclusive){
+            return score;
+        }
+        else {
+            n->duplication = true;
+            if (n_spec == c0_spec || n_spec == c1_spec){
+                if (c0_spec == c1_spec){
+                    score += 1;
+                }
+                else {
+                    score += 2;
+                }
+            }
+            else {
+                score += 3;
+            }
+            return score;
+        }
+        // std::cout << "\nChild 1: " << dict->index2label(c0->index) << ", Child 2:" << dict->index2label(c1->index) <<  "\n";
+        // return 1;
+    }
 }
 
 void Tree::prepare(std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold) {
@@ -75,23 +209,6 @@ weight_t ***Tree::build_graph(Taxa &subset) {
 
 index_t Tree::pseudonym() {
     return - (++ pseudonyms);
-}
-
-std::pair<std::size_t, std::size_t> parse_branch_info(std::string branchinfo, std::string key) {
-    std::size_t start = branchinfo.find(key);
-
-    // Check key was found
-    if (start == std::string::npos)
-        return std::make_pair(std::string::npos, std::string::npos);
-
-    start += key.length();
-
-    // Get length of value associated with the key
-    std::size_t length = branchinfo.substr(start, std::string::npos).find(";");
-    if (length == std::string::npos)
-        length = branchinfo.substr(start, std::string::npos).find("]");
-
-    return std::make_pair(start, length);
 }
 
 Node *Tree::build_tree(const std::string &newick,
@@ -147,9 +264,9 @@ Node *Tree::build_tree(const std::string &newick,
         int i = newick.length() - 1;
         while (newick.at(i) != ')') i --;
         std::string branch = newick.substr(i + 1, std::string::npos);
-
-        if (branch[0] != ';') {            
-            // Separate branch information into support and length
+        if (branch.find(";") == std::string::npos) {
+            // Get internal branch and support
+            
             sep = branch.find(":");
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
@@ -160,44 +277,15 @@ Node *Tree::build_tree(const std::string &newick,
                 support = branch.substr(0, std::string::npos);
                 //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
-
             if (support.size() > 0) {
                 if (support == "PCS")
                     pcs_node = root;
-                else {
-                    #if ENABLE_TOB
-                    auto p1 = parse_branch_info(support, "blob_id=");
-                    if (p1.first != std::string::npos) {
-                        auto p2 = parse_branch_info(support, "qtt_p=");
-                        auto p3 = parse_branch_info(support, "qst_p=");
-
-                        s2ul(support.substr(p1.first, p1.second), &root->blob_id);
-                        s2d(support.substr(p2.first, p2.second), &root->min_pvalue);
-                        s2d(support.substr(p3.first, p3.second), &root->max_pvalue);
-
-                        //std::cout << "Parsing " << support << std::endl;
-                        //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
-                    } else {
-                    #endif  // ENABLE_TOB
-                        try {
-                            root->support = std::stod(support);  // default
-                        } catch (const std::invalid_argument& e) {
-                            std::cerr << "Unable to parse branch support " << support << "': " << e.what() << std::endl;
-                            exit(1);
-                        } //catch (const std::out_of_range& e) {
-                        //    std::cerr << "Out of range error for '" << invalid_str << "': " << e.what() << std::endl;
-                        //}
-                    #if ENABLE_TOB
-                    }
-                    #endif  // ENABLE_TOB
-                }
-            } else {
-                // allows user to change default support
-                // useful because default is support min for iqtree abayes
-                // but is max for other use cases
-                root->support = this->support_default; 
+                else
+                    root->support = std::stod(support);
             }
-            //std::cout << root->support << " " << support << std::endl;
+            else root->support = this->support_default;  // allows user to change default support
+                                                         // useful because default is support min for iqtree abayes
+                                                         // but is max for other use cases
         }
         //else {
         //    std::cout << "Found root" << std::endl;
@@ -205,6 +293,138 @@ Node *Tree::build_tree(const std::string &newick,
 
         // Recurse on last child
         root->children.push_back(build_tree(newick.substr(k, i - k), indiv2taxon));
+
+        // Set root as children's parent
+        for (Node *child : root->children)
+            child->parent = root;
+
+        return root;
+    }
+}
+
+// for building the tagged trees
+Node *Tree::build_tree(const std::string &newick,
+                       const std::unordered_map<std::string, std::string> &indiv2taxon, std::string &tagged) {
+    std::string label, leaf_label, support, length;
+    std::size_t sep;
+
+    if (newick.length() == 0 || newick.at(0) != '(') {
+        sep = newick.find(":");
+        if (sep != std::string::npos) {
+            leaf_label = newick.substr(0, sep);
+            length = newick.substr(sep + 1, std::string::npos);
+            //std::cout << "Found leaf node " << leaf_label << ' ' << length << std::endl;
+        } else {
+            leaf_label = newick.substr(0, std::string::npos);
+            //std::cout << "Found leaf node " << leaf_label << std::endl;
+        }
+
+        // Map leaf label if possible
+        auto itr = indiv2taxon.find(leaf_label);
+        if (itr == indiv2taxon.end())
+            label = leaf_label;
+        else
+            label = itr->second;
+
+        // Create leaf node
+        Node *root = new Node(dict->label2index(label));
+        if (length.size() > 0) root->length = std::stod(length);
+
+        // Update related data structures
+        index2node[root->index] = root;
+        if (indices.find(root->index) == indices.end())
+            indices[root->index] = 0;
+        indices[root->index] ++;
+
+        return root;
+    }
+    else {
+        // Create internal node
+        Node *root = new Node(pseudonym());  
+
+        // Recurse on all but last child
+        int k = 1;
+        for (int i = 0, j = 0; i < newick.length(); i ++) {
+            if (newick.at(i) == '(') j ++;
+            if (newick.at(i) == ')') j --;
+            if (newick.at(i) == ',' && j == 1) {
+                root->children.push_back(build_tree(newick.substr(k, i - k), indiv2taxon, tagged));
+                k = i + 1;
+            }
+        }
+
+        int i = newick.length() - 1;
+        while (newick.at(i) != ')') i --;
+        std::string branch = newick.substr(i + 1, std::string::npos);
+        if (branch.find(";") == std::string::npos) {
+            // Get internal branch and support
+            if (tagged == "1" && branch.substr(0, 1) == "D"){
+                root->duplication = 1;
+                if (branch.substr(1,2) == "/"){
+                    branch = branch.substr(2, std::string::npos); 
+                }
+                else{
+                    branch = branch.substr(1, std::string::npos); 
+                }
+                
+            }
+            
+            sep = branch.find(":");
+            if (sep != std::string::npos) {
+                if (branch.substr(0,1) == "/"){
+                    support = branch.substr(1, sep); 
+                }
+                else{
+                    support = branch.substr(0, sep); 
+                }
+                // support = branch.substr(0, sep);
+                length = branch.substr(sep + 1, std::string::npos);
+                // std::cout << "Found internal node " << branch << " with support " << support << " and length " << length << std::endl;
+                if (length.size() > 0) root->length = std::stod(length);
+            } 
+            else {
+                if (tagged == "1" && branch.substr(0, std::string::npos) == "D") {
+                    root->duplication = 1;
+                    if (branch.substr(1,2) == "/"){
+                        support = branch.substr(2, std::string::npos); 
+                    }
+                    else{
+                        support = branch.substr(1, std::string::npos); 
+                    }
+                    // support = branch.substr(1, std::string::npos); 
+                }
+                else {
+                    // support = branch.substr(0, std::string::npos);
+                    if (branch.substr(0,1) == "/"){
+                        support = branch.substr(1, std::string::npos); 
+                    }
+                    else{
+                        support = branch.substr(0, std::string::npos); 
+                    }
+                }
+                
+                // std::cout << "Found internal node " << branch << ' ' << support << std::endl;
+            }
+            if (support.size() > 0) {
+                if (support == "PCS")
+                    pcs_node = root;
+                else
+                    root->support = std::stod(support);
+            }
+            else root->support = this->support_default;  // allows user to change default support
+                                                         // useful because default is support min for iqtree abayes
+                                                         // but is max for other use cases
+        }
+        else {
+        //    std::cout << "Found root" << std::endl;
+            int l = newick.length() - 1;
+            if (newick.at(l-1) == 'D'){
+                root->duplication = 1;
+            } 
+        }
+
+        // Recurse on last child
+        root->children.push_back(build_tree(newick.substr(k, i - k), indiv2taxon, tagged));
 
         // Set root as children's parent
         for (Node *child : root->children)
@@ -241,10 +461,8 @@ std::string Tree::display_tree_index(Node *root) {
     for (Node * node : root->children) 
         s += display_tree_index(node) + ",";
     s[s.size() - 1] = ')';
-    std::cout << s << std::endl;
     return s;
 }
-
 
 size_t Tree::refine_tree(Node *root) {
     size_t total = 0;

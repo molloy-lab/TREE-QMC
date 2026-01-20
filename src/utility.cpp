@@ -1,11 +1,6 @@
 #include "utility.hpp"
 
 bool DEBUG_MODE;
-std::unordered_map<quartet_t, std::vector<weight_t>> quartet2pvalue;
-
-#if ENABLE_TOB
-RInside RINS;
-#endif
 
 weight_t **Matrix::new_mat(index_t size) {
     weight_t **m = new weight_t*[size];
@@ -83,13 +78,6 @@ index_t *split(quartet_t quartet) {
     return indices;
 }
 
-void split(index_t *indices, quartet_t quartet) {
-    for (index_t i = 3; i >= 0; i --) {
-        indices[i] = quartet % INDEX_WIDTH;
-        quartet /= INDEX_WIDTH;
-    }
-}
-
 bool s2d(std::string s, weight_t *r) {
     char* end;
     weight_t tmp = strtod(s.c_str(), &end);
@@ -112,40 +100,3 @@ weight_t* init(index_t size) {
         a[i] = std::nan("");
     return a;
 }
-
-
-#if ENABLE_TOB
-weight_t pvalue(index_t *indices) {
-    index_t temp[4];
-    for (index_t i = 0; i < 4; i ++) 
-        temp[i] = indices[i];
-    std::sort(temp, temp + 4);
-    quartet_t q = join(temp);
-    assert(quartet2pvalue.find(q) != quartet2pvalue.end());
-    return quartet2pvalue[q][3];
-}
-
-std::vector<weight_t> pvalue_all(index_t *indices) {
-    index_t temp[4];
-    for (index_t i = 0; i < 4; i ++) 
-        temp[i] = indices[i];
-    std::sort(temp, temp + 4);
-    quartet_t q = join(temp);
-    assert(quartet2pvalue.find(q) != quartet2pvalue.end());
-    return quartet2pvalue[q];
-}
-
-
-weight_t pvalue(weight_t *qCF) {
-    SEXP a = RINS.parseEval("quartetTreeTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "), \"T3\")");
-    SEXP b = VECTOR_ELT(a, 0);
-    double* pvalue = REAL(b);
-    return *pvalue;
-}
-
-weight_t pvalue_star(weight_t *qCF) {
-    SEXP a = RINS.parseEval("quartetStarTest(c(" + std::to_string(qCF[0]) + "," + std::to_string(qCF[1]) + "," + std::to_string(qCF[2]) + "))");
-    double* pvalue = REAL(a);
-    return *pvalue;
-}
-#endif  // ENABLE_TOB

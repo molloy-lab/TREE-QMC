@@ -4,8 +4,6 @@
 #include "utility.hpp"
 #include "dict.hpp"
 #include "taxa.hpp"
-#include <tuple>
-
 
 class Node {
     friend class Tree;
@@ -25,12 +23,11 @@ class Node {
         void print_leaves_below_index();
     private:
         Node *parent;
-        std::vector<Node *> children, ancestors;
+        std::vector<Node *> children;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
-        bool isfake;
+        bool isfake, duplication;
 
-        // Below is data only needed for gene trees, would be good to have GTNode class
         weight_t /* **doublet, */ *singlet;
         // std::map<index_t, weight_t> doublet;
         std::vector<std::pair<index_t, weight_t>> *doublet;
@@ -43,13 +40,8 @@ class Node {
         weight_t *ssinglet, *ssinglet_, *pdoublet[2], *ptriplet[2], *mdoublet[2], *mdoublet_[2];
         weight_t **sdoublet[2], **sdoublet_[2], **striplet[2];
 
-        // Below is data only needed for species trees, would be good to have STNode class
+        // TODO: make below vector in species tree class
         weight_t f[3];
-        #if ENABLE_TOB
-        unsigned long int blob_id;
-        weight_t min_f[3]; //, max_f[3];
-        weight_t min_pvalue, max_pvalue;
-        #endif  // ENABLE_TOB
 };
 
 class Tree {
@@ -57,9 +49,9 @@ class Tree {
     public:
         Tree();
         Tree(const std::string &newick,
-             Dict *dict, 
-             const std::unordered_map<std::string, std::string> &indiv2taxon, 
-             weight_t support_low, weight_t support_default);
+           Dict *dict,
+           const std::unordered_map<std::string, std::string> &indiv2taxon,
+           weight_t support_low, weight_t support_default, std::string &tagged);
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
@@ -77,11 +69,12 @@ class Tree {
         Node* find_node(index_t index);
         Node* get_root();
         weight_t total_weight();
-        void get_bipartitions(std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
-        static std::string display_bipartition(std::vector<Node *> &A, std::vector<Node *> &B);
-        void get_quardpartitions(std::vector<Node *> *internal, std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> *quads, Dict *dict);
-        std::string display_quardpartitions(std::vector<Node *> &A, std::vector<Node *> &B, std::vector<Node *> &C, std::vector<Node *> &D, Dict *dict);
-        index_t get_quartet(index_t *indices);
+        void root_and_tag();
+        int tag(Node *n);
+        void get_nodes(Node *root, std::vector<Node *> &nodes);
+        void get_all_nodes(Node *root, std::vector<Node *> &nodes);
+        void display_dup_nodes();
+        std::string display_dup_tree(Node *root);
     protected:
         Node *root;
         Node *pcs_node;
@@ -110,16 +103,14 @@ class Tree {
         void good_edges(Node *root, Taxa &subset, weight_t ***graph);
         Node *build_tree(const std::string &newick,
                          const std::unordered_map<std::string, std::string> &indiv2taxon);
+        Node *build_tree(const std::string &newick,
+                       const std::unordered_map<std::string, std::string> &indiv2taxon, std::string &tagged);
         Node *build_subtree_from(Node *root);
         size_t refine_tree(Node *root);
         void prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
         //void resolve_support(Node *root);
         void add_indices(Node *root, std::vector<index_t> &indices);
         void get_leaves(Node *root, std::vector<Node *> *leaves);
-        void get_bipartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B);
-        void get_bipartitions(Node *root, std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips);
-        void get_quardpartition(Node *root, std::vector<Node *> *A, std::vector<Node *> *B, std::vector<Node *> *C, std::vector<Node *> *D, Dict *dict);
-        void get_quardpartitions(Node *root, std::vector<Node *> *internal, std::vector<std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>>> *quads, std::unordered_set<uint64_t>* seen_edges, Dict *dict);
         void get_leaf_set(Node *root, std::unordered_set<Node *> *leaf_set);
         void get_depth(Node *root, index_t depth);
         //for weighted quartets:
@@ -154,43 +145,26 @@ class Tree {
         void build_ssinglet_s(Node *root);
         weight_t freq_s(Node *root);
         weight_t total_weight_bf();
-        void LCA_preprocessing();
-        void LCA_depth_first_search(Node *root, std::vector<Node *> &stack);
-        Node *LCA_fast(Node *x, Node *y);
-        Node *LCA_naive(Node *a, Node *b);
+        void reset_duplications(Node *node);
 };
 
 class SpeciesTree : public Tree {
     public:
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
-        SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
-        #if ENABLE_TOB
-        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool is_quard);
-        #endif  // ENABLE_TOB
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
         void print_leaf_set(std::unordered_set<Node *> &leaf_set, std::ostream &os);
-        void annotate(std::vector<Tree *> &input, std::string & qfreq_mode);
-        void annotate(std::unordered_map<quartet_t, weight_t> &quartets, std::string & qfreq_mode);
+        void annotate(std::vector<Tree *> input, std::string & qfreq_mode);
         void root_at_clade(std::unordered_set<std::string> &clade_taxon_set);
         void put_back_root();
         std::string to_string_annotated(std::string brln_mode);
         void write_support_table(std::ostream &os, std::string brln_mode);
         void write_pcs_table(std::vector<Tree *> &input, std::vector<std::size_t> &positions, std::string &qfreq_mode, std::ostream &os);
-        #if ENABLE_TOB
-        std::string to_string_pvalue();
-        std::string display_tree_pvalue(Node *root);
-        #endif  // ENABLE_TOB
     private:
         index_t artifinyms;
         std::string mode;
         unsigned long int iter_limit;
-        #if ENABLE_TOB
-        std::unordered_map<quartet_t,weight_t> pvalues, pvalues_star;
-        #endif  // ENABLE_TOB
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
         Node *construct_stree(std::unordered_map<quartet_t, weight_t> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -198,31 +172,12 @@ class SpeciesTree : public Tree {
         Node *reroot_stree(Node *root, index_t artificial);
         Node *artificial2node(Node *root, index_t artificial);
         void get_qfreq_around_branch(Node *root, std::vector<Tree *> &input, std::string &qfreq_mode);
-        void get_qfreq_around_branch(Node *root, std::unordered_map<quartet_t, weight_t> &quartets, std::string &qfreq_mode);
         std::string display_tree_annotated(Node *root, std::string brln_mode);
         void write_support_table_row(Node *root, std::ostream &os, std::string brln_mode);
-        #if ENABLE_TOB
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit, index_t *minimizer);
-        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, size_t iter_limit);
-        weight_t neighbor_search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
-        weight_t neighbor_search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *current, weight_t *min);
-        weight_t search(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t *minimizer);
-        weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B);
-        weight_t search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
-        weight_t search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
-        Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
-        weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices);
-        weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices);
-        #endif  // ENABLE_TOB
 };
-
 
 extern std::ofstream subproblem_csv, quartets_txt, good_edges_txt, bad_edges_txt;
 extern std::string verbose;
 extern unsigned long long count[8];
-
-#if ENABLE_TOB
-extern RInside RINS;
-#endif  // ENABLE_TOB
 
 #endif

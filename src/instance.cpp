@@ -1,6 +1,5 @@
 #include "instance.hpp"
 
-
 extern bool DEBUG_MODE;
 
 Instance::Instance(int argc, char **argv) {
@@ -12,7 +11,6 @@ Instance::Instance(int argc, char **argv) {
     stree_file = "";
     table_file = "";
     root_str = "";
-    //pvalue_file = "";
 
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
     execute_mode = "0";  // use fast algorithm
@@ -21,32 +19,21 @@ Instance::Instance(int argc, char **argv) {
     score_mode = "0";    // don't score final tree
     data_mode = "t";     // input data are trees i.e. newick strings
     brln_mode = "g";     // estimate branch lengths under MSC for gene trees
+    gdl_mode = "0";
+    tagged = "0";
     contract = false;
     char2tree = false;
     rootonly = false;
     pcsonly = false;
-    quartet_format = "((___,___),(___,___));___";
-
-    blob = false;
-    store_pvalue = false;
-    load_pvalue = false;
-    three_fix_one_alter = false;
-    quard = false;
-
-    override_file = false;
 
     support_low = 0.0;
     support_high = 1.0;
     support_default = 1.0;
     support_threshold = 0.0;
 
-    alpha = 1e-7;
-    beta = 0.95;
-
     refine_seed = 12345;
     cut_seed = 1;
     iter_limit = 10;
-    iter_limit_blob = std::numeric_limits<unsigned long int>::max();
 
     dict = NULL;
     output = NULL;
@@ -78,25 +65,14 @@ Instance::Instance(int argc, char **argv) {
 
     dict = new Dict;
     if (data_mode == "t") input_trees();
-    else if (data_mode == "q") input_quartets();
     else input_matrix();
-    
-    if (data_mode == "q") {
-        if (quartets.size() == 0) {
-            std::cout << "\nERROR: Nothing read from input" << std::endl;
-            exit(1);
-        }
-    }
-    else {
-        if (input.size() == 0) {
-            std::cout << "\nERROR: Nothing read from input" << std::endl;
-            exit(1);
-        }
+
+    if (input.size() == 0) {
+        std::cout << "\nERROR: Nothing read from input" << std::endl;
+        exit(1);
     }
 
     dict->update_singletons();
-
-    // if (pvalue_file != "") input_pvalues();
 
     if (char2tree) {
         std::cout << "Writing characters as trees" << std::endl;
@@ -115,6 +91,13 @@ Instance::Instance(int argc, char **argv) {
     refine_trees();
     prepare_trees();
 
+    if (gdl_mode == "1" && tagged == "0") {
+        // std::cout << "\nBefore calling root and tag\n\n"; 
+        root_and_tag();
+        std::cout << "\nFinished calling root and tag\n\n";
+        // std::cout << dict->to_string() << "\n";
+    }
+
     if (verbose > "0") {
         subproblem_csv.open(output_file + "_subproblems.csv");
         subproblem_csv << "ID,PARENT,DEPTH,SIZE,ARTIFICIAL,SUBSET";
@@ -127,13 +110,11 @@ Instance::Instance(int argc, char **argv) {
     // DONE SETTING UP!
 }
 
-
 Instance::~Instance() {
     for (Tree *t : input) delete t;
     delete output;
     delete dict;
 }
-
 
 long long Instance::solve() {
     srand(cut_seed);
@@ -142,59 +123,11 @@ long long Instance::solve() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    // Build or read species tree
-    if (load_pvalue) {
-        #if ENABLE_TOB
-            std::cout << "Loading species tree with p-values" << root_str << std::endl;
-            output = new SpeciesTree(input[0], dict, alpha, beta);
-        #else
-            std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
-            exit(1);
-        #endif  // ENABLE_TOB
+    if (stree_file != "") {
+        output = new SpeciesTree(stree_file, dict);
     } else {
-        if (stree_file != "") {
-            std::cout << "Loading species tree" << root_str << std::endl;
-            output = new SpeciesTree(stree_file, dict);
-        } else if (data_mode == "q") {
-            output = new SpeciesTree(quartets, dict, mode, iter_limit, output_file);
-        } else {
-            output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
-        }
+        output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
     }
-
-    if (root_str != "") {
-        std::cout << "Rooting species tree at " << root_str << std::endl;
-        output->root_at_clade(outgroup_taxon_set);
-    }
-
-    std::cout << "Printing output tree:" << std::endl;
-    std::cout << output->to_string_basic() << std::endl;
-
-    if (!load_pvalue && (store_pvalue || blob)) {
-        #if ENABLE_TOB
-            if (!three_fix_one_alter) {
-                if (iter_limit_blob == std::numeric_limits<unsigned long int>::max()) {
-                    iter_limit_blob = 2 * dict->size() * dict->size();
-                    std::cout << "Setting blob iteration limit to 2*ntaxa^2 = " << iter_limit_blob << std::endl;
-                }
-            }
-            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, quard);
-            delete display;
-            std::cout << "Printing output tree with pvalues:" << std::endl;
-            std::cout << output->to_string_pvalue() << std::endl;
-        #else
-            std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
-            exit(1);
-        #endif  // ENABLE_TOB
-    }
-
-    #if ENABLE_TOB
-    if (!load_pvalue && !store_pvalue && blob) {
-        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta);
-        delete output;
-        output = tmp;
-    }
-    #endif  // ENABLE_TOB
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -202,14 +135,21 @@ long long Instance::solve() {
     return duration.count();
 }
 
-
 SpeciesTree *Instance::get_solution() {
     return output;
 }
 
-
 void Instance::output_solution() {
     if (execute_mode == "2" || execute_mode == "3") return;
+
+    std::cout << "Printing species tree" << std::endl;
+    std::cout << output->to_string_basic() << std::endl;
+
+    if (root_str != "") {
+        std::cout << "Rooting species tree" << std::endl;
+        output->root_at_clade(outgroup_taxon_set);
+        std::cout << output->to_string_basic() << std::endl;  // want to write for root only
+    }
 
     // compute pcs for specified branch, then exit
     if (pcsonly) {
@@ -218,13 +158,8 @@ void Instance::output_solution() {
         if (output_file != "") {
             std::ifstream fin(output_file);
             if (!fin.fail()) {
-                //std::cout << override_file << std::endl;
-                if (!override_file) {
-                    std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-                    output_file = "";
-                } else {
-                    std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl; 
-                }
+                std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+                output_file = "";
             }
             fin.close();
         }
@@ -250,10 +185,7 @@ void Instance::output_solution() {
     if (score_mode == "1") {
         std::cout << "Computing branch info for species tree" << std::endl;
         output->refine();
-        if (data_mode == "q") 
-            output->annotate(quartets, weight_mode);
-        else 
-            output->annotate(input, weight_mode);
+        output->annotate(input, weight_mode);
     }
 
     if (table_file != "") {
@@ -270,24 +202,15 @@ void Instance::output_solution() {
     std::cout << "Writing species tree" << std::endl;
     std::ifstream fin(output_file);
     if (!fin.fail()) {
-        if (!override_file) {
-            std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
-            output_file = "";
-        } else {
-            std::cout << "  WARNING: " << output_file << " already exists, overriding" << std::endl;
-        }
+        std::cout << "  WARNING: " << output_file << " already exists, writing to stdout" << std::endl;
+        output_file = "";
     }
     fin.close();
-
     if (output_file != "") {
         std::ofstream fout(output_file);
         if (!fout.fail()) {
             if (score_mode == "1")
                 fout << output->to_string_annotated(brln_mode) << std::endl;
-            #if ENABLE_TOB
-            else if (store_pvalue) 
-                fout << output->to_string_pvalue() << std::endl;
-            #endif  // ENABLE_TOB
             else 
                 fout << output->to_string_basic() << std::endl;
             fout.close();
@@ -298,14 +221,9 @@ void Instance::output_solution() {
 
     if (score_mode == "1")
         std::cout << output->to_string_annotated(brln_mode) << std::endl;
-    #if ENABLE_TOB
-    else if (store_pvalue) 
-        std::cout << output->to_string_pvalue() << std::endl;
-    #endif  // ENABLE_TOB
     else
         std::cout << output->to_string_basic() << std::endl;
 }
-
 
 int Instance::parse(int argc, char **argv) {
     std::cout << "TREE-QMC version " << VERSION << std::endl;
@@ -321,6 +239,9 @@ int Instance::parse(int argc, char **argv) {
     int ndefaultparam = 0;
     bool help = false;
 
+
+    // TODO: Maybe use argparse streamline e.g.
+    // https://github.com/p-ranav/argparse/blob/master/include/argparse/argparse.hpp
     index_t i = 1;
     while (i < argc) {
         std::string opt(argv[i]);
@@ -338,18 +259,6 @@ int Instance::parse(int argc, char **argv) {
             data_mode = "b";  // input data are 2-state characters
             brln_mode = "b";  // estimate branch lengths under nWF+IS model
         }
-        else if (opt == "--quartets") {
-            data_mode = "q";
-        }
-        else if (opt == "--quartetformat") {
-            if (i < argc - 1) {
-                quartet_format = argv[++ i];
-            }
-            else {
-                std::cout << "\nERROR: No quartet format specified" << std::endl;
-                return 2;
-            }
-        }
         else if (opt == "-a" || opt == "--mapping") {
             if (i < argc - 1) {
                 mapping_file = argv[++ i];
@@ -362,58 +271,10 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "-u" || opt == "--support") {
             score_mode = "1";
         }
-        else if (opt == "--override") {
-            override_file = true;
-        }
-        else if (opt == "--blob") {
-            blob = true;
-        }
-        else if (opt == "--3f1a") {
-            three_fix_one_alter = true;
-        }
-        else if (opt == "--quard") {
-            quard = true;
-        }
-        else if (opt == "--alpha") {
-            alpha = std::stod(argv[++ i]);
-        }
-        else if (opt == "--beta") {
-            beta = std::stod(argv[++ i]);
-        }
-        /*else if (opt == "--pvalue") {
-            if (i < argc - 1) {
-                pvalue_file = argv[++ i];
-            }
-            else {
-                std::cout << "\nERROR: No pvalue file specified" << std::endl;
-                return 2;
-            }
-        }*/
-        else if (opt == "--store_pvalue") {
-            store_pvalue = true;
-        }
-        else if (opt == "--load_pvalue") {
-            load_pvalue = true;
-        }
-        else if (opt == "--iter_limit_blob") {
-            if (i < argc - 1) {
-                iter_limit_blob = std::stoi(argv[++ i]);
-            }
-        }
         else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
             if (i < argc - 1) {
                 stree_file = argv[++ i];
-            }
-            else  {
-                std::cout << "\nERROR: No species tree file specified" << std::endl;
-                return 2;
-            }
-        }
-        else if (opt == "--blobsearchonly") {
-            if (i < argc - 1) {
-                stree_file = argv[++ i];
-                std::cout << "Need to read " << stree_file << std::endl;
             }
             else  {
                 std::cout << "\nERROR: No species tree file specified" << std::endl;
@@ -611,6 +472,14 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
         }
+        else if (opt == "--gdl") {
+            gdl_mode = "1";
+            // std::cout << "\nSelected GDL option" << std::endl;
+            // return 2; 
+        }
+        else if (opt == "--tagged") {
+            tagged = "1";
+        }
         else {
             std::cout << "ERROR: Unrecognized option: " << opt << std::endl;
             exit(1);
@@ -671,7 +540,7 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "  WARNING: --hybrid option is recommended" << std::endl;
 
         // Process support branch options
-        if (! load_pvalue && (weight_mode == "s" || weight_mode == "h" || contract)) {
+        if (weight_mode == "s" || weight_mode == "h" || contract) {
             // Check support options make sense
             if (nminparam  == 0 || nmaxparam == 0 || ndefaultparam == 0) {
                 std::cout << "\nERROR: Must specify min, max, and default support values or use preset option" << std::endl;
@@ -781,11 +650,9 @@ int Instance::parse(int argc, char **argv) {
     return 0;
 }
 
-
 std::string Instance::get_execution_mode() {
     return execute_mode;
 }
-
 
 void Instance::input_trees() {
     std::ifstream fin(input_file);
@@ -802,7 +669,7 @@ void Instance::input_trees() {
     while (std::getline(fin, newick)) {
         // TODO: change to function that checks if newick string is valid, before proceeding
         if (newick.find(";") != std::string::npos) {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default, tagged);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             if (t->size() > 3) {
@@ -828,7 +695,6 @@ void Instance::input_trees() {
     fin.close();
 }
 
-
 void Instance::input_matrix() {
     std::ifstream fin(input_file);
     if (fin.fail()) {
@@ -852,7 +718,7 @@ void Instance::input_matrix() {
     while (cmat->size() > 0) {
         std::string newick = cmat->pop_newick();
         if (newick != "") {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default, tagged);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
@@ -871,7 +737,6 @@ void Instance::input_matrix() {
         std::cout << "WARNING: --shared option should NOT be used with missing taxa!" << std::endl;
     }
 }
-
 
 void Instance::refine_trees() {
     srand(refine_seed);
@@ -896,7 +761,6 @@ void Instance::refine_trees() {
     }
 }
 
-
 void Instance::prepare_trees() {
     for (Tree *t : input) {
         t->prepare(weight_mode, support_low, support_high, contract, support_threshold);
@@ -904,6 +768,11 @@ void Instance::prepare_trees() {
     }
 }
 
+void Instance::root_and_tag() {
+    for (Tree *t : input) {
+        t->root_and_tag();
+    }
+}
 
 void Instance::prepare_root_taxa() {
     std::string taxon;
@@ -987,218 +856,3 @@ void Instance::prepare_indiv2taxon_map() {
 
     fin.close();
 }
-
-
-void Instance::input_quartets() {
-    std::ifstream fin(input_file);
-    if (fin.fail()) {
-        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
-        exit(1);
-    }
-
-    // Read the first line
-    std::string firstLine;
-    if (!(std::getline(fin, firstLine))) {
-        std::cout << "\nERROR: Unable to read " << input_file << std::endl;
-        exit(1);
-    }
-
-    if (firstLine == "t1,t2,t3,t4,CF12_34,CF13_24,CF14_23,ngenes")
-        input_quartets_phylonetworks();
-    else
-        input_quartets_basic();
-
-    fin.close();
-}
-
-
-void Instance::input_quartets_basic() {
-    std::ifstream fin(input_file);
-    if (fin.fail()) {
-        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
-        exit(1);
-    }
-
-    std::vector<std::string> tokens;
-    std::string delimiter = "___";
-    size_t pos = 0, count = 0;
-    std::string temp = quartet_format;
-    while ((pos = quartet_format.find(delimiter)) != std::string::npos) {
-        count ++;
-        tokens.push_back(quartet_format.substr(0, pos));
-        quartet_format.erase(0, pos + delimiter.length());
-    }
-    if (quartet_format != "") tokens.push_back(quartet_format);
-    if (count != 5) {
-        std::cout << "\nERROR: Invalid quartet format " << temp << std::endl;
-        exit(1);
-    }
-    
-    std::string line;
-    size_t j = 0;
-    while (std::getline(fin, line)) {
-        j ++;
-
-        line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-
-        index_t indices[4];
-        for (size_t i = 0; i < count; i ++) {
-            size_t pos = line.find(tokens[i]);
-            if (pos == std::string::npos) {
-                std::cout << "\nWARNING: Invalid quartet; input truncated at line " << j << std::endl;
-                j = -1;
-                break;
-            }
-            if (i > 0)
-                indices[i - 1] = dict->label2index(line.substr(0, pos));
-            line.erase(0, pos + tokens[i].length());
-        }
-        if (j == -1) break;
-        
-        quartet_t quartet = join(indices);
-        weight_t weight = 1.0;
-        if (line != "") weight = std::stod(line);
-        if (quartets.find(quartet) == quartets.end()) 
-            quartets[quartet] = 0;
-        quartets[quartet] += weight;
-    }
-
-    fin.close();
-}
-
-
-void Instance::input_quartets_phylonetworks() {
-    std::ifstream fin(input_file);
-    if (fin.fail()) {
-        std::cout << "\nERROR: Unable to open " << input_file << std::endl;
-        exit(1);
-    }
-
-    std::string line;
-
-    // Read header
-    std::getline(fin, line);
-
-    size_t j = 0;
-    while (std::getline(fin, line)) {
-        j ++;
-        std::string temp = line;
-
-        line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-
-        index_t indices_12v34[4];
-        index_t indices_13v24[4];
-        index_t indices_14v23[4];
-        weight_t weights[4];
-
-        for (size_t i = 0; i < 7; i ++) {
-            size_t pos = line.find(',');
-            if (pos == std::string::npos) {
-                std::cout << "\nWARNING: Invalid qCF; input truncated at line " << j << std::endl;
-                j = -1;
-                break;
-            }
-
-            if (i < 4)
-                indices_12v34[i] = dict->label2index(line.substr(0, pos));
-            else
-                weights[i - 4] = std::stod(line.substr(0, pos));
-
-            line.erase(0, pos + 1);
-        }
-        if (j == -1) break;
-
-        weights[3] = std::stod(line);  // number of genes
-
-        // Add quartet 1,2|3,4
-        quartet_t quartet_12v34 = join(indices_12v34);
-        quartets[quartet_12v34] = weights[0] * weights[3];
-
-        // Add quartet 1,3|2,4
-        indices_13v24[0] = indices_12v34[0];
-        indices_13v24[1] = indices_12v34[2];
-        indices_13v24[2] = indices_12v34[1];
-        indices_13v24[3] = indices_12v34[3];
-        quartet_t quartet_13v24 = join(indices_13v24);
-        quartets[quartet_13v24] = weights[1] * weights[3];
-
-        // Add 1,4|2,3
-        indices_14v23[0] = indices_12v34[0];
-        indices_14v23[1] = indices_12v34[3];
-        indices_14v23[2] = indices_12v34[1];
-        indices_14v23[3] = indices_12v34[2];
-        quartet_t quartet_14v23 = join(indices_14v23);
-        quartets[quartet_14v23] = weights[2] * weights[3];
-    }
-
-    fin.close();
-}
-
-
-/*
-// Reads results of TINNiK tests from file 
-void Instance::input_pvalues() {
-    std::ifstream fin(pvalue_file);
-    if (fin.fail()) {
-        std::cout << "\nERROR: Unable to open pvalue file " << pvalue_file << std::endl;
-        exit(1);
-    }
-
-    std::cout << "Reading pvalue file" << std::endl;
-    index_t N = dict->size();
-    size_t Q = N * (N - 1) * (N - 2) * (N - 3) / 24;
-    std::vector<std::string> labels;
-
-    for (index_t i = 0; i < N; i ++)
-        labels.push_back(dict->index2label(i));
-
-    std::sort(labels.begin(), labels.end());
-    std::vector<std::vector<index_t>> quartets;
-
-    for (index_t i = 0; i < N; i ++) {
-        std::vector<index_t> line;
-        for (size_t j = 0; j < Q; j ++) {
-            index_t k;
-            fin >> k;
-            line.push_back(k);
-            //std::cout << k << " ";
-        }
-        quartets.push_back(line);
-        // std::cout << i << std::endl;
-    }
-
-    std::vector<std::vector<weight_t>> pvalues;
-    for (index_t i = 0; i < 5; i ++) {
-        std::vector<weight_t> line;
-        for (size_t j = 0; j < Q; j ++) {
-            weight_t k;
-            fin >> k;
-            line.push_back(k);
-            //std::cout << k << " ";
-        }
-        pvalues.push_back(line);
-        // std::cout << i << std::endl;
-    }
-
-    for (size_t i = 0; i < Q; i ++) {
-        index_t indices[4], k = 0;
-        for (index_t j = 0; j < N; j ++) {
-            if (quartets[j][i] == 1) 
-                indices[k ++] = j;
-        }
-        for (index_t k = 0; k < 4; k ++) {
-            std::string label = labels[indices[k]];
-            index_t j = dict->label2index(label);
-            indices[k] = j;
-        }
-        std::sort(indices, indices + 4);
-        quartet_t q = join(indices);
-        std::vector<weight_t> values;
-        for (index_t j = 0; j < 5; j ++) 
-            values.push_back(pvalues[j][i]);
-        quartet2pvalue[q] = values;
-    }
-
-    fin.close();
-}
-*/
