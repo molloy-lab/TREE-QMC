@@ -19,6 +19,8 @@ Instance::Instance(int argc, char **argv) {
     score_mode = "0";    // don't score final tree
     data_mode = "t";     // input data are trees i.e. newick strings
     brln_mode = "g";     // estimate branch lengths under MSC for gene trees
+    gdl_mode = "0";
+    tagged = "0";
     contract = false;
     char2tree = false;
     rootonly = false;
@@ -88,6 +90,13 @@ Instance::Instance(int argc, char **argv) {
     // TODO: Add suppress uniforcations!
     refine_trees();
     prepare_trees();
+
+    if (gdl_mode == "1" && tagged == "0") {
+        // std::cout << "\nBefore calling root and tag\n\n"; 
+        root_and_tag();
+        std::cout << "\nFinished calling root and tag\n\n";
+        // std::cout << dict->to_string() << "\n";
+    }
 
     if (verbose > "0") {
         subproblem_csv.open(output_file + "_subproblems.csv");
@@ -463,6 +472,14 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
         }
+        else if (opt == "--gdl") {
+            gdl_mode = "1";
+            // std::cout << "\nSelected GDL option" << std::endl;
+            // return 2; 
+        }
+        else if (opt == "--tagged") {
+            tagged = "1";
+        }
         else {
             std::cout << "ERROR: Unrecognized option: " << opt << std::endl;
             exit(1);
@@ -652,7 +669,7 @@ void Instance::input_trees() {
     while (std::getline(fin, newick)) {
         // TODO: change to function that checks if newick string is valid, before proceeding
         if (newick.find(";") != std::string::npos) {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default, tagged);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             if (t->size() > 3) {
@@ -701,7 +718,7 @@ void Instance::input_matrix() {
     while (cmat->size() > 0) {
         std::string newick = cmat->pop_newick();
         if (newick != "") {
-            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default);
+            Tree *t = new Tree(newick, dict, indiv2taxon, support_low, support_default, tagged);
             if (t->size() > maxtax) maxtax = t->size();
             if (t->size() < mintax) mintax = t->size();
             input.push_back(t);
@@ -748,6 +765,12 @@ void Instance::prepare_trees() {
     for (Tree *t : input) {
         t->prepare(weight_mode, support_low, support_high, contract, support_threshold);
         // std::cout << t->to_string() << std::endl;
+    }
+}
+
+void Instance::root_and_tag() {
+    for (Tree *t : input) {
+        t->root_and_tag();
     }
 }
 

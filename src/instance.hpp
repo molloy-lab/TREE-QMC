@@ -22,7 +22,7 @@ class Instance {
         std::unordered_map<std::string, std::string> indiv2taxon;
         std::string input_file, output_file, mapping_file, stree_file, table_file;
         std::string root_str;
-        std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode;
+        std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode, gdl_mode, tagged;
         unsigned long int refine_seed, cut_seed, iter_limit;
         weight_t support_low, support_high, support_default, support_threshold;
         bool contract, char2tree, rootonly, pcsonly;
@@ -32,6 +32,7 @@ class Instance {
         void input_trees();
         void input_matrix();
         void prepare_trees();
+        void root_and_tag();
         void refine_trees();
 };
 

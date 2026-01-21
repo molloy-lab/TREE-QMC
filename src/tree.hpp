@@ -26,7 +26,7 @@ class Node {
         std::vector<Node *> children;
         index_t index, size, depth;
         weight_t s1, s2, support, length;
-        bool isfake;
+        bool isfake, duplication;
 
         weight_t /* **doublet, */ *singlet;
         // std::map<index_t, weight_t> doublet;
@@ -49,9 +49,9 @@ class Tree {
     public:
         Tree();
         Tree(const std::string &newick,
-             Dict *dict, 
-             const std::unordered_map<std::string, std::string> &indiv2taxon, 
-             weight_t support_low, weight_t support_default);
+           Dict *dict,
+           const std::unordered_map<std::string, std::string> &indiv2taxon,
+           weight_t support_low, weight_t support_default, std::string &tagged);
         virtual ~Tree();
         std::string to_string();
         std::string to_string_basic();
@@ -69,6 +69,12 @@ class Tree {
         Node* find_node(index_t index);
         Node* get_root();
         weight_t total_weight();
+        void root_and_tag();
+        int tag(Node *n);
+        void get_nodes(Node *root, std::vector<Node *> &nodes);
+        void get_all_nodes(Node *root, std::vector<Node *> &nodes);
+        void display_dup_nodes();
+        std::string display_dup_tree(Node *root);
     protected:
         Node *root;
         Node *pcs_node;
@@ -97,6 +103,8 @@ class Tree {
         void good_edges(Node *root, Taxa &subset, weight_t ***graph);
         Node *build_tree(const std::string &newick,
                          const std::unordered_map<std::string, std::string> &indiv2taxon);
+        Node *build_tree(const std::string &newick,
+                       const std::unordered_map<std::string, std::string> &indiv2taxon, std::string &tagged);
         Node *build_subtree_from(Node *root);
         size_t refine_tree(Node *root);
         void prepare_tree(Node *root, std::string weight_mode, weight_t low, weight_t high, bool contract, weight_t threshold);
@@ -137,6 +145,7 @@ class Tree {
         void build_ssinglet_s(Node *root);
         weight_t freq_s(Node *root);
         weight_t total_weight_bf();
+        void reset_duplications(Node *node);
 };
 
 class SpeciesTree : public Tree {

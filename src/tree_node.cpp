@@ -7,6 +7,7 @@ Node::Node(index_t index) {
     parent = NULL;
     size = -1;
     isfake = false;
+    duplication = false;
 }
 
 Node::Node(index_t index, bool isfake) {
@@ -15,6 +16,7 @@ Node::Node(index_t index, bool isfake) {
     parent = NULL;
     size = -1;
     this->isfake = isfake;
+    duplication = false;
 }
 
 Node::~Node() {
