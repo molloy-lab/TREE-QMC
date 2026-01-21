@@ -5,7 +5,7 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-This is a branch for **TQMC-pro**, a version of TREE-QMC for multi-copy gene trees. TQMC-pro is similar to A-pro; see [Zhang et al., *Mol Biol Evol*, 2020](https://doi.org/10.1093/molbev/msaa139). Like A-pro, TQMC-pro in that roots and tags the input so that each internal vertex is labeled as speciation or duplication. This information is used to excludes "duplication quartets" from speciest tree reconstruction. TQMC-pro does **not** agglomerate "speciation quartets," unlike ASTRAL-pro, and uses a different heuristic for reconstructing the species tree; see below for details.
+This is a branch for **TQMC-pro**, a version of TREE-QMC for multi-copy gene trees. TQMC-pro is similar to A-pro; see [Zhang et al., *Mol Biol Evol*, 2020](https://doi.org/10.1093/molbev/msaa139). Like A-pro, TQMC-pro roots and tags the input so that each internal vertex is labeled as speciation or duplication. This information is used to exclude "duplication quartets" from speciest tree reconstruction. TQMC-pro does **not** agglomerate "speciation quartets," unlike ASTRAL-pro, and uses a different heuristic for reconstructing the species tree; see below for details.
 
 TQMC-pro will be merged with the main branch in the near future; in the meantime, you can build the code by checking out the correct commit.
 
