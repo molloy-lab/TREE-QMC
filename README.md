@@ -5,6 +5,66 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
+This is a branch for TQMC-pro, a version of TREE-QMC for multi-copy gene trees. TQMC-pro is similar to ASTRAL-pro [Zhang et al., *Mol Biol Evol*, 2020](https://doi.org/10.1093/molbev/msaa139), in that roots and tags the input so that each internal vertex is labeled as speciation or duplication. This information is used to excludes "duplication quartets" from speciest tree reconstruction. TQMC-pro does **not** agglomerate "speciation quartets," unlike ASTRAL-pro, and uses a different heuristic for reconstructing the species tree; see below for details.
+
+TQMC-pro will be merged with the main branch in the near future; in the meantime, you can build the code by checking out the correct commit.
+
+```
+git clone https://github.com/molloy-lab/TREE-QMC.git
+cd TREE-QMC/
+git checkout tqmc-pro
+cd external/MQLib/
+make
+cd ../..
+g++ -std=c++11 -O2 \
+    -I external/MQLib/include -I external/toms743 \
+    -o tree-qmc \
+    src/*.cpp external/toms743/toms743.cpp \
+    external/MQLib/bin/MQLib.a -lm \
+    -DVERSION=\"$(cat version.txt)\"
+```
+
+Sample data is available in the tutorials directory.
+```
+cd tutorial/multi-gene-trees/
+```
+
+To run TQMC-pro on multi-copy gene trees (with internal rooting and tagging), use the command:
+```
+../../tree-qmc \
+    --root 0 \
+    --norm_atax 0 \
+    --gdl \
+    -i multi_true_250_g_trees.trees \
+    -o tqmcpro.tre
+```
+where `--root 0` indicates rooting at taxon `0` to make the trees easier to compare visually.
+
+To run TQMC-pro on multi-copy gene trees, already rooted and tagged, use the command:
+```
+../../tree-qmc \
+    --root 0 \
+    --norm_atax 0 \
+    --gdl \
+    --tagged \
+    -i apro250_tagged_multi.trees \
+    -o tqmcpro-atagged.tre
+```
+
+You can also compare to the original version of TQMC-pro, with the command:
+```
+../../tree-qmc \
+    --root 0 \
+    --norm_atax 0 \
+    -i multi_true_250_g_trees.trees \
+    -o tqmc-n0.tre
+```
+You can then compare the outputs to the true species tree `s_tree.trees` by visualizing with [IcyTree](https://icytree.org).
+
+Note these tree files are from the Dup=5/ILS=0.5 model condition (replicate 21).
+
+---
+
 TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular methods [ASTRAL](https://doi.org/10.1186/s12859-018-2129-y) and [Weighted ASTRAL/ASTER](https://doi.org/10.1093/molbev/msac215). However, TREE-QMC uses a different algorithmic approach than ASTRAL/ASTER, based on the Quartet Max Cut (QMC) framework of Snir and Rao.
 
 To learn more about the TREE-QMC and weighted TREE-QMC, check out [Han & Molloy, *Genome Res*, 2023](http:doi.org/10.1101/gr.277629.122) and [Han & Molloy, *Systematic Biology*, 2025](https://doi.org/10.1093/sysbio/syaf009), respectively. 
