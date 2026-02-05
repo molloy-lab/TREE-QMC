@@ -211,8 +211,8 @@ Node *Tree::build_tree(const std::string &newick,
                         //           << dict->index2label(root->minimizer[2]) << "/" 
                         //           << dict->index2label(root->minimizer[3]) << std::endl;
 
-                        //std::cout << "Parsing " << support << std::endl;
-                        //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                        // std::cout << "Parsing " << support << std::endl;
+                        // std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
                     } else {
                     #endif  // ENABLE_TOB
                         try {

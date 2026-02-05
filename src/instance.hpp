@@ -6,6 +6,7 @@
 #include "charmat.hpp"
 #if ENABLE_TOB
 #include "network.hpp"
+#include "csvparser.hpp"
 #endif
 
 class Instance {
@@ -14,12 +15,14 @@ class Instance {
         ~Instance();
         long long solve();
         SpeciesTree *get_solution();
+        Network *get_network_solution();
         void output_solution();
         std::string get_execution_mode();
     private:
         std::vector<Tree *> input;
         Tree * annotation_tree;
         std::unordered_map<quartet_t, weight_t> quartets;
+        std::unordered_map<quartet_t, std::array<weight_t, 3>> qCFs_table;
         std::vector<std::size_t> positions;
         Dict *dict;
         SpeciesTree *output;
@@ -44,6 +47,7 @@ class Instance {
         void input_quartets();
         void input_quartets_basic();
         void input_quartets_phylonetworks();
+        void input_qcfs();
         //void input_pvalues();
 };
 

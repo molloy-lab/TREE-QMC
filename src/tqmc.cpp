@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
     Instance instance(argc, argv);
     long long time = instance.solve();
 
-    if (instance.get_solution() != NULL)
+    if (instance.get_solution() != NULL || instance.get_network_solution() != NULL)
         instance.output_solution();
 
     auto end = std::chrono::high_resolution_clock::now();

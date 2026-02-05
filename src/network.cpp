@@ -42,7 +42,17 @@ Network::Network(Tree *tree, Dict *dict) {
 
 
     index_t candidate_index = -1;
+
     Node *hybrid_tree_root = tree->get_root();
+    
+    std::cout << "Checking whether the current rooting is valid ..." << std::endl;
+    //check whether the root is null 
+    if (hybrid_tree_root == nullptr || hybrid_tree_root == NULL) {
+        std::cout << "The input tree is empty; will not write the output" << std::endl;
+        root = NULL;
+        return;
+    }
+    
     if (check_root(tree->get_root(), candidates)) {
         std::cout << "Cureent rooting is valid " << std::endl;
     } else {
@@ -84,14 +94,20 @@ bool Network::check_root(Node *root, std::unordered_set<index_t> &candidates) {
         return true;
     } else {
         
-        bool res = (root->hybrid_index < root->children.size()) || (root->multi_partitions.size() == root->children.size());
+        bool res = true;
         
-        std::vector<index_t> hybrid_bucket = root->multi_partitions[root->hybrid_index];
-        
-        for (index_t hybrid_taxon : hybrid_bucket) {
-            candidates.erase(hybrid_taxon);
+
+        if (root->multi_partitions.size() > 4 && root->hybrid_index < root->multi_partitions.size()) {
+            
+            res = (root->hybrid_index < root->children.size()) || (root->multi_partitions.size() == root->children.size());
+            
+            std::vector<index_t> hybrid_bucket = root->multi_partitions[root->hybrid_index];
+            
+            for (index_t hybrid_taxon : hybrid_bucket) {
+                candidates.erase(hybrid_taxon);
+            }
         }
-        
+    
         for (Node * child : root->children) {
             res = res && check_root(child, candidates);
         }
@@ -215,15 +231,20 @@ NetworkNode *Network::build_network(Node * root, Dict *dict, std::unordered_map<
     if (root->children.size() == 0) {
         return new NetworkNode(dict->index2label(root->index));
     } else {
-        // for tree node 
-        if (root->children.size() == 2) {
-            NetworkNode *left = build_network(root->children[0], dict, label2hybrid);
-            NetworkNode *right = build_network(root->children[1], dict, label2hybrid);
+        // for tree node and unresolved node 
+        if (root->multi_partitions.size() <= 4 || root->hybrid_index == root->multi_partitions.size()) {
+            // NetworkNode *left = build_network(root->children[0], dict, label2hybrid);
+            // NetworkNode *right = build_network(root->children[1], dict, label2hybrid);
             NetworkNode *res = new NetworkNode(dict->index2label(root->index));
-            res->children.push_back(left);
-            res->children.push_back(right);
-            left->parent = res;
-            right->parent = res;
+            // res->children.push_back(left);
+            // res->children.push_back(right);
+            // left->parent = res;
+            // right->parent = res;
+            for (size_t i = 0; i < root->children.size(); i++) {
+                NetworkNode *child = build_network(root->children[i], dict, label2hybrid);
+                res->children.push_back(child);
+                child->parent = res;
+            }
             return res;
         }
         // for 4 cycle random  random choose the hybrid 
@@ -231,6 +252,7 @@ NetworkNode *Network::build_network(Node * root, Dict *dict, std::unordered_map<
             
         // } 
         // for >= 4 cycle resovle it via the circle ordering
+        
         else {
             
             auto [above_index_in_cycle_vec, circle_ordering] = find_above_index_in_cycle(root);
