@@ -577,8 +577,12 @@ weight_t SpeciesTree::search(std::vector<Tree *> &input,
         do {indices[1] = A[rand() % A.size()]->index;} while (indices[0] == indices[1]);
         indices[2] = B[rand() % B.size()]->index;
         do {indices[3] = B[rand() % B.size()]->index;} while (indices[2] == indices[3]);
+        weight_t old_min = min;
+
         count += neighbor_search(input, A, B, indices, &min);
-        minimizer[0] = indices[0]; minimizer[1] = indices[1]; minimizer[2] = indices[2]; minimizer[3] = indices[3];
+        if (min < old_min || old_min < 0) {
+            minimizer[0] = indices[0]; minimizer[1] = indices[1]; minimizer[2] = indices[2]; minimizer[3] = indices[3];
+        }
         // std::cout << i << ' ' << min << std::endl;
     }
     //std::cout << "heuristic iter: " << count << std::endl;
