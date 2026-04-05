@@ -34,6 +34,7 @@ class Matrix {
     public:
         static weight_t **new_mat(index_t size);
         static void delete_mat(weight_t **m, index_t size);
+        static void zero_mat(weight_t **m, index_t size);
         static std::string display_mat(weight_t **m, index_t size);
         static weight_t diff_mat(weight_t **m1, weight_t **m2, index_t size);
 };

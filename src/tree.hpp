@@ -68,7 +68,9 @@ class Tree {
         index_t size();
         std::unordered_map<index_t, index_t> &get_indices();
         weight_t ***build_graph(Taxa &subset);
+        void build_graph_into(Taxa &subset, weight_t ***graph);
         weight_t ***build_wgraph(Taxa &subset);
+        void build_wgraph_into(Taxa &subset, weight_t ***graph);
         void get_quartets(std::unordered_map<quartet_t, weight_t> *quartets);
         void get_wquartets(std::unordered_map<quartet_t, weight_t> *quartets);
         void get_wquartets_(std::unordered_map<quartet_t, weight_t> *quartets);
@@ -106,7 +108,7 @@ class Tree {
         weight_t aa_doublet(Node *root, index_t x, index_t y);
         static bool cmp(const std::pair<index_t, weight_t> &a, const std::pair<index_t, weight_t> &b);
         void sort_doublet(Node *root);
-        std::unordered_set<index_t> bad_edges(Node *root, Taxa &subset, weight_t ***graph);
+        std::vector<index_t> bad_edges(Node *root, Taxa &subset, weight_t ***graph);
         void good_edges(Node *root, Taxa &subset, weight_t ***graph);
         Node *build_tree(const std::string &newick,
                          const std::unordered_map<std::string, std::string> &indiv2taxon);
@@ -131,8 +133,8 @@ class Tree {
         void build_sdoublet_(Node *root);
         void build_striplet(Node *root);
         void build_striplet_(Node *root);
-        std::unordered_set<index_t> wg_edges(Node *root, Taxa &subset, weight_t ***graph);
-        std::unordered_set<index_t> wb_edges(Node *root, Taxa &subset, weight_t ***graph);
+        std::vector<index_t> wg_edges(Node *root, Taxa &subset, weight_t ***graph);
+        std::vector<index_t> wb_edges(Node *root, Taxa &subset, weight_t ***graph);
         template <typename function1, typename function2>
         weight_t squartet(function1 f1, function2 f2, index_t size, index_t x, index_t y);
         void test_ssinglet(Node *root, Taxa &subset);
@@ -141,8 +143,8 @@ class Tree {
         void test_sdoublet_(Node *root, Taxa &subset);
         void test_striplet(Node *root, Taxa &subset);
         void test_striplet_(Node *root, Taxa &subset);
-        void test_pxlet(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset);
-        void test_pxlet_(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset);
+        void test_pxlet(Node *root, std::vector<index_t> &subtree, Taxa &subset);
+        void test_pxlet_(Node *root, std::vector<index_t> &subtree, Taxa &subset);
         void test_graph(Node *root, Taxa &subset, weight_t ***graph);
         void build_wstates(Node *root);
         void build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad);

@@ -10,28 +10,42 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
     graph[0] = Matrix::new_mat(size);
     graph[1] = Matrix::new_mat(size);
     if (verbose > "1") count[1] = count[2] = count[3] = 0;
-    for (Tree *tree : trees) {
-        std::unordered_map<index_t, index_t> valid = tree->get_indices();
-        subset.weight_update(valid);
-        weight_t ***subgraph;
-        if (weighting == "f")
-            subgraph = tree->build_graph(subset);
-        else
-            subgraph = tree->build_wgraph(subset);
-        for (index_t i = 0; i < size; i ++) {
-            for (index_t j = 0; j < size; j ++) {
-                if (subgraph[0][i][j] > 0 || subgraph[1][i][j] > 0) {
-                    index_t i_ = index2index[subset.root_at(i)];
-                    index_t j_ = index2index[subset.root_at(j)];
-                    graph[0][i_][j_] += subgraph[0][i][j];
-                    graph[1][i_][j_] += subgraph[1][i][j];
-                }
+
+    const std::size_t dense_n = static_cast<std::size_t>(size) * static_cast<std::size_t>(size);
+    weight_t ***subgraph = new weight_t**[2];
+    subgraph[0] = Matrix::new_mat(size);
+    subgraph[1] = Matrix::new_mat(size);
+
+    weight_t *graph_good_ptr = graph[0][0];
+    weight_t *graph_bad_ptr = graph[1][0];
+
+    auto accumulate_subgraph_to_graph = [&]() {
+        weight_t *sub_good = subgraph[0][0];
+        weight_t *sub_bad = subgraph[1][0];
+        for (std::size_t idx = 0; idx < dense_n; ++idx) {
+            const weight_t good = sub_good[idx];
+            const weight_t bad = sub_bad[idx];
+            if (good > 0 || bad > 0) {
+                graph_good_ptr[idx] += good;
+                graph_bad_ptr[idx] += bad;
             }
         }
-        Matrix::delete_mat(subgraph[0], size);
-        Matrix::delete_mat(subgraph[1], size);
-        delete [] subgraph;
+    };
+
+
+    for (Tree *tree : trees) {
+        std::unordered_map<index_t, index_t> &valid = tree->get_indices();
+        subset.weight_update(valid);
+        if (weighting == "f")
+            tree->build_graph_into(subset, subgraph);
+        else
+            tree->build_wgraph_into(subset, subgraph);
+        accumulate_subgraph_to_graph();
     }
+
+    Matrix::delete_mat(subgraph[0], size);
+    Matrix::delete_mat(subgraph[1], size);
+    delete [] subgraph;
     /*
     weight_t **temp_graph = Matrix::new_mat(size);
     for (index_t i = 0; i < size; i ++) {
