@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 project(tree_qmc LANGUAGES CXX)
+option(TREEQMC_ENABLE_OPENMP "Enable OpenMP CPU parallelism for graph construction" ON)
 
 # ---------- compiler & build ----------
 set(CMAKE_CXX_STANDARD 17)
@@ -145,6 +146,14 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/toms743/toms743.cpp")
 endif()
 list(APPEND TREE_QMC_SOURCES "${CMAKE_SOURCE_DIR}/external/toms743/toms743.cpp")
 add_executable(tree-qmc ${TREE_QMC_SOURCES})
+
+if(TREEQMC_ENABLE_OPENMP)
+  find_package(OpenMP)
+  if(OpenMP_CXX_FOUND)
+    target_link_libraries(tree-qmc PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_definitions(tree-qmc PRIVATE TREEQMC_USE_OPENMP=1)
+  endif()
+endif()
 
 # ---------- includes ----------
 target_include_directories(tree-qmc
