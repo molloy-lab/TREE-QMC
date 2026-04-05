@@ -1,41 +1,193 @@
 #include "tree.hpp"
+#include <cassert>
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <iomanip>
 
 extern bool DEBUG_MODE;
 
 namespace {
 
+constexpr std::size_t kWeightedVectorSlotsPerNode = 10;
+constexpr std::size_t kWeightedSquareSlotsPerNode = 6;
+
+struct WeightedStateArena {
+    void begin(std::size_t node_count, index_t dim) {
+        const auto width = static_cast<std::size_t>(dim);
+        const auto vector_elements = node_count * kWeightedVectorSlotsPerNode * width;
+        const auto square_elements = node_count * kWeightedSquareSlotsPerNode * width * width;
+        const auto row_pointers = node_count * kWeightedSquareSlotsPerNode * width;
+        if (vector_storage.size() < vector_elements) vector_storage.resize(vector_elements);
+        if (square_storage.size() < square_elements) square_storage.resize(square_elements);
+        if (square_rows.size() < row_pointers) square_rows.resize(row_pointers);
+        vector_cursor = 0;
+        square_cursor = 0;
+        row_cursor = 0;
+        active_dim = width;
+        active = true;
+    }
+
+    void end() {
+        active = false;
+        active_dim = 0;
+        vector_cursor = 0;
+        square_cursor = 0;
+        row_cursor = 0;
+    }
+
+    weight_t *acquire_vector(index_t size) {
+        const auto width = static_cast<std::size_t>(size);
+        assert(active && width == active_dim);
+        weight_t *data = vector_storage.data() + vector_cursor;
+        vector_cursor += width;
+        return data;
+    }
+
+    weight_t **acquire_square(index_t size) {
+        const auto width = static_cast<std::size_t>(size);
+        assert(active && width == active_dim);
+        weight_t **rows = square_rows.data() + row_cursor;
+        weight_t *data = square_storage.data() + square_cursor;
+        row_cursor += width;
+        square_cursor += width * width;
+        for (std::size_t i = 0; i < width; ++i) {
+            rows[i] = data + i * width;
+        }
+        return rows;
+    }
+
+    bool active = false;
+    std::size_t active_dim = 0;
+    std::size_t vector_cursor = 0;
+    std::size_t square_cursor = 0;
+    std::size_t row_cursor = 0;
+    std::vector<weight_t> vector_storage;
+    std::vector<weight_t> square_storage;
+    std::vector<weight_t *> square_rows;
+};
+
+thread_local WeightedStateArena g_weighted_state_arena;
+
 weight_t *new_state_vector(index_t size) {
-    return new weight_t[size]();
+    return g_weighted_state_arena.acquire_vector(size);
 }
 
 weight_t **new_state_square(index_t size) {
-    weight_t **rows = new weight_t*[size];
-    weight_t *data = new weight_t[static_cast<std::size_t>(size) * static_cast<std::size_t>(size)]();
-    for (index_t i = 0; i < size; ++i) {
-        rows[i] = data + static_cast<std::size_t>(i) * static_cast<std::size_t>(size);
-    }
-    return rows;
+    return g_weighted_state_arena.acquire_square(size);
 }
 
-void delete_state_square(weight_t **rows) {
-    if (!rows) return;
-    delete [] rows[0];
-    delete [] rows;
+enum class WeightedPhase : int {
+    BuildWstates = 0,
+    BuildSsinglet,
+    BuildSsingletComp,
+    BuildSdoublet,
+    BuildStriplet,
+    WgEdges,
+    BuildSdoubletComp,
+    BuildStripletComp,
+    WbEdges,
+    ClearWstates,
+    Count
+};
+
+struct WeightedPhaseStat {
+    std::atomic<unsigned long long> nanos{0};
+    std::atomic<unsigned long long> calls{0};
+};
+
+bool weighted_phase_profile_enabled() {
+    static const bool enabled = []() {
+        const char *env_p = std::getenv("TREEQMC_PROFILE_PHASES");
+        return env_p != NULL && env_p[0] != '\0' && env_p[0] != '0';
+    }();
+    return enabled;
 }
+
+const char *weighted_phase_name(WeightedPhase phase) {
+    switch (phase) {
+        case WeightedPhase::BuildWstates: return "build_wstates";
+        case WeightedPhase::BuildSsinglet: return "build_ssinglet";
+        case WeightedPhase::BuildSsingletComp: return "build_ssinglet_";
+        case WeightedPhase::BuildSdoublet: return "build_sdoublet";
+        case WeightedPhase::BuildStriplet: return "build_striplet";
+        case WeightedPhase::WgEdges: return "wg_edges";
+        case WeightedPhase::BuildSdoubletComp: return "build_sdoublet_";
+        case WeightedPhase::BuildStripletComp: return "build_striplet_";
+        case WeightedPhase::WbEdges: return "wb_edges";
+        case WeightedPhase::ClearWstates: return "clear_wstates";
+        case WeightedPhase::Count: break;
+    }
+    return "unknown";
+}
+
+WeightedPhaseStat g_weighted_phase_stats[static_cast<int>(WeightedPhase::Count)];
+
+class WeightedPhaseTimer {
+    public:
+        explicit WeightedPhaseTimer(WeightedPhase phase)
+            : phase_(phase),
+              enabled_(weighted_phase_profile_enabled()),
+              start_(enabled_ ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point()) {}
+
+        ~WeightedPhaseTimer() {
+            if (!enabled_) return;
+            const auto end = std::chrono::steady_clock::now();
+            const auto delta =
+                static_cast<unsigned long long>(
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(end - start_).count());
+            auto &stat = g_weighted_phase_stats[static_cast<int>(phase_)];
+            stat.nanos.fetch_add(delta, std::memory_order_relaxed);
+            stat.calls.fetch_add(1, std::memory_order_relaxed);
+        }
+
+    private:
+        WeightedPhase phase_;
+        bool enabled_;
+        std::chrono::steady_clock::time_point start_;
+};
+
+struct WeightedPhaseReporter {
+    ~WeightedPhaseReporter() {
+        if (!weighted_phase_profile_enabled()) return;
+        unsigned long long total_nanos = 0;
+        for (int i = 0; i < static_cast<int>(WeightedPhase::Count); ++i) {
+            total_nanos += g_weighted_phase_stats[i].nanos.load(std::memory_order_relaxed);
+        }
+        std::cerr << "\nTREEQMC weighted phase profile\n";
+        std::cerr << std::left << std::setw(18) << "phase"
+                  << std::right << std::setw(14) << "seconds"
+                  << std::setw(12) << "calls"
+                  << std::setw(10) << "%total" << '\n';
+        for (int i = 0; i < static_cast<int>(WeightedPhase::Count); ++i) {
+            const auto nanos = g_weighted_phase_stats[i].nanos.load(std::memory_order_relaxed);
+            const auto calls = g_weighted_phase_stats[i].calls.load(std::memory_order_relaxed);
+            const double secs = static_cast<double>(nanos) / 1e9;
+            const double pct = total_nanos == 0 ? 0.0 : (100.0 * static_cast<double>(nanos) / static_cast<double>(total_nanos));
+            std::cerr << std::left << std::setw(18) << weighted_phase_name(static_cast<WeightedPhase>(i))
+                      << std::right << std::setw(14) << std::fixed << std::setprecision(6) << secs
+                      << std::setw(12) << calls
+                      << std::setw(10) << std::setprecision(2) << pct << '\n';
+        }
+        std::cerr.flush();
+    }
+};
+
+WeightedPhaseReporter g_weighted_phase_reporter;
 
 }  // namespace
 
 void Tree::clear_wstates(Node *root) {
-    delete [] root->ssinglet;
-    delete [] root->ssinglet_;
+    root->ssinglet = nullptr;
+    root->ssinglet_ = nullptr;
     for (index_t k = 0; k < 2; k ++) {
-        delete [] root->pdoublet[k];
-        delete [] root->ptriplet[k];
-        delete [] root->mdoublet[k];
-        delete [] root->mdoublet_[k];
-        delete_state_square(root->sdoublet[k]);
-        delete_state_square(root->sdoublet_[k]);
-        delete_state_square(root->striplet[k]);
+        root->pdoublet[k] = nullptr;
+        root->ptriplet[k] = nullptr;
+        root->mdoublet[k] = nullptr;
+        root->mdoublet_[k] = nullptr;
+        root->sdoublet[k] = nullptr;
+        root->sdoublet_[k] = nullptr;
+        root->striplet[k] = nullptr;
     }
     for (Node *child : root->children) 
         clear_wstates(child);
@@ -440,6 +592,14 @@ std::vector<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t ***graph)
     }
 }
 
+std::size_t Tree::weighted_node_count(Node *root) {
+    std::size_t count = 1;
+    for (Node *child : root->children) {
+        count += weighted_node_count(child);
+    }
+    return count;
+}
+
 std::vector<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t ***graph) {
     if (root->children.size() == 0) {
         std::vector<index_t> subtree;
@@ -731,23 +891,54 @@ void Tree::build_wgraph_into(Taxa &subset, weight_t ***graph) {
     if (DEBUG_MODE) get_depth(root, 0);
     Matrix::zero_mat(graph[0], subset.size());
     Matrix::zero_mat(graph[1], subset.size());
-    build_wstates(root, subset);
-    build_ssinglet(root, subset);
+    g_weighted_state_arena.begin(weighted_node_count(root), subset.artificial_taxa() + 1);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildWstates);
+        build_wstates(root, subset);
+    }
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSsinglet);
+        build_ssinglet(root, subset);
+    }
     if (DEBUG_MODE) test_ssinglet(root, subset);
-    build_ssinglet_(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSsingletComp);
+        build_ssinglet_(root);
+    }
     if (DEBUG_MODE) test_ssinglet_(root, subset);
-    build_sdoublet(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSdoublet);
+        build_sdoublet(root);
+    }
     if (DEBUG_MODE) test_sdoublet(root, subset);
-    build_striplet(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildStriplet);
+        build_striplet(root);
+    }
     if (DEBUG_MODE) test_striplet(root, subset);
-    wg_edges(root, subset, graph);
-    build_sdoublet_(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::WgEdges);
+        wg_edges(root, subset, graph);
+    }
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSdoubletComp);
+        build_sdoublet_(root);
+    }
     if (DEBUG_MODE) test_sdoublet_(root, subset);
-    build_striplet_(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildStripletComp);
+        build_striplet_(root);
+    }
     if (DEBUG_MODE) test_striplet_(root, subset);
-    wb_edges(root, subset, graph);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::WbEdges);
+        wb_edges(root, subset, graph);
+    }
     if (DEBUG_MODE) test_graph(root, subset, graph);
-    clear_wstates(root);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::ClearWstates);
+        g_weighted_state_arena.end();
+    }
 }
 
 void Tree::test_graph(Node *root, Taxa &subset, weight_t ***graph) {

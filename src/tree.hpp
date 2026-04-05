@@ -146,6 +146,7 @@ class Tree {
         void test_pxlet(Node *root, std::vector<index_t> &subtree, Taxa &subset);
         void test_pxlet_(Node *root, std::vector<index_t> &subtree, Taxa &subset);
         void test_graph(Node *root, Taxa &subset, weight_t ***graph);
+        std::size_t weighted_node_count(Node *root);
         void build_wstates(Node *root);
         void build_ssinglet(Node *root, std::unordered_map<index_t, index_t> quad);
         weight_t get_qcount(std::unordered_map<index_t, index_t> quad);
