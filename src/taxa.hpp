@@ -15,6 +15,7 @@ class Taxa {
                 Node *parent;
                 index_t index, r_index, size, degree;
                 bool singleton;
+                unsigned long long visit_token;
         };
         Taxa();
         Taxa(Dict *dict, std::string mode);
@@ -44,12 +45,19 @@ class Taxa {
     private:
         std::vector<Node *> leaves, roots;
         Node **index2node;
-        // std::unordered_map<index_t, Node*> index2node;
         Dict *dict;
         index_t singletons;
         std::string mode;
         char normal, shared;
         bool updated;
+        bool cache_valid;
+        unsigned long long visit_epoch;
+        std::vector<index_t> cached_root_index;
+        std::vector<index_t> cached_root_rindex;
+        std::vector<index_t> cached_root_key;
+        std::vector<weight_t> cached_root_weight;
+        std::vector<Node *> traversal_queue;
+        void rebuild_lookup_cache();
         void sort_taxa();
 };
 
