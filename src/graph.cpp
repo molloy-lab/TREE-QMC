@@ -1,4 +1,38 @@
 #include "graph.hpp"
+#include <algorithm>
+#include <cstdlib>
+#include <vector>
+
+#ifdef TREEQMC_USE_OPENMP
+#include <omp.h>
+#endif
+
+namespace {
+
+int treeqmc_env_int(const char *name, int fallback) {
+    const char *env_p = std::getenv(name);
+    if (env_p == NULL || *env_p == '\0') return fallback;
+    const int value = std::atoi(env_p);
+    return value > 0 ? value : fallback;
+}
+
+unsigned long long treeqmc_env_ull(const char *name, unsigned long long fallback) {
+    const char *env_p = std::getenv(name);
+    if (env_p == NULL || *env_p == '\0') return fallback;
+    const unsigned long long value = std::strtoull(env_p, nullptr, 10);
+    return value > 0 ? value : fallback;
+}
+
+#ifdef TREEQMC_USE_OPENMP
+int treeqmc_graph_threads(std::size_t tree_count) {
+    const int requested = treeqmc_env_int("TREEQMC_NUM_THREADS", 0);
+    if (requested > 0) return std::max(1, std::min<int>(requested, static_cast<int>(tree_count)));
+    const int max_threads = omp_get_max_threads();
+    return std::max(1, std::min<int>(max_threads, std::min<int>(64, static_cast<int>(tree_count))));
+}
+#endif
+
+}  // namespace
 
 Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
     size = subset.size();
@@ -10,28 +44,103 @@ Graph::Graph(std::vector<Tree *> trees, Taxa &subset, std::string weighting) {
     graph[0] = Matrix::new_mat(size);
     graph[1] = Matrix::new_mat(size);
     if (verbose > "1") count[1] = count[2] = count[3] = 0;
-    for (Tree *tree : trees) {
-        std::unordered_map<index_t, index_t> valid = tree->get_indices();
-        subset.weight_update(valid);
-        weight_t ***subgraph;
-        if (weighting == "f")
-            subgraph = tree->build_graph(subset);
-        else
-            subgraph = tree->build_wgraph(subset);
-        for (index_t i = 0; i < size; i ++) {
-            for (index_t j = 0; j < size; j ++) {
-                if (subgraph[0][i][j] > 0 || subgraph[1][i][j] > 0) {
-                    index_t i_ = index2index[subset.root_at(i)];
-                    index_t j_ = index2index[subset.root_at(j)];
-                    graph[0][i_][j_] += subgraph[0][i][j];
-                    graph[1][i_][j_] += subgraph[1][i][j];
+
+    const std::size_t dense_n = static_cast<std::size_t>(size) * static_cast<std::size_t>(size);
+    weight_t ***subgraph = new weight_t**[2];
+    subgraph[0] = Matrix::new_mat(size);
+    subgraph[1] = Matrix::new_mat(size);
+
+    weight_t *graph_good_ptr = graph[0][0];
+    weight_t *graph_bad_ptr = graph[1][0];
+
+#ifdef TREEQMC_USE_OPENMP
+    const unsigned long long estimated_work =
+        static_cast<unsigned long long>(dense_n) *
+        static_cast<unsigned long long>(trees.size());
+    const unsigned long long parallel_min_work =
+        treeqmc_env_ull("TREEQMC_PARALLEL_MIN_WORK", 1ULL);
+    const int parallel_threads = treeqmc_graph_threads(trees.size());
+    const bool use_parallel =
+        parallel_threads > 1 &&
+        trees.size() > 1 &&
+        verbose <= "1" &&
+        estimated_work >= parallel_min_work;
+
+    if (use_parallel) {
+#pragma omp parallel num_threads(parallel_threads)
+        {
+            Taxa local_subset(subset);
+            weight_t ***local_subgraph = new weight_t**[2];
+            local_subgraph[0] = Matrix::new_mat(size);
+            local_subgraph[1] = Matrix::new_mat(size);
+            std::vector<weight_t> local_good(dense_n, 0.0);
+            std::vector<weight_t> local_bad(dense_n, 0.0);
+
+#pragma omp for schedule(static)
+            for (std::size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
+                Tree *tree = trees[tree_idx];
+                std::unordered_map<index_t, index_t> &valid = tree->get_indices();
+                local_subset.weight_update(valid);
+                if (weighting == "f")
+                    tree->build_graph_into(local_subset, local_subgraph);
+                else
+                    tree->build_wgraph_into(local_subset, local_subgraph);
+
+                weight_t *sub_good = local_subgraph[0][0];
+                weight_t *sub_bad = local_subgraph[1][0];
+                for (std::size_t idx = 0; idx < dense_n; ++idx) {
+                    const weight_t good = sub_good[idx];
+                    const weight_t bad = sub_bad[idx];
+                    if (good > 0 || bad > 0) {
+                        local_good[idx] += good;
+                        local_bad[idx] += bad;
+                    }
                 }
             }
+
+#pragma omp critical
+            {
+                for (std::size_t idx = 0; idx < dense_n; ++idx) {
+                    graph_good_ptr[idx] += local_good[idx];
+                    graph_bad_ptr[idx] += local_bad[idx];
+                }
+            }
+
+            Matrix::delete_mat(local_subgraph[0], size);
+            Matrix::delete_mat(local_subgraph[1], size);
+            delete [] local_subgraph;
         }
-        Matrix::delete_mat(subgraph[0], size);
-        Matrix::delete_mat(subgraph[1], size);
-        delete [] subgraph;
     }
+    else
+#endif
+    {
+        auto accumulate_subgraph_to_graph = [&]() {
+            weight_t *sub_good = subgraph[0][0];
+            weight_t *sub_bad = subgraph[1][0];
+            for (std::size_t idx = 0; idx < dense_n; ++idx) {
+                const weight_t good = sub_good[idx];
+                const weight_t bad = sub_bad[idx];
+                if (good > 0 || bad > 0) {
+                    graph_good_ptr[idx] += good;
+                    graph_bad_ptr[idx] += bad;
+                }
+            }
+        };
+
+        for (Tree *tree : trees) {
+            std::unordered_map<index_t, index_t> &valid = tree->get_indices();
+            subset.weight_update(valid);
+            if (weighting == "f")
+                tree->build_graph_into(subset, subgraph);
+            else
+                tree->build_wgraph_into(subset, subgraph);
+            accumulate_subgraph_to_graph();
+        }
+    }
+
+    Matrix::delete_mat(subgraph[0], size);
+    Matrix::delete_mat(subgraph[1], size);
+    delete [] subgraph;
     /*
     weight_t **temp_graph = Matrix::new_mat(size);
     for (index_t i = 0; i < size; i ++) {

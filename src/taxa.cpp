@@ -5,6 +5,7 @@ Taxa::Node::Node(index_t index) {
     parent = NULL;
     this->index = index;
     r_index = -1;
+    visit_token = 0;
 }
 
 bool Taxa::Node::is_singleton() {
@@ -12,11 +13,15 @@ bool Taxa::Node::is_singleton() {
 }
 
 Taxa::Taxa() {
-
+    updated = false;
+    cache_valid = false;
+    visit_epoch = 0;
 }
 
 Taxa::Taxa(Dict *dict, std::string mode) {
     this->updated = false;
+    this->cache_valid = false;
+    this->visit_epoch = 0;
     this->dict = dict;
     this->mode = mode;
     this->normal = mode[0];
@@ -30,11 +35,18 @@ Taxa::Taxa(Dict *dict, std::string mode) {
         roots.push_back(node);
         leaves.push_back(node);
     }
+    cached_root_index.assign(dict->max_size(), -1);
+    cached_root_rindex.assign(dict->max_size(), -1);
+    cached_root_key.assign(dict->max_size(), -1);
+    cached_root_weight.assign(dict->max_size(), 0.0);
+    traversal_queue.reserve(dict->max_size());
     this->singletons = roots.size();
 }
 
 Taxa::Taxa(const Taxa &taxa) {
     this->updated = false;
+    this->cache_valid = false;
+    this->visit_epoch = 0;
     singletons = taxa.singletons;
     mode = taxa.mode;
     normal = taxa.normal;
@@ -61,6 +73,11 @@ Taxa::Taxa(const Taxa &taxa) {
         roots.push_back(index2node[root->index]);
     for (Node *leaf : taxa.leaves) 
         leaves.push_back(index2node[leaf->index]);
+    cached_root_index.assign(dict->max_size(), -1);
+    cached_root_rindex.assign(dict->max_size(), -1);
+    cached_root_key.assign(dict->max_size(), -1);
+    cached_root_weight.assign(dict->max_size(), 0.0);
+    traversal_queue.reserve(dict->max_size());
 }
 
 Taxa::~Taxa() {
@@ -81,32 +98,63 @@ void Taxa::struct_update(std::vector<index_t> &subset, index_t artificial) {
         node->r_index = -1;
         node->singleton = false;
     }
+    cache_valid = false;
     sort_taxa();
+}
+
+void Taxa::rebuild_lookup_cache() {
+    const index_t max_nodes = dict->max_size();
+    std::fill(cached_root_index.begin(), cached_root_index.end(), static_cast<index_t>(-1));
+    std::fill(cached_root_rindex.begin(), cached_root_rindex.end(), static_cast<index_t>(-1));
+    std::fill(cached_root_key.begin(), cached_root_key.end(), static_cast<index_t>(-1));
+    std::fill(cached_root_weight.begin(), cached_root_weight.end(), 0.0);
+    for (index_t i = 0; i < max_nodes; i ++) {
+        Node *node = index2node[i];
+        if (node == NULL) continue;
+        Node *root = get_root(node);
+        cached_root_index[i] = root->index;
+        cached_root_rindex[i] = root->r_index;
+        cached_root_key[i] = root->is_singleton() ? 0 : root->r_index - singletons + 1;
+        if (normal == '0') {
+            cached_root_weight[i] = 1.0;
+        }
+        else if (normal == '1') {
+            cached_root_weight[i] = 1.0 / root->size;
+        }
+        else {
+            cached_root_weight[i] = get_weight(node);
+        }
+    }
+    cache_valid = true;
 }
 
 void Taxa::weight_update(std::unordered_map<index_t, index_t> &subset) {
     if (shared == '1') {
         if (! updated) {
             updated = true;
-            // std::cout << size() << std::endl;
             for (Node *node : leaves) {
                 node->singleton = node->parent == NULL;
             }
             if (normal == '1' || normal == '2') {
-                std::queue<Node *> queue;
-                std::unordered_set<Node *> visited;
+                traversal_queue.clear();
+                if (visit_epoch == std::numeric_limits<unsigned long long>::max()) {
+                    visit_epoch = 0;
+                    for (index_t i = 0; i < dict->max_size(); i ++) {
+                        if (index2node[i] != NULL) index2node[i]->visit_token = 0;
+                    }
+                }
+                const unsigned long long token = ++visit_epoch;
                 for (Node *node : leaves) {
-                    queue.push(node);
-                    visited.insert(node);
+                    traversal_queue.push_back(node);
+                    node->visit_token = token;
                     node->degree = 1;
                 }
-                while (! queue.empty()) {
-                    Node *head = queue.front();
-                    queue.pop();
+                for (std::size_t qhead = 0; qhead < traversal_queue.size(); ++qhead) {
+                    Node *head = traversal_queue[qhead];
                     if (head->parent != NULL) {
-                        if (visited.find(head->parent) == visited.end()) {
-                            queue.push(head->parent);
-                            visited.insert(head->parent);
+                        if (head->parent->visit_token != token) {
+                            traversal_queue.push_back(head->parent);
+                            head->parent->visit_token = token;
                             head->parent->degree = 0;
                             head->parent->size = 0;
                         }
@@ -114,49 +162,57 @@ void Taxa::weight_update(std::unordered_map<index_t, index_t> &subset) {
                     }
                 }
                 if (normal == '1') {
+                    traversal_queue.clear();
                     for (Node *node : leaves) {
-                        queue.push(node);
+                        traversal_queue.push_back(node);
                         node->size = 1.0;
                     }
-                    while (! queue.empty()) {
-                        Node *head = queue.front();
-                        queue.pop();
+                    for (std::size_t qhead = 0; qhead < traversal_queue.size(); ++qhead) {
+                        Node *head = traversal_queue[qhead];
                         if (head->parent != NULL) {
                             head->parent->degree -= 1;
                             head->parent->size += head->size;
                             if (head->parent->degree == 0) {
-                                queue.push(head->parent);
+                                traversal_queue.push_back(head->parent);
                             }
                         }
                     }
                 }
             }
             sort_taxa();
+            rebuild_lookup_cache();
         }
     }
     else {
         for (Node *node : leaves) {
-            if (subset.find(node->index) != subset.end()) {
-                node->singleton = subset[node->index] == 1 && node->parent == NULL;
+            auto it = subset.find(node->index);
+            if (it != subset.end()) {
+                node->singleton = it->second == 1 && node->parent == NULL;
             }
         }
         if (normal == '1' || normal == '2') {
-            std::queue<Node *> queue;
-            std::unordered_set<Node *> visited;
-            for (Node *node : leaves) {
-                if (subset.find(node->index) != subset.end()) {
-                    queue.push(node);
-                    visited.insert(node);
-                    node->degree = subset[node->index];
+            traversal_queue.clear();
+            if (visit_epoch == std::numeric_limits<unsigned long long>::max()) {
+                visit_epoch = 0;
+                for (index_t i = 0; i < dict->max_size(); i ++) {
+                    if (index2node[i] != NULL) index2node[i]->visit_token = 0;
                 }
             }
-            while (! queue.empty()) {
-                Node *head = queue.front();
-                queue.pop();
+            const unsigned long long token = ++visit_epoch;
+            for (Node *node : leaves) {
+                auto it = subset.find(node->index);
+                if (it != subset.end()) {
+                    traversal_queue.push_back(node);
+                    node->visit_token = token;
+                    node->degree = it->second;
+                }
+            }
+            for (std::size_t qhead = 0; qhead < traversal_queue.size(); ++qhead) {
+                Node *head = traversal_queue[qhead];
                 if (head->parent != NULL) {
-                    if (visited.find(head->parent) == visited.end()) {
-                        queue.push(head->parent);
-                        visited.insert(head->parent);
+                    if (head->parent->visit_token != token) {
+                        traversal_queue.push_back(head->parent);
+                        head->parent->visit_token = token;
                         head->parent->degree = 0;
                         head->parent->size = 0;
                     }
@@ -164,26 +220,28 @@ void Taxa::weight_update(std::unordered_map<index_t, index_t> &subset) {
                 }
             }
             if (normal == '1') {
+                traversal_queue.clear();
                 for (Node *node : leaves) {
-                    if (subset.find(node->index) != subset.end()) {
-                        queue.push(node);
-                        node->size = subset[node->index];
+                    auto it = subset.find(node->index);
+                    if (it != subset.end()) {
+                        traversal_queue.push_back(node);
+                        node->size = it->second;
                     }
                 }
-                while (! queue.empty()) {
-                    Node *head = queue.front();
-                    queue.pop();
+                for (std::size_t qhead = 0; qhead < traversal_queue.size(); ++qhead) {
+                    Node *head = traversal_queue[qhead];
                     if (head->parent != NULL) {
                         head->parent->degree -= 1;
                         head->parent->size += head->size;
                         if (head->parent->degree == 0) {
-                            queue.push(head->parent);
+                            traversal_queue.push_back(head->parent);
                         }
                     }
                 }
             }
         }
         sort_taxa();
+        rebuild_lookup_cache();
     }
 }
 
@@ -258,14 +316,17 @@ index_t Taxa::artificial_at(index_t i) {
 }
 
 index_t Taxa::get_index(index_t index) {
+    if (cache_valid) return cached_root_index[index];
     return get_root(index)->index;
 }
 
 index_t Taxa::root_index(index_t index) {
+    if (cache_valid) return cached_root_rindex[index];
     return get_root(index)->r_index;
 }
 
 index_t Taxa::root_key(index_t index) {
+    if (cache_valid) return cached_root_key[index];
     Node *root = get_root(index);
     if (root->is_singleton()) return 0;
     return root->r_index - singletons + 1;
@@ -283,6 +344,7 @@ Taxa::Node *Taxa::get_root(Taxa::Node *root) {
 }
 
 weight_t Taxa::root_weight(index_t index) {
+    if (cache_valid) return cached_root_weight[index];
     if (normal == '0') {
         return 1.0;
     }

@@ -1,24 +1,193 @@
 #include "tree.hpp"
+#include <cassert>
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <iomanip>
 
 extern bool DEBUG_MODE;
 
+namespace {
+
+constexpr std::size_t kWeightedVectorSlotsPerNode = 10;
+constexpr std::size_t kWeightedSquareSlotsPerNode = 6;
+
+struct WeightedStateArena {
+    void begin(std::size_t node_count, index_t dim) {
+        const auto width = static_cast<std::size_t>(dim);
+        const auto vector_elements = node_count * kWeightedVectorSlotsPerNode * width;
+        const auto square_elements = node_count * kWeightedSquareSlotsPerNode * width * width;
+        const auto row_pointers = node_count * kWeightedSquareSlotsPerNode * width;
+        if (vector_storage.size() < vector_elements) vector_storage.resize(vector_elements);
+        if (square_storage.size() < square_elements) square_storage.resize(square_elements);
+        if (square_rows.size() < row_pointers) square_rows.resize(row_pointers);
+        vector_cursor = 0;
+        square_cursor = 0;
+        row_cursor = 0;
+        active_dim = width;
+        active = true;
+    }
+
+    void end() {
+        active = false;
+        active_dim = 0;
+        vector_cursor = 0;
+        square_cursor = 0;
+        row_cursor = 0;
+    }
+
+    weight_t *acquire_vector(index_t size) {
+        const auto width = static_cast<std::size_t>(size);
+        assert(active && width == active_dim);
+        weight_t *data = vector_storage.data() + vector_cursor;
+        vector_cursor += width;
+        return data;
+    }
+
+    weight_t **acquire_square(index_t size) {
+        const auto width = static_cast<std::size_t>(size);
+        assert(active && width == active_dim);
+        weight_t **rows = square_rows.data() + row_cursor;
+        weight_t *data = square_storage.data() + square_cursor;
+        row_cursor += width;
+        square_cursor += width * width;
+        for (std::size_t i = 0; i < width; ++i) {
+            rows[i] = data + i * width;
+        }
+        return rows;
+    }
+
+    bool active = false;
+    std::size_t active_dim = 0;
+    std::size_t vector_cursor = 0;
+    std::size_t square_cursor = 0;
+    std::size_t row_cursor = 0;
+    std::vector<weight_t> vector_storage;
+    std::vector<weight_t> square_storage;
+    std::vector<weight_t *> square_rows;
+};
+
+thread_local WeightedStateArena g_weighted_state_arena;
+
+weight_t *new_state_vector(index_t size) {
+    return g_weighted_state_arena.acquire_vector(size);
+}
+
+weight_t **new_state_square(index_t size) {
+    return g_weighted_state_arena.acquire_square(size);
+}
+
+enum class WeightedPhase : int {
+    BuildWstates = 0,
+    BuildSsinglet,
+    BuildSsingletComp,
+    BuildSdoublet,
+    BuildStriplet,
+    WgEdges,
+    BuildSdoubletComp,
+    BuildStripletComp,
+    WbEdges,
+    ClearWstates,
+    Count
+};
+
+struct WeightedPhaseStat {
+    std::atomic<unsigned long long> nanos{0};
+    std::atomic<unsigned long long> calls{0};
+};
+
+bool weighted_phase_profile_enabled() {
+    static const bool enabled = []() {
+        const char *env_p = std::getenv("TREEQMC_PROFILE_PHASES");
+        return env_p != NULL && env_p[0] != '\0' && env_p[0] != '0';
+    }();
+    return enabled;
+}
+
+const char *weighted_phase_name(WeightedPhase phase) {
+    switch (phase) {
+        case WeightedPhase::BuildWstates: return "build_wstates";
+        case WeightedPhase::BuildSsinglet: return "build_ssinglet";
+        case WeightedPhase::BuildSsingletComp: return "build_ssinglet_";
+        case WeightedPhase::BuildSdoublet: return "build_sdoublet";
+        case WeightedPhase::BuildStriplet: return "build_striplet";
+        case WeightedPhase::WgEdges: return "wg_edges";
+        case WeightedPhase::BuildSdoubletComp: return "build_sdoublet_";
+        case WeightedPhase::BuildStripletComp: return "build_striplet_";
+        case WeightedPhase::WbEdges: return "wb_edges";
+        case WeightedPhase::ClearWstates: return "clear_wstates";
+        case WeightedPhase::Count: break;
+    }
+    return "unknown";
+}
+
+WeightedPhaseStat g_weighted_phase_stats[static_cast<int>(WeightedPhase::Count)];
+
+class WeightedPhaseTimer {
+    public:
+        explicit WeightedPhaseTimer(WeightedPhase phase)
+            : phase_(phase),
+              enabled_(weighted_phase_profile_enabled()),
+              start_(enabled_ ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point()) {}
+
+        ~WeightedPhaseTimer() {
+            if (!enabled_) return;
+            const auto end = std::chrono::steady_clock::now();
+            const auto delta =
+                static_cast<unsigned long long>(
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(end - start_).count());
+            auto &stat = g_weighted_phase_stats[static_cast<int>(phase_)];
+            stat.nanos.fetch_add(delta, std::memory_order_relaxed);
+            stat.calls.fetch_add(1, std::memory_order_relaxed);
+        }
+
+    private:
+        WeightedPhase phase_;
+        bool enabled_;
+        std::chrono::steady_clock::time_point start_;
+};
+
+struct WeightedPhaseReporter {
+    ~WeightedPhaseReporter() {
+        if (!weighted_phase_profile_enabled()) return;
+        unsigned long long total_nanos = 0;
+        for (int i = 0; i < static_cast<int>(WeightedPhase::Count); ++i) {
+            total_nanos += g_weighted_phase_stats[i].nanos.load(std::memory_order_relaxed);
+        }
+        std::cerr << "\nTREEQMC weighted phase profile\n";
+        std::cerr << std::left << std::setw(18) << "phase"
+                  << std::right << std::setw(14) << "seconds"
+                  << std::setw(12) << "calls"
+                  << std::setw(10) << "%total" << '\n';
+        for (int i = 0; i < static_cast<int>(WeightedPhase::Count); ++i) {
+            const auto nanos = g_weighted_phase_stats[i].nanos.load(std::memory_order_relaxed);
+            const auto calls = g_weighted_phase_stats[i].calls.load(std::memory_order_relaxed);
+            const double secs = static_cast<double>(nanos) / 1e9;
+            const double pct = total_nanos == 0 ? 0.0 : (100.0 * static_cast<double>(nanos) / static_cast<double>(total_nanos));
+            std::cerr << std::left << std::setw(18) << weighted_phase_name(static_cast<WeightedPhase>(i))
+                      << std::right << std::setw(14) << std::fixed << std::setprecision(6) << secs
+                      << std::setw(12) << calls
+                      << std::setw(10) << std::setprecision(2) << pct << '\n';
+        }
+        std::cerr.flush();
+    }
+};
+
+WeightedPhaseReporter g_weighted_phase_reporter;
+
+}  // namespace
+
 void Tree::clear_wstates(Node *root) {
-    delete [] root->ssinglet;
-    delete [] root->ssinglet_;
+    root->ssinglet = nullptr;
+    root->ssinglet_ = nullptr;
     for (index_t k = 0; k < 2; k ++) {
-        delete [] root->pdoublet[k];
-        delete [] root->ptriplet[k];
-        delete [] root->mdoublet[k];
-        delete [] root->mdoublet_[k];
-        for (index_t i = 0; i <= root->size; i ++) 
-            delete [] root->sdoublet[k][i];
-        delete [] root->sdoublet[k];
-        for (index_t i = 0; i <= root->size; i ++) 
-            delete [] root->sdoublet_[k][i];
-        delete [] root->sdoublet_[k];
-        for (index_t i = 0; i <= root->size; i ++) 
-            delete [] root->striplet[k][i];
-        delete [] root->striplet[k];
+        root->pdoublet[k] = nullptr;
+        root->ptriplet[k] = nullptr;
+        root->mdoublet[k] = nullptr;
+        root->mdoublet_[k] = nullptr;
+        root->sdoublet[k] = nullptr;
+        root->sdoublet_[k] = nullptr;
+        root->striplet[k] = nullptr;
     }
     for (Node *child : root->children) 
         clear_wstates(child);
@@ -29,22 +198,16 @@ void Tree::build_wstates(Node *root, Taxa &subset) {
     root->tdoublet[0] = root->tdoublet[1] = std::nan("");
     root->tdoublet_[0] = root->tdoublet_[1] = std::nan("");
     root->size = subset.artificial_taxa();
-    root->ssinglet = init(root->size + 1);
-    root->ssinglet_ = init(root->size + 1);
+    root->ssinglet = new_state_vector(root->size + 1);
+    root->ssinglet_ = new_state_vector(root->size + 1);
     for (index_t k = 0; k < 2; k ++) {
-        root->pdoublet[k] = init(root->size + 1);
-        root->ptriplet[k] = init(root->size + 1);
-        root->mdoublet[k] = init(root->size + 1);
-        root->mdoublet_[k] = init(root->size + 1);
-        root->sdoublet[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet[k][i] = init(root->size + 1);
-        root->sdoublet_[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet_[k][i] = init(root->size + 1);
-        root->striplet[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->striplet[k][i] = init(root->size + 1);
+        root->pdoublet[k] = new_state_vector(root->size + 1);
+        root->ptriplet[k] = new_state_vector(root->size + 1);
+        root->mdoublet[k] = new_state_vector(root->size + 1);
+        root->mdoublet_[k] = new_state_vector(root->size + 1);
+        root->sdoublet[k] = new_state_square(root->size + 1);
+        root->sdoublet_[k] = new_state_square(root->size + 1);
+        root->striplet[k] = new_state_square(root->size + 1);
     }
     for (Node *child : root->children) 
         build_wstates(child, subset);
@@ -87,7 +250,7 @@ void Tree::build_ssinglet_(Node *root) {
 template <typename function1, typename function2>
 weight_t Tree::squartet(function1 f1, function2 f2, index_t size, index_t x, index_t y) {
     weight_t s1 = 0, s2 = 0, s12 = 0;
-    for (index_t i = 0; i <= root->size; i ++) {
+    for (index_t i = 0; i <= size; i ++) {
         if (i != 0 && (i == x || i == y)) continue;
         weight_t w1 = f1(i), w2 = f2(i);
         s1 += w1; s2 += w2;
@@ -97,38 +260,44 @@ weight_t Tree::squartet(function1 f1, function2 f2, index_t size, index_t x, ind
 }
 
 void Tree::build_sdoublet(Node *root) {
+    const index_t dim = root->size + 1;
     if (root->children.size() == 0) {
-        for (index_t i = 0; i <= root->size; i ++) {
-            for (index_t j = 0; j <= root->size; j ++) 
-                root->sdoublet[0][i][j] = root->sdoublet[1][i][j] = 0;
-            root->mdoublet[0][i] = root->mdoublet[1][i] = 0;
-        }
+        std::memset(root->sdoublet[0][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->sdoublet[1][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->mdoublet[0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
+        std::memset(root->mdoublet[1], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
         root->tdoublet[0] = root->tdoublet[1] = 0;
     }
     else {
         for (Node *child : root->children) 
             build_sdoublet(child);
         root->tdoublet[0] = root->tdoublet[1] = 0;
+        std::memset(root->mdoublet[0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
+        std::memset(root->mdoublet[1], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
         for (index_t i = 0; i <= root->size; i ++) {
-            root->mdoublet[0][i] = root->mdoublet[1][i] = 0;
-            for (index_t j = 0; j <= root->size; j ++) {
-                if (i > 0 && i == j) {
-                    root->sdoublet[0][i][j] = 0;
-                    continue;
-                }
+            for (index_t j = i; j <= root->size; j ++) {
                 for (index_t k = 0; k < 2; k ++) {
-                    if (i > j) 
-                        root->sdoublet[k][i][j] = root->sdoublet[k][j][i];
-                    else 
-                        root->sdoublet[k][i][j] = 
+                    weight_t value;
+                    if (i > 0 && i == j) {
+                        value = 0;
+                    } else {
+                        value =
                             root->children[0]->sdoublet[k][i][j] * root->children[0]->support_[k] +
                             root->children[1]->sdoublet[k][i][j] * root->children[1]->support_[k] + (
                                 root->children[0]->ssinglet[i] * root->children[1]->ssinglet[j] +
-                                root->children[1]->ssinglet[i] * root->children[0]->ssinglet[j] * (i != 0 || j != 0)) * 
+                                root->children[1]->ssinglet[i] * root->children[0]->ssinglet[j] * (i != 0 || j != 0)) *
                             root->children[0]->length_ * root->children[1]->length_;
-                    root->mdoublet[k][i] += root->sdoublet[k][i][j];
+                    }
+                    root->sdoublet[k][i][j] = value;
+                    root->mdoublet[k][i] += value;
+                    if (i != j) {
+                        root->sdoublet[k][j][i] = value;
+                        root->mdoublet[k][j] += value;
+                    }
                 }
             }
+        }
+        for (index_t i = 0; i <= root->size; i ++) {
             root->tdoublet[0] += root->mdoublet[0][i];
             root->tdoublet[1] += root->mdoublet[1][i];
         }
@@ -138,37 +307,43 @@ void Tree::build_sdoublet(Node *root) {
 }
 
 void Tree::build_sdoublet_(Node *root) {
+    const index_t dim = root->size + 1;
     if (root->parent == NULL) {
-        for (index_t i = 0; i <= root->size; i ++) {
-            for (index_t j = 0; j <= root->size; j ++) 
-                root->sdoublet_[0][i][j] = root->sdoublet_[1][i][j] = 0;
-            root->mdoublet_[0][i] = root->mdoublet_[1][i] = 0;
-        }
+        std::memset(root->sdoublet_[0][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->sdoublet_[1][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->mdoublet_[0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
+        std::memset(root->mdoublet_[1], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
         root->tdoublet_[0] = root->tdoublet_[1] = 0;
     }
     if (root->children.size() == 0) return ;
     for (index_t c = 0; c < 2; c ++) {
         root->children[c]->tdoublet_[0] = root->children[c]->tdoublet_[1] = 0;
+        std::memset(root->children[c]->mdoublet_[0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
+        std::memset(root->children[c]->mdoublet_[1], 0, sizeof(weight_t) * static_cast<std::size_t>(dim));
         for (index_t i = 0; i <= root->size; i ++) {
-            root->children[c]->mdoublet_[0][i] = root->children[c]->mdoublet_[1][i] = 0;
-            for (index_t j = 0; j <= root->size; j ++) {
-                if (i > 0 && i == j) {
-                    root->sdoublet_[0][i][j] = 0;
-                    continue;
-                }
+            for (index_t j = i; j <= root->size; j ++) {
                 for (index_t k = 0; k < 2; k ++) {
-                    if (i > j) 
-                        root->children[c]->sdoublet_[k][i][j] = root->children[c]->sdoublet_[k][j][i];
-                    else 
-                        root->children[c]->sdoublet_[k][i][j] = 
+                    weight_t value;
+                    if (i > 0 && i == j) {
+                        value = 0;
+                    } else {
+                        value =
                             root->sdoublet_[k][i][j] * root->children[c]->support_[k] +
                             root->children[1 - c]->sdoublet[k][i][j] * root->children[1 - c]->support_[k] * root->children[c]->support_[k] + (
                                 root->ssinglet_[i] * root->children[1 - c]->ssinglet[j] +
                                 root->ssinglet_[j] * root->children[1 - c]->ssinglet[i] * (i != 0 || j != 0)) *
                             root->children[c]->support_[k] * root->children[1 - c]->length_;
-                    root->children[c]->mdoublet_[k][i] += root->children[c]->sdoublet_[k][i][j];
+                    }
+                    root->children[c]->sdoublet_[k][i][j] = value;
+                    root->children[c]->mdoublet_[k][i] += value;
+                    if (i != j) {
+                        root->children[c]->sdoublet_[k][j][i] = value;
+                        root->children[c]->mdoublet_[k][j] += value;
+                    }
                 }
             }
+        }
+        for (index_t i = 0; i <= root->size; i ++) {
             root->children[c]->tdoublet_[0] += root->children[c]->mdoublet_[0][i];
             root->children[c]->tdoublet_[1] += root->children[c]->mdoublet_[1][i];
         }
@@ -179,12 +354,10 @@ void Tree::build_sdoublet_(Node *root) {
 }
 
 void Tree::build_striplet(Node *root) {
+    const index_t dim = root->size + 1;
     if (root->children.size() == 0) {
-        for (index_t i = 0; i <= root->size; i ++) {
-            for (index_t j = 0; j <= root->size; j ++) {
-                root->striplet[0][i][j] = root->striplet[1][i][j] = 0;
-            }
-        }
+        std::memset(root->striplet[0][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->striplet[1][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
     }
     else {
         for (Node *child : root->children) 
@@ -216,12 +389,10 @@ void Tree::build_striplet(Node *root) {
 }
 
 void Tree::build_striplet_(Node *root) {
+    const index_t dim = root->size + 1;
     if (root->children.size() == 0) {
-        for (index_t i = 0; i <= root->size; i ++) {
-            for (index_t j = 0; j <= root->size; j ++) {
-                root->striplet[0][i][j] = root->striplet[1][i][j] = 0;
-            }
-        }
+        std::memset(root->striplet[0][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
+        std::memset(root->striplet[1][0], 0, sizeof(weight_t) * static_cast<std::size_t>(dim) * static_cast<std::size_t>(dim));
     }
     else {
         for (Node *child : root->children) 
@@ -248,14 +419,14 @@ void Tree::build_striplet_(Node *root) {
     }
 }
 
-std::unordered_set<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t ***graph) {
+std::vector<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t ***graph) {
     if (root->children.size() == 0) {
-        std::unordered_set<index_t> subtree;
-        index_t index = subset.get_index(root->index);
-        subtree.insert(index);
+        std::vector<index_t> subtree;
+        subtree.reserve(1);
+        subtree.push_back(subset.get_index(root->index));
         if (subset.root_key(root->index) == 0) {
             for (index_t k = 0; k < 2; k ++) {
-                for (index_t i = 0; i <= root->size; i ++) 
+                for (index_t i = 0; i <= root->size; i ++)
                     root->pdoublet[k][i] = 0;
                 for (index_t i = 0; i <= root->size; i ++) 
                     root->ptriplet[k][i] = 0;
@@ -266,8 +437,8 @@ std::unordered_set<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t **
     }
     else {
         Node *left = root->children[0], *right = root->children[1], *parent = root->parent;
-        std::unordered_set<index_t> left_subtree = wg_edges(left, subset, graph);
-        std::unordered_set<index_t> right_subtree = wg_edges(right, subset, graph);
+        std::vector<index_t> left_subtree = wg_edges(left, subset, graph);
+        std::vector<index_t> right_subtree = wg_edges(right, subset, graph);
         for (index_t i : left_subtree) {
             for (index_t j : right_subtree) {
                 if (i == j) continue;
@@ -360,12 +531,18 @@ std::unordered_set<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t **
                     }
                 }
                 graph[0][i_][j_] += s[1] - s[0];
-                graph[0][j_][i_] += s[1] - s[0]; 
+                graph[0][j_][i_] += s[1] - s[0];
             }
         }
-        std::unordered_set<index_t> subtree;
+        std::vector<index_t> subtree;
+        subtree.reserve(left_subtree.size() + right_subtree.size());
+        std::vector<unsigned char> seen(subset.size(), 0);
         for (index_t i : left_subtree) {
-            subtree.insert(i);
+            const index_t mark = subset.root_index(i);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(i);
+            }
             if (subset.root_key(i) == 0) {
                 Node *nx = index2node[i];
                 for (index_t c = 0; c < 2; c ++) {
@@ -386,7 +563,11 @@ std::unordered_set<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t **
             }
         }
         for (index_t j : right_subtree) {
-            subtree.insert(j);
+            const index_t mark = subset.root_index(j);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(j);
+            }
             if (subset.root_key(j) == 0) {
                 Node *ny = index2node[j];
                 for (index_t c = 0; c < 2; c ++) {
@@ -411,14 +592,22 @@ std::unordered_set<index_t> Tree::wg_edges(Node *root, Taxa &subset, weight_t **
     }
 }
 
-std::unordered_set<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t ***graph) {
+std::size_t Tree::weighted_node_count(Node *root) {
+    std::size_t count = 1;
+    for (Node *child : root->children) {
+        count += weighted_node_count(child);
+    }
+    return count;
+}
+
+std::vector<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t ***graph) {
     if (root->children.size() == 0) {
-        std::unordered_set<index_t> subtree;
-        index_t index = subset.get_index(root->index);
-        subtree.insert(index);
+        std::vector<index_t> subtree;
+        subtree.reserve(1);
+        subtree.push_back(subset.get_index(root->index));
         if (subset.root_key(root->index) == 0) {
             for (index_t k = 0; k < 2; k ++) {
-                for (index_t i = 0; i <= root->size; i ++) 
+                for (index_t i = 0; i <= root->size; i ++)
                     root->ptriplet[k][i] = 0;
             }
             root->plength = 1;
@@ -427,8 +616,8 @@ std::unordered_set<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t **
     }
     else {
         Node *left = root->children[0], *right = root->children[1], *parent = root->parent;
-        std::unordered_set<index_t> left_subtree = wb_edges(left, subset, graph);
-        std::unordered_set<index_t> right_subtree = wb_edges(right, subset, graph);
+        std::vector<index_t> left_subtree = wb_edges(left, subset, graph);
+        std::vector<index_t> right_subtree = wb_edges(right, subset, graph);
         for (index_t i : left_subtree) {
             for (index_t j : right_subtree) {
                 if (i == j) continue;
@@ -470,12 +659,18 @@ std::unordered_set<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t **
                     }
                 }
                 graph[1][i_][j_] += s[1] - s[0];
-                graph[1][j_][i_] += s[1] - s[0]; 
+                graph[1][j_][i_] += s[1] - s[0];
             }
         }
-        std::unordered_set<index_t> subtree;
+        std::vector<index_t> subtree;
+        subtree.reserve(left_subtree.size() + right_subtree.size());
+        std::vector<unsigned char> seen(subset.size(), 0);
         for (index_t i : left_subtree) {
-            subtree.insert(i);
+            const index_t mark = subset.root_index(i);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(i);
+            }
             if (subset.root_key(i) == 0) {
                 Node *nx = index2node[i];
                 for (index_t c = 0; c < 2; c ++) {
@@ -491,7 +686,11 @@ std::unordered_set<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t **
             }
         }
         for (index_t j : right_subtree) {
-            subtree.insert(j);
+            const index_t mark = subset.root_index(j);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(j);
+            }
             if (subset.root_key(j) == 0) {
                 Node *ny = index2node[j];
                 for (index_t c = 0; c < 2; c ++) {
@@ -511,7 +710,7 @@ std::unordered_set<index_t> Tree::wb_edges(Node *root, Taxa &subset, weight_t **
     }
 }
 
-void Tree::test_pxlet(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset) {
+void Tree::test_pxlet(Node *root, std::vector<index_t> &subtree, Taxa &subset) {
     for (index_t k = 0; k < 2; k ++) {
         for (index_t i : subtree) {
             if (subset.root_key(i) == 0) {
@@ -612,7 +811,7 @@ void Tree::test_pxlet(Node *root, std::unordered_set<index_t> &subtree, Taxa &su
     }
 }
 
-void Tree::test_pxlet_(Node *root, std::unordered_set<index_t> &subtree, Taxa &subset) {
+void Tree::test_pxlet_(Node *root, std::vector<index_t> &subtree, Taxa &subset) {
     for (index_t k = 0; k < 2; k ++) {
         for (index_t i : subtree) {
             if (subset.root_key(i) == 0) {
@@ -681,28 +880,65 @@ void Tree::test_pxlet_(Node *root, std::unordered_set<index_t> &subtree, Taxa &s
 }
 
 weight_t ***Tree::build_wgraph(Taxa &subset) {
-    if (DEBUG_MODE) get_depth(root, 0);
-    build_wstates(root, subset);
-    build_ssinglet(root, subset);
-    if (DEBUG_MODE) test_ssinglet(root, subset);
-    build_ssinglet_(root);
-    if (DEBUG_MODE) test_ssinglet_(root, subset);
-    build_sdoublet(root);
-    if (DEBUG_MODE) test_sdoublet(root, subset);
-    build_striplet(root);
-    if (DEBUG_MODE) test_striplet(root, subset);
     weight_t ***graph = new weight_t**[2];
     graph[0] = Matrix::new_mat(subset.size());
     graph[1] = Matrix::new_mat(subset.size());
-    wg_edges(root, subset, graph);
-    build_sdoublet_(root);
-    if (DEBUG_MODE) test_sdoublet_(root, subset);
-    build_striplet_(root);
-    if (DEBUG_MODE) test_striplet_(root, subset);
-    wb_edges(root, subset, graph);
-    if (DEBUG_MODE) test_graph(root, subset, graph);
-    clear_wstates(root);
+    build_wgraph_into(subset, graph);
     return graph;
+}
+
+void Tree::build_wgraph_into(Taxa &subset, weight_t ***graph) {
+    if (DEBUG_MODE) get_depth(root, 0);
+    Matrix::zero_mat(graph[0], subset.size());
+    Matrix::zero_mat(graph[1], subset.size());
+    g_weighted_state_arena.begin(weighted_node_count(root), subset.artificial_taxa() + 1);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildWstates);
+        build_wstates(root, subset);
+    }
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSsinglet);
+        build_ssinglet(root, subset);
+    }
+    if (DEBUG_MODE) test_ssinglet(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSsingletComp);
+        build_ssinglet_(root);
+    }
+    if (DEBUG_MODE) test_ssinglet_(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSdoublet);
+        build_sdoublet(root);
+    }
+    if (DEBUG_MODE) test_sdoublet(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildStriplet);
+        build_striplet(root);
+    }
+    if (DEBUG_MODE) test_striplet(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::WgEdges);
+        wg_edges(root, subset, graph);
+    }
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildSdoubletComp);
+        build_sdoublet_(root);
+    }
+    if (DEBUG_MODE) test_sdoublet_(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::BuildStripletComp);
+        build_striplet_(root);
+    }
+    if (DEBUG_MODE) test_striplet_(root, subset);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::WbEdges);
+        wb_edges(root, subset, graph);
+    }
+    if (DEBUG_MODE) test_graph(root, subset, graph);
+    {
+        WeightedPhaseTimer timer(WeightedPhase::ClearWstates);
+        g_weighted_state_arena.end();
+    }
 }
 
 void Tree::test_graph(Node *root, Taxa &subset, weight_t ***graph) {

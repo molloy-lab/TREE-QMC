@@ -1,18 +1,37 @@
 #include "tree.hpp"
 
+namespace {
+
+weight_t *new_state_vector(index_t size) {
+    return new weight_t[size]();
+}
+
+weight_t **new_state_square(index_t size) {
+    weight_t **rows = new weight_t*[size];
+    weight_t *data = new weight_t[static_cast<std::size_t>(size) * static_cast<std::size_t>(size)]();
+    for (index_t i = 0; i < size; ++i) {
+        rows[i] = data + static_cast<std::size_t>(i) * static_cast<std::size_t>(size);
+    }
+    return rows;
+}
+
+void delete_state_square(weight_t **rows) {
+    if (!rows) return;
+    delete [] rows[0];
+    delete [] rows;
+}
+
+}  // namespace
+
 void Tree::build_wstates(Node *root) {
     root->size = 4;
-    root->ssinglet = init(root->size + 1);
-    root->ssinglet_ = init(root->size + 1);
+    root->ssinglet = new_state_vector(root->size + 1);
+    root->ssinglet_ = new_state_vector(root->size + 1);
     for (index_t k = 0; k < 2; k ++) {
-        root->mdoublet[k] = init(root->size + 1);
-        root->mdoublet_[k] = init(root->size + 1);
-        root->sdoublet[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet[k][i] = init(root->size + 1);
-        root->sdoublet_[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet_[k][i] = init(root->size + 1);
+        root->mdoublet[k] = new_state_vector(root->size + 1);
+        root->mdoublet_[k] = new_state_vector(root->size + 1);
+        root->sdoublet[k] = new_state_square(root->size + 1);
+        root->sdoublet_[k] = new_state_square(root->size + 1);
     }
     for (Node *child : root->children) 
         build_wstates(child);
@@ -24,12 +43,8 @@ void Tree::clear_wstates_(Node *root) {
     for (index_t k = 0; k < 2; k ++) {
         delete [] root->mdoublet[k];
         delete [] root->mdoublet_[k];
-        for (index_t i = 0; i <= root->size; i ++) 
-            delete [] root->sdoublet[k][i];
-        delete [] root->sdoublet[k];
-        for (index_t i = 0; i <= root->size; i ++) 
-            delete [] root->sdoublet_[k][i];
-        delete [] root->sdoublet_[k];
+        delete_state_square(root->sdoublet[k]);
+        delete_state_square(root->sdoublet_[k]);
     }
     for (Node *child : root->children) 
         clear_wstates_(child);
@@ -109,17 +124,13 @@ weight_t Tree::freq_(Node *root) {
 
 void Tree::build_wstates_s(Node *root) {
     root->size = 0;
-    root->ssinglet = init(root->size + 1);
-    root->ssinglet_ = init(root->size + 1);
+    root->ssinglet = new_state_vector(root->size + 1);
+    root->ssinglet_ = new_state_vector(root->size + 1);
     for (index_t k = 0; k < 2; k ++) {
-        root->mdoublet[k] = init(root->size + 1);
-        root->mdoublet_[k] = init(root->size + 1);
-        root->sdoublet[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet[k][i] = init(root->size + 1);
-        root->sdoublet_[k] = new weight_t*[root->size + 1];
-        for (index_t i = 0; i <= root->size; i ++) 
-            root->sdoublet_[k][i] = init(root->size + 1);
+        root->mdoublet[k] = new_state_vector(root->size + 1);
+        root->mdoublet_[k] = new_state_vector(root->size + 1);
+        root->sdoublet[k] = new_state_square(root->size + 1);
+        root->sdoublet_[k] = new_state_square(root->size + 1);
     }
     for (Node *child : root->children) 
         build_wstates_s(child);

@@ -8,21 +8,27 @@ RInside RINS;
 #endif
 
 weight_t **Matrix::new_mat(index_t size) {
+    if (size <= 0) return nullptr;
     weight_t **m = new weight_t*[size];
+    weight_t *data = new weight_t[static_cast<std::size_t>(size) * static_cast<std::size_t>(size)]();
     for (index_t i = 0; i < size; i ++) {
-        m[i] = new weight_t[size];
-        for (index_t j = 0; j < size; j ++) {
-            m[i][j] = 0;
-        }
+        m[i] = data + static_cast<std::size_t>(i) * static_cast<std::size_t>(size);
     }
     return m;
 }
 
 void Matrix::delete_mat(weight_t **m, index_t size) {
-    for (index_t i = 0; i < size; i ++) {
-        delete[] m[i];
-    }
+    (void)size;
+    if (!m) return;
+    delete[] m[0];
     delete[] m;
+}
+
+void Matrix::zero_mat(weight_t **m, index_t size) {
+    if (!m || size <= 0) return;
+    std::memset(m[0],
+                0,
+                sizeof(weight_t) * static_cast<std::size_t>(size) * static_cast<std::size_t>(size));
 }
 
 std::string Matrix::display_mat(weight_t **m, index_t size) {

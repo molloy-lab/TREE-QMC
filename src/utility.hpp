@@ -34,6 +34,7 @@ class Matrix {
     public:
         static weight_t **new_mat(index_t size);
         static void delete_mat(weight_t **m, index_t size);
+        static void zero_mat(weight_t **m, index_t size);
         static std::string display_mat(weight_t **m, index_t size);
         static weight_t diff_mat(weight_t **m1, weight_t **m2, index_t size);
 };
@@ -187,6 +188,14 @@ const std::string help_info =
 "        is used; otherwise, seed should be positive (default: 1).\n"
 "[--shared <use shared taxon data structure to normalize quartet weights>]\n"
 "        Do NOT use unless there are NO missing data!!!\n"
+"Environment:\n"
+"  TREEQMC_NUM_THREADS=<integer>\n"
+"        Number of CPU threads used by weighted graph construction\n"
+"  TREEQMC_PARALLEL_MIN_WORK=<integer>\n"
+"        Minimum size^2 * number_of_trees work estimate before enabling\n"
+"        graph-construction parallelism (default: 1)\n"
+"  TREEQMC_PROFILE_PHASES=1\n"
+"        Developer diagnostics: print weighted graph phase timings\n"
 "\n"
 "\n"
 "Contact: Post issues to Github at https://github.com/molloy-lab/TREE-QMC/\n"

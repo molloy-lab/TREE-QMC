@@ -54,9 +54,19 @@ std::unordered_map<index_t, index_t> &Tree::get_indices() {
 }
 
 weight_t ***Tree::build_graph(Taxa &subset) {
-    index_t s = subset.singleton_taxa(), m = subset.artificial_taxa();
+    weight_t ***graph = new weight_t**[2];
+    graph[0] = Matrix::new_mat(subset.size());
+    graph[1] = Matrix::new_mat(subset.size());
+    build_graph_into(subset, graph);
+    return graph;
+}
+
+void Tree::build_graph_into(Taxa &subset, weight_t ***graph) {
+    index_t m = subset.artificial_taxa();
+    Matrix::zero_mat(graph[0], subset.size());
+    Matrix::zero_mat(graph[1], subset.size());
     build_states(root, subset);
-    for (index_t i = 0; i <= m; i ++) 
+    for (index_t i = 0; i <= m; i ++)
         sa_doublet(root, 0, i);
     for (index_t i = 1; i <= m; i ++) {
         for (index_t j = 0; j <= m; j ++) {
@@ -64,13 +74,9 @@ weight_t ***Tree::build_graph(Taxa &subset) {
             aa_doublet(root, i, j);
         }
     }
-    weight_t ***graph = new weight_t**[2];
-    graph[0] = Matrix::new_mat(subset.size());
-    graph[1] = Matrix::new_mat(subset.size());
     bad_edges(root, subset, graph);
     good_edges(root, subset, graph);
     clear_states(root);
-    return graph;
 }
 
 index_t Tree::pseudonym() {
@@ -402,41 +408,49 @@ weight_t Tree::aa_doublet(Node *root, index_t x, index_t y) {
     return c;
 }
 
-std::unordered_set<index_t> Tree::bad_edges(Node *root, Taxa &subset, weight_t ***graph) {
+std::vector<index_t> Tree::bad_edges(Node *root, Taxa &subset, weight_t ***graph) {
     if (root->children.size() == 0) {
-        std::unordered_set<index_t> subtree;
-        index_t index = subset.get_index(root->index);
-        subtree.insert(index);
+        std::vector<index_t> subtree;
+        subtree.reserve(1);
+        subtree.push_back(subset.get_index(root->index));
         return subtree;
     }
     else {
-        std::unordered_set<index_t> l = bad_edges(root->children[0], subset, graph);
-        std::unordered_set<index_t> r = bad_edges(root->children[1], subset, graph);
-        std::unordered_set<index_t> subtree;
-        for (auto i = l.begin(); i != l.end(); i ++) {
-            if (subtree.find(*i) == subtree.end())
-                subtree.insert(*i);
+        std::vector<index_t> l = bad_edges(root->children[0], subset, graph);
+        std::vector<index_t> r = bad_edges(root->children[1], subset, graph);
+        std::vector<index_t> subtree;
+        subtree.reserve(l.size() + r.size());
+        std::vector<unsigned char> seen(subset.size(), 0);
+        for (index_t idx : l) {
+            const index_t mark = subset.root_index(idx);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(idx);
+            }
         }
-        for (auto j = r.begin(); j != r.end(); j ++) {
-            if (subtree.find(*j) == subtree.end()) 
-                subtree.insert(*j);
+        for (index_t idx : r) {
+            const index_t mark = subset.root_index(idx);
+            if (!seen[mark]) {
+                seen[mark] = 1;
+                subtree.push_back(idx);
+            }
         }
-        for (auto i = l.begin(); i != l.end(); i ++) {
-            for (auto j = r.begin(); j != r.end(); j ++) {
-                if (*i == *j) continue;
-                index_t x = subset.root_key(*i), y = subset.root_key(*j);
-                index_t i_ = subset.root_index(*i), j_ = subset.root_index(*j);
+        for (index_t i : l) {
+            for (index_t j : r) {
+                if (i == j) continue;
+                index_t x = subset.root_key(i), y = subset.root_key(j);
+                index_t i_ = subset.root_index(i), j_ = subset.root_index(j);
                 weight_t s = 0;
                 if (x == 0) {
                     if (y == 0) {
-                        s += index2node[*i]->get_doublet(0, 0) + index2node[*j]->get_doublet(0, 0);
+                        s += index2node[i]->get_doublet(0, 0) + index2node[j]->get_doublet(0, 0);
                         s -= root->children[0]->get_doublet(0, 0) + root->children[1]->get_doublet(0, 0);
                         s += get_doublet(root, 0, 0, true);
                     }
                     else {
                         s += root->children[1]->get_doublet(y, 0);
                         weight_t t = root->children[1]->singlet[y];
-                        s += t * (index2node[*i]->get_doublet(0, y) - root->children[0]->get_doublet(0, y));
+                        s += t * (index2node[i]->get_doublet(0, y) - root->children[0]->get_doublet(0, y));
                         s += t * get_doublet(root, y, 0, true);
                     }
                 }
@@ -444,7 +458,7 @@ std::unordered_set<index_t> Tree::bad_edges(Node *root, Taxa &subset, weight_t *
                     if (y == 0) {
                         s += root->children[0]->get_doublet(x, 0);
                         weight_t t = root->children[0]->singlet[x];
-                        s += t * (index2node[*j]->get_doublet(0, x) - root->children[1]->get_doublet(0, x));
+                        s += t * (index2node[j]->get_doublet(0, x) - root->children[1]->get_doublet(0, x));
                         s += t * get_doublet(root, x, 0, true);
                     }
                     else {
@@ -463,22 +477,28 @@ std::unordered_set<index_t> Tree::bad_edges(Node *root, Taxa &subset, weight_t *
 
 void Tree::good_edges(Node *root, Taxa &subset, weight_t ***graph) {
     index_t s = subset.singleton_taxa(), m = subset.artificial_taxa();
-    std::unordered_map<index_t, index_t> tree_indices = get_indices();
-    std::unordered_set<index_t> valid;
-    for (auto elem : tree_indices) 
-        valid.insert(subset.root_index(elem.first));
-    if (valid.size() < 4) return ;
+    const std::unordered_map<index_t, index_t> &tree_indices = get_indices();
+    std::vector<unsigned char> valid(subset.size(), 0);
+    index_t valid_count = 0;
+    for (const auto &elem : tree_indices) {
+        const index_t idx = subset.root_index(elem.first);
+        if (!valid[idx]) {
+            valid[idx] = 1;
+            valid_count += 1;
+        }
+    }
+    if (valid_count < 4) return ;
     if (subset.normalization() != '0') {
         weight_t *c = new weight_t[m + 1];
-        for (index_t i = 0; i <= m; i ++) 
+        for (index_t i = 0; i <= m; i ++)
             c[i] = root->singlet[i];
         c[0] -= 2;
         weight_t sum = Node::get_doublet(c, root->s1, root->s2, 0, 0);
         delete [] c;
         for (index_t i = 0; i < subset.size(); i ++) {
-            if (valid.find(i) == valid.end()) continue;
+            if (!valid[i]) continue;
             for (index_t j = 0; j < subset.size(); j ++) {
-                if (i == j || valid.find(j) == valid.end()) continue;
+                if (i == j || !valid[j]) continue;
                 graph[0][i][j] = sum - graph[1][i][j];
             }
         }
@@ -490,26 +510,26 @@ void Tree::good_edges(Node *root, Taxa &subset, weight_t ***graph) {
         c[0] -= 2;
         weight_t sum = Node::get_doublet(c, root->s1, root->s2, 0, 0);
         for (index_t i = 0; i < s; i ++) {
-            if (valid.find(i) == valid.end()) continue;
+            if (!valid[i]) continue;
             for (index_t j = 0; j < s; j ++) {
-                if (i == j || valid.find(j) == valid.end()) continue;
+                if (i == j || !valid[j]) continue;
                 graph[0][i][j] = sum - graph[1][i][j];
             }
         }
         c[0] += 1;
         for (index_t i = 0; i < s; i ++) {
-            if (valid.find(i) == valid.end()) continue;
+            if (!valid[i]) continue;
             for (index_t j = 0; j < m; j ++) {
-                if (valid.find(s + j) == valid.end()) continue;
+                if (!valid[s + j]) continue;
                 sum = Node::get_doublet(c, root->s1, root->s2, j + 1, 0) * root->singlet[j + 1];
                 graph[0][s + j][i] = graph[0][i][s + j] = sum - graph[1][i][s + j];
             }
         }
         c[0] += 1;
         for (index_t i = 0; i < m; i ++) {
-            if (valid.find(s + i) == valid.end()) continue;
+            if (!valid[s + i]) continue;
             for (index_t j = 0; j < m; j ++) {
-                if (i == j || valid.find(s + j) == valid.end()) continue;
+                if (i == j || !valid[s + j]) continue;
                 sum = Node::get_doublet(c, root->s1, root->s2, i + 1, j + 1);
                 sum *= root->singlet[i + 1] * root->singlet[j + 1];
                 graph[0][s + j][s + i] = graph[0][s + i][s + j] = sum - graph[1][s + i][s + j];
