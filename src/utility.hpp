@@ -194,6 +194,8 @@ const std::string help_info =
 "  TREEQMC_PARALLEL_MIN_WORK=<integer>\n"
 "        Minimum size^2 * number_of_trees work estimate before enabling\n"
 "        graph-construction parallelism (default: 1)\n"
+"  TREEQMC_PROFILE_PHASES=1\n"
+"        Developer diagnostics: print weighted graph phase timings\n"
 "\n"
 "\n"
 "Contact: Post issues to Github at https://github.com/molloy-lab/TREE-QMC/\n"

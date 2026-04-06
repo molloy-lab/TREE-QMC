@@ -54,6 +54,7 @@ class Node {
 
 class Tree {
     friend class SpeciesTree;
+    friend class Graph;
     public:
         Tree();
         Tree(const std::string &newick,
@@ -68,9 +69,7 @@ class Tree {
         index_t size();
         std::unordered_map<index_t, index_t> &get_indices();
         weight_t ***build_graph(Taxa &subset);
-        void build_graph_into(Taxa &subset, weight_t ***graph);
         weight_t ***build_wgraph(Taxa &subset);
-        void build_wgraph_into(Taxa &subset, weight_t ***graph);
         void get_quartets(std::unordered_map<quartet_t, weight_t> *quartets);
         void get_wquartets(std::unordered_map<quartet_t, weight_t> *quartets);
         void get_wquartets_(std::unordered_map<quartet_t, weight_t> *quartets);
@@ -100,6 +99,8 @@ class Tree {
         weight_t total_quartet_weight;
         index_t pseudonyms;
         std::unordered_map<index_t, index_t> indices;
+        void build_graph_into(Taxa &subset, weight_t ***graph);
+        void build_wgraph_into(Taxa &subset, weight_t ***graph);
         void clear_states(Node *root);
         void build_states(Node *root, Taxa &subset);
         void depth(Node *root, index_t depth);
