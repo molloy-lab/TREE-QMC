@@ -50,6 +50,31 @@ export PATH="<path to TREE-QMC>:$PATH"
 to your `~/.bash_profile` file or your `~/.bashrc` file so that your system can find `tree-qmc` whenever you start a new terminal instance.
 
 
+CPU PARALLELISM
+---------------
+This branch supports CPU parallelism for weighted graph construction with OpenMP.
+When configuring with CMake, OpenMP support is enabled by default via
+`-DTREEQMC_ENABLE_OPENMP=ON`.
+
+Example CMake build:
+```
+git clone https://github.com/molloy-lab/TREE-QMC
+cd TREE-QMC
+cmake -S . -B build -DTREEQMC_ENABLE_OPENMP=ON
+cmake --build build -j
+```
+
+Example run with 32 CPU threads:
+```
+TREEQMC_NUM_THREADS=32 TREEQMC_PARALLEL_MIN_WORK=1 tree-qmc -i input.tre -o out.tre --override
+```
+
+Environment variables:
+- `TREEQMC_NUM_THREADS`: number of CPU threads used by weighted graph construction
+- `TREEQMC_PARALLEL_MIN_WORK`: minimum work estimate before enabling parallel execution
+- `TREEQMC_PROFILE_PHASES=1`: developer diagnostics for weighted phase timings
+
+
 USAGE
 -----
 To see the TREE-QMC usage options, type command:
