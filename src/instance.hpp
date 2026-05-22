@@ -35,7 +35,7 @@ class Instance {
         std::string normal_mode, weight_mode, execute_mode, taxa_mode, score_mode, data_mode, brln_mode;
         unsigned long int refine_seed, cut_seed, iter_limit, iter_limit_blob;
         weight_t support_low, support_high, support_default, support_threshold, blob_threshold, alpha, beta;
-        bool contract, char2tree, rootonly, pcsonly, blob, store_pvalue, load_pvalue, override_file, three_fix_one_alter, quard, network;  
+        bool contract, char2tree, rootonly, pcsonly, blob, store_pvalue, load_pvalue, enable_split_test, override_file, three_fix_one_alter, two_fix_two_alter, quard, network;  
         int parse(int argc, char **argv);
         void prepare_root_taxa();
         void prepare_indiv2taxon_map();

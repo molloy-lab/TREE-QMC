@@ -189,7 +189,8 @@ Node *Tree::build_tree(const std::string &newick,
                         auto p2 = parse_branch_info(support, "qtt_p=");
                         auto p3 = parse_branch_info(support, "qst_p=");
                         auto p4 = parse_branch_info(support, "minimizer=");
-
+                        auto p5 = parse_branch_info(support, "split_match_count=");
+                        auto p6 = parse_branch_info(support, "split_mismatch_count=");
                         s2ul(support.substr(p1.first, p1.second), &root->blob_id);
                         s2d(support.substr(p2.first, p2.second), &root->min_pvalue);
                         s2d(support.substr(p3.first, p3.second), &root->max_pvalue);
@@ -199,7 +200,7 @@ Node *Tree::build_tree(const std::string &newick,
                         std::string minimizer_labels[4];
                         
                         parse_minimizer_4labels(minimizer_str, minimizer_labels);
-
+                        
                         for (int mi = 0; mi < 4; mi ++) {
                             root->minimizer[mi] = dict->label2index(minimizer_labels[mi]);
                             // std::cout << "Minimizer label " << mi << ": " << minimizer_labels[mi] << " index " << root->minimizer[mi] << std::endl;
@@ -213,6 +214,8 @@ Node *Tree::build_tree(const std::string &newick,
 
                         // std::cout << "Parsing " << support << std::endl;
                         // std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                        s2ul(support.substr(p5.first, p5.second), &root->split_match_count);
+                        s2ul(support.substr(p6.first, p6.second), &root->split_mismatch_count);
                     } else {
                     #endif  // ENABLE_TOB
                         try {

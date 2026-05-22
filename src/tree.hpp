@@ -57,6 +57,8 @@ class Node {
         weight_t min_f[3]; //, max_f[3];
         weight_t min_pvalue, max_pvalue;
         index_t minimizer[4]; // indices of the 4-tuple giving min p-value
+        size_t split_match_count;  // number of sampled 4 taxon most frequent topology mathcing with split defined by this edge
+        size_t split_mismatch_count; // number of sampled 4 taxon most frequent topology not mathcing with split defined by this edge
         std::vector<index_t> minimizers;
         std::vector<std::vector<index_t>> multi_partitions; 
         std::unordered_map<index_t, index_t> taxon2partition_id_mapping;
@@ -181,9 +183,10 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         #if ENABLE_TOB
-        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
+        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, bool enable_split_test);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display);
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool is_quard);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool two_fix_two_alter, bool is_quard);
         SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, std::vector<Tree *> &gene_trees, unsigned long int iter_limit_blob);
         SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, unsigned long int iter_limit_blob);
         void hybrid_voting(std::vector<Tree *> &gene_trees,Dict *dict, Node * hybrid_blob, unsigned long int iter_limit, std::vector<std::unordered_set<index_t>> &banned_buckets);
@@ -283,6 +286,8 @@ class SpeciesTree : public Tree {
                                                 const std::array<weight_t,3>& qcf);
         std::array<index_t, 2> siblings_in_two_best_topologies(const std::array<std::array<index_t,4>,2> &best2,
                                              index_t taxon);
+        bool is_match_with_split(const std::array<weight_t,3>& qcf, index_t node_a1_id, index_t node_a2_id, index_t *indices);
+        weight_t search_2f2a(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t* minimizer, size_t &split_match_count, size_t &split_mismatch_count); 
         #endif  // ENABLE_TOB
 };
 

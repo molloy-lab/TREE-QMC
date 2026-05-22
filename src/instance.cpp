@@ -31,7 +31,9 @@ Instance::Instance(int argc, char **argv) {
     blob = false;
     store_pvalue = false;
     load_pvalue = false;
+    enable_split_test = false;
     three_fix_one_alter = false;
+    two_fix_two_alter = false;
     quard = false;
     network = false;
 
@@ -148,7 +150,7 @@ long long Instance::solve() {
     if (load_pvalue) {
         #if ENABLE_TOB
             std::cout << "Loading species tree with p-values" << root_str << std::endl;
-            output = new SpeciesTree(input[0], dict, alpha, beta);
+            output = new SpeciesTree(input[0], dict, alpha, beta, enable_split_test);
         #else
             std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
             exit(1);
@@ -211,13 +213,13 @@ long long Instance::solve() {
 
     if (!load_pvalue && (store_pvalue || blob)) {
         #if ENABLE_TOB
-            if (!three_fix_one_alter) {
+            if (!three_fix_one_alter && !two_fix_two_alter) {
                 if (iter_limit_blob == std::numeric_limits<unsigned long int>::max()) {
                     iter_limit_blob = 2 * dict->size() * dict->size();
                     std::cout << "Setting blob iteration limit to 2*ntaxa^2 = " << iter_limit_blob << std::endl;
                 }
             }
-            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, quard);
+            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, two_fix_two_alter, quard);
             delete display;
             std::cout << "Printing output tree with pvalues:" << std::endl;
             std::cout << output->to_string_pvalue() << std::endl;
@@ -229,7 +231,7 @@ long long Instance::solve() {
 
     #if ENABLE_TOB
     if (!load_pvalue && !store_pvalue && blob) {
-        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta);
+        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta, enable_split_test);
         delete output;
         output = tmp;
     }
@@ -420,6 +422,9 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "--3f1a") {
             three_fix_one_alter = true;
         }
+        else if (opt == "--2f2a") {
+            two_fix_two_alter = true;
+        }
         else if (opt == "--quard") {
             quard = true;
         }
@@ -428,6 +433,9 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--beta") {
             beta = std::stod(argv[++ i]);
+        }
+        else if (opt == "--smt") {
+            enable_split_test = true;
         }
         /*else if (opt == "--pvalue") {
             if (i < argc - 1) {

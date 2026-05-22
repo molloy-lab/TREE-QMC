@@ -1829,9 +1829,11 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta,
 
 
 // load p-value and just testing it get tob
-SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta) {
+SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, bool enable_split_test) {
     std::cout << "Contracting branches with alpha = " << alpha << " and beta = " << beta << std::endl;
-
+    if (enable_split_test) {
+        std::cout << "Also consider branches with nonzero split match and mismatch count as false positive for refinement" << std::endl;
+    }
     this->dict = dict;
     
     std::vector<Node *> internal;
@@ -1843,30 +1845,147 @@ SpeciesTree::SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta)
     std::unordered_set<Node *> false_positive;
     
     for (index_t i = 0; i < internal.size(); i ++) {
-        if (internal[i]->min_pvalue < alpha || internal[i]->max_pvalue > beta) 
+        if (internal[i]->min_pvalue < alpha || internal[i]->max_pvalue > beta) {
             false_positive.insert(internal[i]);
+        } else if (enable_split_test && internal[i]->split_match_count > 0 && internal[i]->split_mismatch_count > 0) {
+            std::cout << "Branch id " << i << " has nonzero split match and mismatch count, consider it as false positive for refinement. split match count: " << internal[i]->split_match_count << " split mismatch count: " << internal[i]->split_mismatch_count << std::endl;
+            false_positive.insert(internal[i]);
+        }
     }
     
     root = build_refinement(input->root, false_positive);
 }
+///////////above is for net-cs //////////////////////////////////
 
-// quard
+
+// 2f2a search algorithm O(n^3)
+SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display) {
+    std::cout << "Constructing tree of blobs using 2-fix-2-alter search" << std::endl;
+
+    add_r_libpaths_and_load(RINS);
+    for (Tree *t : input) t->LCA_preprocessing();
+    this->dict = display->dict;
+    display->refine();
+
+    //std::string mode = "n";
+    //display->annotate(input, mode);
+
+    std::vector<Node *> internal;
+    std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> bips;
+    display->get_bipartitions(&internal, &bips);
+    std::cout << bips.size() << " branches to test" << std::endl;
+    std::unordered_set<Node *> false_positive;
+
+    for (std::size_t i = 0; i < internal.size(); i ++) {
+        std::cout << "Testing branch id " << i << ", ";
+        internal[i]->blob_id = i;
+
+        if (internal[i]->isfake) {
+            false_positive.insert(internal[i]);
+            std::cout << "fake ***" << std::endl;
+            continue;
+        }
+
+        // Search for min p-value for quartet tree tests
+        weight_t min;
+        index_t minimizer[4];
+        size_t split_match_count = 0;
+        size_t split_mismatch_count = 0;
+
+        std:: cout << "testing branch with split : [";
+        for (Node *n : bips[i].first) {
+            std::cout << dict->index2label(n->index) << ",";
+        }
+        std::cout << "]" << std::endl << "and [";
+        for (Node *n : bips[i].second) {
+            std::cout << dict->index2label(n->index) << ",";
+        }
+        std::cout << "]" << std::endl;
+
+
+        min = search_2f2a(input, bips[i].first, bips[i].second, minimizer, split_match_count, split_mismatch_count);
+        internal[i]->min_pvalue = min;
+
+        // Get qCFs that yielded the min p-value
+        weight_t min_f[3];
+        get_qCFs(input, minimizer, min_f);
+        internal[i]->min_f[0] = min_f[0];
+        internal[i]->min_f[1] = min_f[1];
+        internal[i]->min_f[2] = min_f[2];
+        
+        internal[i]->minimizer[0] = minimizer[0];
+        internal[i]->minimizer[1] = minimizer[1];
+        internal[i]->minimizer[2] = minimizer[2];
+        internal[i]->minimizer[3] = minimizer[3];
+        internal[i]->split_match_count = split_match_count;
+        internal[i]->split_mismatch_count = split_mismatch_count;
+
+        // Appy quartet star test
+        weight_t max = -1.0;
+        if ((min_f[0] + min_f[1] + min_f[2]) > 0)
+            max = pvalue_star(min_f);
+        //if ((internal[i]->f[0] + internal[i]->f[1] + internal[i]->f[2]) > 0)
+        //    max = pvalue_star(internal[i]->f);
+        //if (iter_limit != 0)
+        //    max = search_star(input, bips[i].first, bips[i].second, iter_limit);
+        //else
+        //    max = search_star(input, bips[i].first, bips[i].second);
+        internal[i]->max_pvalue = max;
+
+        // Write to standard out
+        std::cout << "QTT: " << min << "; ";
+        std::cout << "QST: " << max << "; ";
+        std::cout << "qCF: [" << min_f[0] << "/" << min_f[1] << "/" << min_f[2] << "]; ";
+        std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
+        std::cout << "split match/mismatch count: [" << split_match_count << "/" << split_mismatch_count << "]";
+        std::cout << std::endl;
+
+        //std::cout << "QTT: " << min << " ";
+        //std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
+        //std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
+        //std::cout << "QST: " << max << " ";
+        //std::cout << "[" << internal[i]->f[0] << "/" << internal[i]->f[1] << "/" << internal[i]->f[2] << "]";
+        //std::cout << std::endl;
+
+        // Write to a table...
+    }
+    if (display->root->children.size() == 2) 
+        false_positive.insert(display->root->children[1]);
+
+    root = build_refinement(display->root, false_positive);
+}
 
 // 3 fix 1 alter search algorithm O(n^2)
 SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict, 
                          SpeciesTree* display, 
                          unsigned long int iter_limit_blob, 
-                         bool three_fix_one_alter, 
+                         bool three_fix_one_alter,
+                         bool two_fix_two_alter, 
                          bool is_quard) {
     
-    if (!three_fix_one_alter && !is_quard) {
+    if (!three_fix_one_alter && !is_quard && !two_fix_two_alter) {
        SpeciesTree(input, dict, display, iter_limit_blob);
        return;
+    }
+
+    if (two_fix_two_alter && three_fix_one_alter) {
+        std::cerr << "Error: both two_fix_two_alter and three_fix_one_alter cannot be true at the same time." << std::endl;
+        return;
+    }
+
+    if (two_fix_two_alter && is_quard) {
+        std::cerr << "Error: both two_fix_two_alter and is_quard cannot be true at the same time." << std::endl;
+        return;
+    }
+
+    if (two_fix_two_alter) {
+        SpeciesTree(input, dict, display);
+        return;
     }
     
     if (is_quard){
         std::cout << "Constructing tree of blobs using quard search" << std::endl;
-    } else {
+    } else if (three_fix_one_alter) {
         std::cout << "Constructing tree of blobs using 3-fix-1-alter search" << std::endl;
     }
 
@@ -1897,12 +2016,17 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
             continue;
         }
 
+
         // Search for min p-value for quartet tree tests
         weight_t min;
         index_t minimizer[4];
-        if (three_fix_one_alter)
+        size_t match_count = 0;
+        size_t mismatch_count = 0;
+        if (three_fix_one_alter) {
+            
             min = search_3f1a(input, &quads[i], minimizer);
-        else
+        }   
+        else if (is_quard)
             min = search_quard(input, &quads[i], minimizer);
         internal[i]->min_pvalue = min;
 
@@ -1917,7 +2041,10 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         internal[i]->minimizer[1] = minimizer[1];
         internal[i]->minimizer[2] = minimizer[2];
         internal[i]->minimizer[3] = minimizer[3];
-
+        if (two_fix_two_alter) {
+            internal[i]->split_match_count = match_count;
+            internal[i]->split_mismatch_count = mismatch_count;
+        }
         // Apply quartet star test
         weight_t max = -1.0;
         if ((min_f[0] + min_f[1] + min_f[2]) > 0)
@@ -1932,7 +2059,6 @@ SpeciesTree::SpeciesTree(std::vector<Tree *> &input, Dict *dict,
         std::cout << "qCF: [" << min_f[0] << "/" << min_f[1] << "/" << min_f[2] << "]; ";
         std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "]";
         std::cout << std::endl;
-
         //std::cout << "QTT: " << min << " ";
         //std::cout << "qCF: [" << internal[i]->min_f[0] << "/" << internal[i]->min_f[1] << "/" << internal[i]->min_f[2] << "] ";
         //std::cout << "minimizer: [" << dict->index2label(minimizer[0]) << "/" << dict->index2label(minimizer[1]) << "/" << dict->index2label(minimizer[2]) << "/" << dict->index2label(minimizer[3]) << "] ";
@@ -2060,6 +2186,8 @@ std::string SpeciesTree::display_tree_pvalue(Node *root) {
                               << ";qcf_2=" << std::to_string((int) root->min_f[1])
                               << ";qcf_3=" << std::to_string((int) root->min_f[2])
                               << ";minimizer=" << dict->index2label(root->minimizer[0]) << "/" << dict->index2label(root->minimizer[1]) << "/" << dict->index2label(root->minimizer[2]) << "/" << dict->index2label(root->minimizer[3])
+                             << ";split_match_count=" << root->split_match_count
+                             << ";split_mismatch_count=" << root->split_mismatch_count
                               << "]'";
         return s + ss.str();
     }
@@ -2657,6 +2785,7 @@ size_t SpeciesTree::neighbor_search_quard(std::vector<Tree *> &input,
 
 
 
+
 weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer) {
     index_t i[4] = {0, 0, 0, 0};
     weight_t min = -1;
@@ -2709,6 +2838,9 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
             // }
 
             weight_t score = get_pvalue(input, cur_quart);
+            // auto [score, qcfs] = get_pvalue_and_qCFs(input, cur_quart);
+            
+            
             if (min < 0 || score < min) {
                 i[alter] = temp[alter];
                 minimizer[0] = cur_quart[0];
@@ -2719,6 +2851,56 @@ weight_t SpeciesTree::search_3f1a(std::vector<Tree *> &input, std::tuple<std::ve
             }
         }
     }
+    return min;
+}
+
+
+
+bool SpeciesTree::is_match_with_split(const std::array<weight_t,3>& qcfs, index_t node_a1_id, index_t node_a2_id, index_t *indices) {
+    // determine the split of the quartet based on qcf
+    index_t temp[4];
+    for (int i = 0; i < 4; ++i) temp[i] = indices[i];
+    std::sort(temp, temp + 4);
+    std::array<std::array<index_t, 4>, 2> top_2_frequent_topologies = computed_displayed_quartet_toplogy(temp, qcfs);
+    std::array<index_t, 4> most_frequent_toplogy = top_2_frequent_topologies[0];
+    if (most_frequent_toplogy[0] == node_a1_id && most_frequent_toplogy[1] == node_a2_id) {
+        return true;
+    } else if (most_frequent_toplogy[0] == node_a2_id && most_frequent_toplogy[1] == node_a1_id) {
+        return true;
+    } else if (most_frequent_toplogy[2] == node_a1_id && most_frequent_toplogy[3] == node_a2_id) {
+        return true;
+    } else if (most_frequent_toplogy[2] == node_a2_id && most_frequent_toplogy[3] == node_a1_id) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+weight_t SpeciesTree::search_2f2a(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t* minimizer, size_t &split_match_count, size_t &split_mismatch_count) {
+    index_t i[4];
+    weight_t min = -1;
+    i[0] = 0; i[2] = 0;
+        for (i[1] = 1; i[1] < A.size(); i[1] ++) {
+                for (i[3] = 1; i[3] < B.size(); i[3] ++) {
+                    index_t temp[4];
+                    temp[0] = A[i[0]]->index;
+                    temp[1] = A[i[1]]->index;
+                    temp[2] = B[i[2]]->index;
+                    temp[3] = B[i[3]]->index;
+                    auto [score, qcfs] = get_pvalue_and_qCFs(input, temp);
+                    if (is_match_with_split(qcfs, A[i[0]]->index, A[i[1]]->index, temp)) {
+                        split_match_count++;
+                    } else {
+                        split_mismatch_count++;
+                    }
+                    
+                    if (min < 0 || score < min) {
+                        min = score;
+                        minimizer[0] = temp[0]; minimizer[1] = temp[1]; minimizer[2] = temp[2]; minimizer[3] = temp[3];
+                    }
+                }
+        }
     return min;
 }
 
