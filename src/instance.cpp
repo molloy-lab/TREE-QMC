@@ -12,6 +12,7 @@ Instance::Instance(int argc, char **argv) {
     stree_file = "";
     table_file = "";
     root_str = "";
+    annotation_tree_file = "";
     //pvalue_file = "";
 
     normal_mode = "2";   // use best algorithm for normalizing based on artificial taxa
@@ -30,8 +31,11 @@ Instance::Instance(int argc, char **argv) {
     blob = false;
     store_pvalue = false;
     load_pvalue = false;
+    enable_split_test = false;
     three_fix_one_alter = false;
+    two_fix_two_alter = false;
     quard = false;
+    network = false;
 
     override_file = false;
 
@@ -82,7 +86,7 @@ Instance::Instance(int argc, char **argv) {
     else input_matrix();
     
     if (data_mode == "q") {
-        if (quartets.size() == 0) {
+        if (quartets.size() == 0 && qCFs_table.size() == 0) {
             std::cout << "\nERROR: Nothing read from input" << std::endl;
             exit(1);
         }
@@ -146,11 +150,42 @@ long long Instance::solve() {
     if (load_pvalue) {
         #if ENABLE_TOB
             std::cout << "Loading species tree with p-values" << root_str << std::endl;
-            output = new SpeciesTree(input[0], dict, alpha, beta);
+            output = new SpeciesTree(input[0], dict, alpha, beta, enable_split_test);
         #else
             std::cout << "TREE-QMC was not compiled with tree of blob options!" << std::endl;
             exit(1);
         #endif  // ENABLE_TOB
+    } else if (network) {
+
+        #if ENABLE_TOB
+        
+
+
+        std::cout << "Loading annotation tree/TOB from " << annotation_tree_file << std::endl;
+
+        get_annotation_tree();
+        
+        std::cout << "Loading species tree with p-values" << root_str << std::endl;
+        
+
+        
+        
+        if (iter_limit_blob == std::numeric_limits<unsigned long int>::max()) {
+                    iter_limit_blob = 2 * dict->size() * dict->size();
+                    std::cout << "Setting blob iteration limit to 2*ntaxa^2 = " << iter_limit_blob << std::endl;
+                }
+
+        
+        if (data_mode == "q") {
+            Tree *hybrid_tree_output = new SpeciesTree(annotation_tree, dict, alpha, beta, qCFs_table, iter_limit_blob);
+            output_net = new Network(hybrid_tree_output, dict);
+        } else {
+            Tree *hybrid_tree_output = new SpeciesTree(annotation_tree, dict, alpha, beta, input, iter_limit_blob);
+            output_net = new Network(hybrid_tree_output, dict);
+        }
+
+        #endif // ENABLE_TOB
+
     } else {
         if (stree_file != "") {
             std::cout << "Loading species tree" << root_str << std::endl;
@@ -161,24 +196,30 @@ long long Instance::solve() {
             output = new SpeciesTree(input, dict, mode, iter_limit, output_file);
         }
     }
+    
 
     if (root_str != "") {
         std::cout << "Rooting species tree at " << root_str << std::endl;
         output->root_at_clade(outgroup_taxon_set);
     }
 
-    std::cout << "Printing output tree:" << std::endl;
-    std::cout << output->to_string_basic() << std::endl;
+    std::cout << "Printing output tree/network:" << std::endl;
+    if (!network) {
+        std::cout << output->to_string_basic() << std::endl;
+    } else {
+        std::cout << output_net->to_string_basic() << std::endl;
+    }
+    
 
     if (!load_pvalue && (store_pvalue || blob)) {
         #if ENABLE_TOB
-            if (!three_fix_one_alter) {
+            if (!three_fix_one_alter && !two_fix_two_alter) {
                 if (iter_limit_blob == std::numeric_limits<unsigned long int>::max()) {
                     iter_limit_blob = 2 * dict->size() * dict->size();
                     std::cout << "Setting blob iteration limit to 2*ntaxa^2 = " << iter_limit_blob << std::endl;
                 }
             }
-            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, quard);
+            SpeciesTree* display = new SpeciesTree(input, dict, output, iter_limit_blob, three_fix_one_alter, two_fix_two_alter, quard);
             delete display;
             std::cout << "Printing output tree with pvalues:" << std::endl;
             std::cout << output->to_string_pvalue() << std::endl;
@@ -190,12 +231,12 @@ long long Instance::solve() {
 
     #if ENABLE_TOB
     if (!load_pvalue && !store_pvalue && blob) {
-        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta);
+        SpeciesTree* tmp = new SpeciesTree(output, dict, alpha, beta, enable_split_test);
         delete output;
         output = tmp;
     }
     #endif  // ENABLE_TOB
-
+    
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
@@ -207,6 +248,9 @@ SpeciesTree *Instance::get_solution() {
     return output;
 }
 
+Network *Instance::get_network_solution() {
+    return output_net;
+}
 
 void Instance::output_solution() {
     if (execute_mode == "2" || execute_mode == "3") return;
@@ -287,6 +331,8 @@ void Instance::output_solution() {
             #if ENABLE_TOB
             else if (store_pvalue) 
                 fout << output->to_string_pvalue() << std::endl;
+            else if (network)
+                fout << output_net->to_string_basic() << std::endl;
             #endif  // ENABLE_TOB
             else 
                 fout << output->to_string_basic() << std::endl;
@@ -301,6 +347,8 @@ void Instance::output_solution() {
     #if ENABLE_TOB
     else if (store_pvalue) 
         std::cout << output->to_string_pvalue() << std::endl;
+    else if (network)
+        std::cout << output_net->to_string_basic() << std::endl;
     #endif  // ENABLE_TOB
     else
         std::cout << output->to_string_basic() << std::endl;
@@ -368,8 +416,14 @@ int Instance::parse(int argc, char **argv) {
         else if (opt == "--blob") {
             blob = true;
         }
+        else if (opt == "--network") {
+            network = true;
+        }
         else if (opt == "--3f1a") {
             three_fix_one_alter = true;
+        }
+        else if (opt == "--2f2a") {
+            two_fix_two_alter = true;
         }
         else if (opt == "--quard") {
             quard = true;
@@ -379,6 +433,9 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--beta") {
             beta = std::stod(argv[++ i]);
+        }
+        else if (opt == "--smt") {
+            enable_split_test = true;
         }
         /*else if (opt == "--pvalue") {
             if (i < argc - 1) {
@@ -400,7 +457,13 @@ int Instance::parse(int argc, char **argv) {
                 iter_limit_blob = std::stoi(argv[++ i]);
             }
         }
-        else if (opt == "-q" || opt == "--supportonly") {
+        else if (opt == "--at") {
+            if (i < argc - 1) {
+                annotation_tree_file = argv[++ i];
+            }
+            std::cout << "Loading annotation tree/TOB from " << annotation_tree_file << std::endl;
+            
+        } else if (opt == "-q" || opt == "--supportonly") {
             score_mode = "1";
             if (i < argc - 1) {
                 stree_file = argv[++ i];
@@ -829,6 +892,24 @@ void Instance::input_trees() {
 }
 
 
+
+void Instance::get_annotation_tree() {
+    std::ifstream fin(annotation_tree_file);
+    if (fin.fail()) {
+        std::cout << "\nERROR: Unable to open " << annotation_tree_file << std::endl;
+        exit(1);
+    }
+    std::string line;
+    std::getline(fin, line);
+    fin.close();
+
+    annotation_tree = new Tree(line, dict, indiv2taxon, support_low, support_default);
+    // annotation_tree->refine();
+    // annotation_tree->prepare(weight_mode, support_low, support_high, contract, support_threshold);
+    std::cout << "Annotation tree/TOB has " << annotation_tree->size() << " taxa." << std::endl;
+}
+
+
 void Instance::input_matrix() {
     std::ifstream fin(input_file);
     if (fin.fail()) {
@@ -1005,6 +1086,8 @@ void Instance::input_quartets() {
 
     if (firstLine == "t1,t2,t3,t4,CF12_34,CF13_24,CF14_23,ngenes")
         input_quartets_phylonetworks();
+    else if (firstLine == "qind,t1,t2,t3,t4,CF12_34,CF13_24,CF14_23")
+        input_qcfs();
     else
         input_quartets_basic();
 
@@ -1134,6 +1217,51 @@ void Instance::input_quartets_phylonetworks() {
     fin.close();
 }
 
+
+void Instance::input_qcfs() {
+    DataFrame df; 
+    df.read_csv(input_file);
+    std::cout << "Reading QCFS from " << input_file << " with " << df.data.size() << " rows." << std::endl;
+    df.print_info();
+
+    auto get_string = [](const Cell &cell) -> std::string {
+        return std::get<std::string>(cell);
+    };
+
+    auto get_weight = [](const Cell &cell) -> weight_t {
+        if (std::holds_alternative<float>(cell))
+            return static_cast<weight_t>(std::get<float>(cell));
+        if (std::holds_alternative<int>(cell))
+            return static_cast<weight_t>(std::get<int>(cell));
+        return std::stod(std::get<std::string>(cell)); // fallback
+    };
+
+    for (auto &row : df.data) {
+        index_t indices[4];
+        indices[0] = dict->label2index(get_string(row[1]));
+        indices[1] = dict->label2index(get_string(row[2]));
+        indices[2] = dict->label2index(get_string(row[3]));
+        indices[3] = dict->label2index(get_string(row[4]));
+        quartet_t quartet = join(indices);
+        auto weights = std::array<weight_t, 3>{get_weight(row[5]),get_weight(row[6]),get_weight(row[7])};
+        // std::cout << "Read quartet " << dict->index2label(indices[0]) << "," << dict->index2label(indices[1]) << "|"
+        //           << dict->index2label(indices[2]) << "," << dict->index2label(indices[3]) 
+        //           << " with qCFs: " << weights[0] << ", " << weights[1] << ", " << weights[2] << std::endl;
+        auto weights_integers = std::array<size_t, 3>{
+            static_cast<size_t>(weights[0] * 1e9),
+            static_cast<size_t>(weights[1] * 1e9),
+            static_cast<size_t>(weights[2] * 1e9)
+        };
+        weights[0] = weights_integers[0];
+        weights[1] = weights_integers[1];
+        weights[2] = weights_integers[2];
+        qCFs_table[quartet] = weights;
+        // std::cout << "Added quartet " << dict->index2label(indices[0]) << "," << dict->index2label(indices[1]) << "|"
+        //           << dict->index2label(indices[2]) << "," << dict->index2label(indices[3]) 
+        //           << " with qCFs: " << weights[0] << ", " << weights[1] << ", " << weights[2] << std::endl;
+    }
+
+}
 
 /*
 // Reads results of TINNiK tests from file 

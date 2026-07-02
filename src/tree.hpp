@@ -8,6 +8,8 @@
 
 
 class Node {
+    friend class Network;
+    friend class NetworkNode;
     friend class Tree;
     friend class SpeciesTree;
     public:
@@ -23,11 +25,16 @@ class Node {
         void add_child(Node *child);
         bool remove_child(Node *child);
         void print_leaves_below_index();
+        // std::vector<Node *> children;
+        // index_t index;
     private:
         Node *parent;
         std::vector<Node *> children, ancestors;
         index_t index, size, depth;
+        // std::vector<Node *> ancestors;
+        // index_t size, depth;
         weight_t s1, s2, support, length;
+        
         bool isfake;
 
         // Below is data only needed for gene trees, would be good to have GTNode class
@@ -49,11 +56,21 @@ class Node {
         unsigned long int blob_id;
         weight_t min_f[3]; //, max_f[3];
         weight_t min_pvalue, max_pvalue;
+        index_t minimizer[4]; // indices of the 4-tuple giving min p-value
+        size_t split_match_count;  // number of sampled 4 taxon most frequent topology mathcing with split defined by this edge
+        size_t split_mismatch_count; // number of sampled 4 taxon most frequent topology not mathcing with split defined by this edge
+        std::vector<index_t> minimizers;
+        std::vector<std::vector<index_t>> multi_partitions; 
+        std::unordered_map<index_t, index_t> taxon2partition_id_mapping;
+        index_t hybrid_index; // index of hybrid bucket in the multi_partitions
+        index_t pivots[2];
+        std::vector<index_t> circle_ordering; 
         #endif  // ENABLE_TOB
 };
 
 class Tree {
     friend class SpeciesTree;
+    friend class Network;
     public:
         Tree();
         Tree(const std::string &newick,
@@ -166,9 +183,18 @@ class SpeciesTree : public Tree {
         SpeciesTree(std::unordered_map<quartet_t, weight_t> &input_quartets, Dict *dict, std::string mode, unsigned long int iter_limit, std::string output_file);
         SpeciesTree(std::string stree_file, Dict *dict);
         #if ENABLE_TOB
-        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta);
+        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, bool enable_split_test);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display);
         SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob);
-        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool is_quard);
+        SpeciesTree(std::vector<Tree *> &input, Dict *dict, SpeciesTree* display, unsigned long int iter_limit_blob, bool three_fix_one_alter, bool two_fix_two_alter, bool is_quard);
+        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, std::vector<Tree *> &gene_trees, unsigned long int iter_limit_blob);
+        SpeciesTree(Tree *input, Dict *dict, weight_t alpha, weight_t beta, std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, unsigned long int iter_limit_blob);
+        void hybrid_voting(std::vector<Tree *> &gene_trees,Dict *dict, Node * hybrid_blob, unsigned long int iter_limit, std::vector<std::unordered_set<index_t>> &banned_buckets);
+        void hybrid_voting(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, Dict *dict, Node* blob_node, unsigned long int iter_limit, std::vector<std::unordered_set<index_t>> &banned_buckets);
+        void pivot_scan(std::vector<Tree *> &gene_trees, Dict *dict, Node *hybrid_blob, unsigned long int iter_limit);
+        void circle_sorting(std::vector<Tree *> &gene_trees, unsigned long int iter_limit, Node* hybrid_blob_node);
+        void circle_sorting_enmuerate_pivots(std::vector<Tree *> &gene_trees, unsigned long int iter_limit, Node * blob_node);
+        void circle_sorting_enmuerate_pivots(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, unsigned long int iter_limit, Node * blob_node);
         #endif  // ENABLE_TOB
         ~SpeciesTree();
         void print_leaves(std::vector<Node *> &leaves, std::ostream &os);
@@ -190,6 +216,8 @@ class SpeciesTree : public Tree {
         unsigned long int iter_limit;
         #if ENABLE_TOB
         std::unordered_map<quartet_t,weight_t> pvalues, pvalues_star;
+        std::unordered_map<quartet_t, std::array<weight_t, 3>> qCFs_cache;
+        std::unordered_map<quartet_t, std::array<weight_t, 3>> qCFs_average_cache;
         #endif  // ENABLE_TOB
         index_t artifinym();
         Node *construct_stree(std::vector<Tree *> &input, Taxa &subset, index_t parent_pid, index_t depth);
@@ -210,9 +238,56 @@ class SpeciesTree : public Tree {
         weight_t search_star(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B);
         weight_t search_3f1a(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
         weight_t search_quard(std::vector<Tree *> &input, std::tuple<std::vector<Node *>, std::vector<Node *>, std::vector<Node *>, std::vector<Node *>> *quad, index_t* minimizer);
+        weight_t search_quard(std::vector<Tree *> &input, std::vector<std::vector<index_t>> &quad, index_t* minimizer);
+        
+        size_t neighbor_search_quard(std::vector<Tree *> &input,
+                                         std::vector<std::vector<index_t>> &quad,
+                                         index_t *current,
+                                         weight_t *min);
+        size_t neighbor_search_quard(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table,
+                                         std::vector<std::vector<index_t>> &quad,
+                                         index_t *current,
+                                         weight_t *min);
+        weight_t search_quard_heuristic(std::vector<Tree *> &input,
+                                            std::vector<std::vector<index_t>> &quad,
+                                            size_t iter_limit,
+                                            index_t *minimizer);
+        weight_t search_quard_heuristic(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table,
+                                            std::vector<std::vector<index_t>> &quad,
+                                            unsigned long int iter_limit,
+                                            index_t *minimizer);
+        void generate_minimizers(std::vector<Tree *> &input, Node *root, Dict *dict, unsigned long int iter_limit, weight_t alpha);
+        void generate_minimizers(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, Node *root, Dict *dict, unsigned long int iter_limit, weight_t alpha);
+        void postorder_nodes(Node* root, std::vector<Node*>& out);
+        std::array<index_t, 2> hybrid_siblings_from_top2_qcfs(const std::array<weight_t, 3>& qCFs, const std::array<index_t,4>& quad_ids, index_t hybrid_partition_id);
+        weight_t F_bucket_topology(const std::vector<Tree*>& input,
+                         const std::array<std::vector<index_t>,4>& buckets,
+                         index_t num_taxa,
+                         const std::array<int,4>& roles);
+        std::array<weight_t,3> freq_three_toplogies(const std::vector<Tree*>& input,
+                                       Node* blob_node,
+                                       const std::array<index_t,4>& quad_ids,
+                                       index_t num_taxa);
+                                       
+
+        bool is_bucket_i_less_than_bucket_j(index_t partition_i, index_t partition_j, index_t pivot, Node* blob_node, std::vector<Tree *> gene_trees, size_t iter_limit, size_t &failed_counts);
+        bool is_bucket_i_less_than_bucket_j(index_t partition_i, index_t partition_j, index_t pivot_index, Node* blob_node, std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, unsigned long int iter_limit, size_t &failed_counts);
         Node *build_refinement(Node *root, std::unordered_set<Node *> false_positive);
         weight_t get_pvalue(std::vector<Tree *> &input, index_t *indices);
         weight_t get_pvalue_star(std::vector<Tree *> &input, index_t *indices);
+        std::pair<Node *, std::vector<index_t>> hybrid_info_tree(Node *root, Dict *dict, std::unordered_set<Node *> &false_positive_alpha, std::unordered_set<Node *> &false_positive_beta);
+        std::vector<index_t > compute_taxon2parition_mapping(std::vector<Tree *> &input,Node *root, Dict *dict, std::vector<Node *> &hybrid_blob_nodes, std::unordered_set<Node *> & full_leaf_indices, unsigned long int iter_limit_blob, weight_t alpha);
+        std::vector<index_t> compute_taxon2parition_mapping(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, Node *root, Dict *dict, std::vector<Node *> &hybrid_blob_nodes, std::unordered_set<Node *> & full_leaf_nodes, unsigned long int iter_limit_blob, weight_t alpha);
+        // for network circle sorting
+        std::pair<weight_t, std::array<weight_t, 3>> get_pvalue_and_qCFs(std::vector<Tree *> &input, index_t *indices);
+        std::pair<weight_t, std::array<weight_t, 3>> get_pvalue_and_qCFs(std::unordered_map<quartet_t, std::array<weight_t, 3>> &qCFs_table, index_t *indices);
+        std::array<std::array<index_t, 4>, 2> computed_displayed_quartet_toplogy(index_t *indices);
+        std::array<std::array<index_t, 4>, 2> computed_displayed_quartet_toplogy(index_t *indices,
+                                                const std::array<weight_t,3>& qcf);
+        std::array<index_t, 2> siblings_in_two_best_topologies(const std::array<std::array<index_t,4>,2> &best2,
+                                             index_t taxon);
+        bool is_match_with_split(const std::array<weight_t,3>& qcf, index_t node_a1_id, index_t node_a2_id, index_t *indices);
+        weight_t search_2f2a(std::vector<Tree *> &input, std::vector<Node *> &A, std::vector<Node *> &B, index_t* minimizer, size_t &split_match_count, size_t &split_mismatch_count); 
         #endif  // ENABLE_TOB
 };
 

@@ -94,6 +94,24 @@ std::pair<std::size_t, std::size_t> parse_branch_info(std::string branchinfo, st
     return std::make_pair(start, length);
 }
 
+
+static inline void parse_minimizer_4labels(const std::string& s,
+                                           std::string out[4]) {
+    // expects: label0/label1/label2/label3  (no brackets)
+    size_t p0 = 0;
+    for (int k = 0; k < 3; k++) {
+        size_t p = s.find('/', p0);
+        if (p == std::string::npos)
+            throw std::runtime_error("Bad minimizer field (need 3 '/'): " + s);
+        out[k] = s.substr(p0, p - p0);
+        p0 = p + 1;
+    }
+    out[3] = s.substr(p0);
+    if (out[0].empty() || out[1].empty() || out[2].empty() || out[3].empty())
+        throw std::runtime_error("Empty label in minimizer field: " + s);
+}
+
+
 Node *Tree::build_tree(const std::string &newick,
                        const std::unordered_map<std::string, std::string> &indiv2taxon) {
     std::string label, leaf_label, support, length;
@@ -170,13 +188,34 @@ Node *Tree::build_tree(const std::string &newick,
                     if (p1.first != std::string::npos) {
                         auto p2 = parse_branch_info(support, "qtt_p=");
                         auto p3 = parse_branch_info(support, "qst_p=");
-
+                        auto p4 = parse_branch_info(support, "minimizer=");
+                        auto p5 = parse_branch_info(support, "split_match_count=");
+                        auto p6 = parse_branch_info(support, "split_mismatch_count=");
                         s2ul(support.substr(p1.first, p1.second), &root->blob_id);
                         s2d(support.substr(p2.first, p2.second), &root->min_pvalue);
                         s2d(support.substr(p3.first, p3.second), &root->max_pvalue);
+                        // parsing minimizer labels 
+                        std::string minimizer_str = support.substr(p4.first, p4.second);
+                        
+                        std::string minimizer_labels[4];
+                        
+                        parse_minimizer_4labels(minimizer_str, minimizer_labels);
+                        
+                        for (int mi = 0; mi < 4; mi ++) {
+                            root->minimizer[mi] = dict->label2index(minimizer_labels[mi]);
+                            // std::cout << "Minimizer label " << mi << ": " << minimizer_labels[mi] << " index " << root->minimizer[mi] << std::endl;
+                        }
+                        // testing output
+                        // std::cout << "Parsed minimizer labels: " 
+                        //           << dict->index2label(root->minimizer[0]) << "/" 
+                        //           << dict->index2label(root->minimizer[1]) << "/" 
+                        //           << dict->index2label(root->minimizer[2]) << "/" 
+                        //           << dict->index2label(root->minimizer[3]) << std::endl;
 
-                        //std::cout << "Parsing " << support << std::endl;
-                        //std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                        // std::cout << "Parsing " << support << std::endl;
+                        // std::cout << root->blob_id << " " << root->min_pvalue << " " << root->max_pvalue << std::endl;
+                        s2ul(support.substr(p5.first, p5.second), &root->split_match_count);
+                        s2ul(support.substr(p6.first, p6.second), &root->split_mismatch_count);
                     } else {
                     #endif  // ENABLE_TOB
                         try {

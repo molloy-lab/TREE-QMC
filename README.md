@@ -11,6 +11,7 @@ TREE-QMC is a quartet-based method for estimating species trees directly from ge
 TUTORIALS
 ---------
 Check out:
++ [tutorial for blob resolution of level-1 semi-directed network(NetCS)](tutorial/NetCS/README.md)
 + [tutorial for tree of blobs (TOB) reconstruction and exploration of network-like evolution](tutorial/tree-of-blobs/README.md)
 + [tutorial for species/population tree estimation from gene trees](tutorial/gene-trees/README.md)
 + [tutorial for species/population tree estimation from multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
@@ -246,3 +247,4 @@ ACKNOWLEDGEMENTS
 + TREE-QMC uses [MQLib](https://github.com/MQLib/MQLib) for its max cut heuristic; see [Dunning, Gupta, & Silberholz, *INFORMS J Computing*, 2018](https://doi.org/10.1287/ijoc.2017.0798).
 
 + TREE-QMC uses [toms743](https://people.sc.fsu.edu/~jburkardt/cpp_src/toms743/toms743.html) for its Lambert's W approximation; see [Fritsch, Shafer & Crowley, *Communications of the ACM*, 1973](https://doi.org/10.1145/361952.361970) and [Barry, Barry & Culligan-Hensley, *ACM Trans Math Software*, 1995](https://doi.org/10.1145/203082.203088).
++ NetCS uses [Vince's CSV Parser](https://github.com/vincentlaucsb/csv-parser) for reading qCFs table in CSV format 
