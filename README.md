@@ -5,16 +5,15 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods; see [Han & Molloy, 2023](https://doi.org/10.1101/gr.277629.122), [2025](https://academic.oup.com/sysbio/advance-article/doi/10.1093/sysbio/syaf009/8042591?utm_source=authortollfreelink&utm_campaign=sysbio&utm_medium=email&guestAccessKey=24c3e656-5c43-482a-8cdd-c7fa757798d0). Unlike ASTRAL, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao. This approach is particularly beneficial for phylogenomic data sets with high **missingness**. Additionally, TREE-QMC can be used to reconstruct a **tree of blobs** and evaluate signals of gene flow and other network-level evolutionary processes; see [Dai et al., 2024](https://doi.org/10.1101/2025.11.05.686850).
+TREE-QMC is a quartet-based method for estimating species trees directly from gene trees or characters, like the popular method ASTRAL methods; see [Han & Molloy, 2023](https://doi.org/10.1101/gr.277629.122), [2025](https://academic.oup.com/sysbio/advance-article/doi/10.1093/sysbio/syaf009/8042591?utm_source=authortollfreelink&utm_campaign=sysbio&utm_medium=email&guestAccessKey=24c3e656-5c43-482a-8cdd-c7fa757798d0). Unlike ASTRAL, TREE-QMC uses a different algorithmic approach, based on the Quartet Max Cut (QMC) framework of Snir and Rao. This approach is particularly beneficial for phylogenomic data sets with high **missingness**. Recent updates extend the code base for non-treelike evolution. TOB-QMC can be used for reconstructing a **tree of blobs** or simply evaluating signals of gene flow and other non-treelike evolutionary processes; see [Dai et al., 2026](https://doi.org/10.1101/2025.11.05.686850). Given a tree of blobs, the NetCS can be used to reconstruct blobs of degree 5 or more, producing a semi-directed level-1 network; see [Dai & Molloy, 2026](https://doi.org/10.64898/2026.06.06.730607).
 
 
 TUTORIALS
 ---------
 Check out:
-+ [tutorial for blob resolution of level-1 semi-directed network(NetCS)](tutorial/NetCS/README.md)
-+ [tutorial for tree of blobs (TOB) reconstruction and exploration of network-like evolution](tutorial/tree-of-blobs/README.md)
 + [tutorial for species/population tree estimation from gene trees](tutorial/gene-trees/README.md)
-+ [tutorial for species/population tree estimation from multi-labeled gene trees](tutorial/multi-gene-trees/README.md)
++ [tutorial for tree of blobs (TOB) reconstruction and exploration of network-like evolution](tutorial/tree-of-blobs/README.md)
++ [tutorial for blob resolution of level-1 semi-directed network (NetCS)](tutorial/NetCS/README.md)
 + [tutorial for species/population tree estimation character matrices](tutorial/characters/README.md)
 + [tutorial for Partitioned Coalescence Support (PCS)](tutorial/characters/README.md)
 + [tutorial for quartet inputs](tutorial/quartets/README.md)
