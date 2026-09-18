@@ -2281,12 +2281,22 @@ void Tree::get_quardpartition(Node *root, std::vector<Node *> *A, std::vector<No
 
     c_1 = root->children[0];
     c_2 = root->children[1];
+    
 
     if (root != this->root && root->parent != this->root) {
-        s_1 = root->parent->children[0] == root ? root->parent->children[1] : root->parent->children[0];
-
-    } else if (root != this->root && root->parent == this->root){
-        s_1 = (this->root->children[0] == root) ? this->root->children[1]->children[0] : this->root->children[0]->children[0];
+        s_1 = root->parent->children[0] == root
+            ? root->parent->children[1]
+            : root->parent->children[0];
+    } else if (root != this->root && root->parent == this->root) {
+        Node *sibling = this->root->children[0] == root
+            ? this->root->children[1]
+            : this->root->children[0];
+        if (sibling->children.size() != 2) {
+            std::cerr << "Error: quartet partition requires a binary internal root sibling"
+                  << std::endl;
+            exit(1);
+            }
+        s_1 = sibling->children[0];
     }
 
     std::unordered_set<Node *> leaf_set1;
@@ -2320,7 +2330,11 @@ void Tree::get_quardpartitions(Node *root, std::vector<Node *> *internal, std::v
     if (root->children.size() == 0) return ;
 
     
-    if (root->parent != NULL && (root->parent->parent != NULL || root->parent->children.size() > 2 || root == root->parent->children[0])) {
+    if  (root->parent != NULL && (root->parent != this->root || (this->root->children.size() == 2 &&
+      root == this->root->children[0] &&
+      this->root->children[1]->children.size() == 2)))
+    
+    {
         std::vector<Node *> A, B, C, D;
         get_quardpartition(root, &A, &B, &C, &D, dict);
         auto quard = std::make_tuple(A, B, C, D); 
