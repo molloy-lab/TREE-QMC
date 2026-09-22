@@ -2238,7 +2238,12 @@ void Tree::get_bipartition(Node *root, std::vector<Node *> *A, std::vector<Node 
 
 void Tree::get_bipartitions(Node *root, std::vector<Node *> *internal, std::vector<std::pair<std::vector<Node *>, std::vector<Node *>>> *bips) {
     if (root->children.size() == 0) return ;
-    if (root->parent != NULL && (root->parent->parent != NULL || root->parent->children.size() > 2 || root == root->parent->children[0])) {
+    if (root->parent != NULL &&
+    (root->parent != this->root ||
+     (this->root->children.size() == 2 &&
+      root == this->root->children[0] &&
+      this->root->children[1]->children.size() == 2))) 
+    {
         std::vector<Node *> A, B;
         get_bipartition(root, &A, &B);
         bips->push_back(std::make_pair(A, B));
