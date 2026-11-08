@@ -5,9 +5,9 @@ TREE-QMC
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/tree-qmc/README.html)
 
-This is a branch for **TQMC-pro**, a version of TREE-QMC for multi-copy gene trees. TQMC-pro is similar to A-pro; see [Zhang et al., *Mol Biol Evol*, 2020](https://doi.org/10.1093/molbev/msaa139). Like A-pro, TQMC-pro roots and tags the input so that each internal vertex is labeled as speciation or duplication. This information is used to exclude "duplication quartets" from speciest tree reconstruction. TQMC-pro does **not** agglomerate "speciation quartets," unlike ASTRAL-pro, and uses a different heuristic for reconstructing the species tree; see below for details.
+This is a branch for **TQMC-GDL**, a version of TREE-QMC for multi-copy gene trees. TQMC-GDL is similar to A-pro; see [Zhang et al., *Mol Biol Evol*, 2020](https://doi.org/10.1093/molbev/msaa139). Like A-pro, TQMC-GDL roots and tags the input so that each internal vertex is labeled as speciation or duplication. This information is used to exclude "duplication quartets" from speciest tree reconstruction. TQMC-GDL does **not** agglomerate "speciation quartets," unlike ASTRAL-pro, and uses a different heuristic for reconstructing the species tree; see below for details.
 
-TQMC-pro will be merged with the main branch in the near future; in the meantime, you can build the code by checking out the correct commit.
+TQMC-GDL will be merged with the main branch in the near future; in the meantime, you can build the code by checking out the correct commit.
 
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
@@ -29,7 +29,7 @@ Sample data is available in the tutorials directory.
 cd tutorial/multi-gene-trees/
 ```
 
-To run TQMC-pro on multi-copy gene trees (with internal rooting and tagging), use the command:
+To run TQMC-GDL on multi-copy gene trees (with internal rooting and tagging), use the command:
 ```
 ../../tree-qmc \
     --root 0 \
@@ -40,7 +40,7 @@ To run TQMC-pro on multi-copy gene trees (with internal rooting and tagging), us
 ```
 where `--root 0` indicates rooting at taxon `0` to make the trees easier to compare visually.
 
-To run TQMC-pro on multi-copy gene trees, already rooted and tagged, use the command:
+To run TQMC-GDL on multi-copy gene trees, already rooted and tagged, use the command:
 ```
 ../../tree-qmc \
     --root 0 \
@@ -51,7 +51,7 @@ To run TQMC-pro on multi-copy gene trees, already rooted and tagged, use the com
     -o tqmcpro-atagged.tre
 ```
 
-You can also compare to the original version of TQMC-pro, with the command:
+You can also compare to the original version of TQMC-GDL, with the command:
 ```
 ../../tree-qmc \
     --root 0 \
