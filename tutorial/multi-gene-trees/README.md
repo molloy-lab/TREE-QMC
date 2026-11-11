@@ -18,7 +18,7 @@ TREE-QMC-GDL takes unrooted multi-labeled gene trees as input and performs rooti
 ```
 ../../tree-qmc \
   --gdl \
-  --norm-atax 0 \
+  --norm_atax 0 \
   -i multi_true_250_g_trees.trees \
   -o treeqmc-unrooted.tre
 ```
@@ -31,7 +31,7 @@ TREE-QMC-GDL can take rooted and tagged gene trees as input, allowing the user t
 ../../tree-qmc \
   --gdl \
   ---tagged \
-  --norm-atax 0 \
+  --norm_atax 0 \
   -i apro250_tagged_multi.trees \
   -o treeqmc-rooted-tagged.tre
 ```
