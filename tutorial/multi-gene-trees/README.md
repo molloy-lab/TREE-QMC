@@ -30,7 +30,7 @@ TREE-QMC-GDL can take rooted and tagged gene trees as input, allowing the user t
 ```
 ../../tree-qmc \
   --gdl \
-  ---tagged \
+  --tagged \
   --norm_atax 0 \
   -i apro250_tagged_multi.trees \
   -o treeqmc-rooted-tagged.tre
