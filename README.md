@@ -76,7 +76,7 @@ TREE-QMC also implements some convenient features:
 
 Tutorials
 --------
-Check out the [tutorial for gene trees](tutorial/gene-trees/README.md) and the [tutorial for character matrices](tutorial/characters/README.md).
+Check out the [tutorial for gene trees](tutorial/gene-trees/README.md), the [tutorial for character matrices](tutorial/characters/README.md), and the [tutorial for multi-labeled gene trees](tutorial/multi-gene-trees/README.md).
 
 Acknowledgements
 ----------------
