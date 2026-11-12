@@ -193,6 +193,10 @@ Algorithm Options:
 [(-c|--contract) <float>]
        Contract internal branches with support less than specified threshold
        after mapping suport to the interval 0 to 1
+[(--gdl)]
+       Use the gdl algorithm for computing the species tree
+[(--tagged)]
+       The input trees are tagged with duplication nodes (use with --gdl option)
 
 Advanced Options:
 [(-w|--weight) <character>]
