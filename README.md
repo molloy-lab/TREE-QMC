@@ -12,7 +12,7 @@ TQMC-GDL will be merged with the main branch in the near future; in the meantime
 ```
 git clone https://github.com/molloy-lab/TREE-QMC.git
 cd TREE-QMC/
-git checkout tqmc-pro
+git checkout tqmc-gdl
 cd external/MQLib/
 make
 cd ../..
