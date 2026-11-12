@@ -347,11 +347,6 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
             nweightparam += 1;
-
-            if (gdl_mode == "1" && weight_mode != "n"){
-                std::cout << "\nERROR: running under GDL mode with quartet weighting has not been tested" << std::endl;
-                return 2;
-            }
         }
 
         // Handle support range options
@@ -427,11 +422,6 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
             normal_mode = param;
-
-            if (gdl_mode == "1" && normal_mode != "0"){
-                std::cout << "\nERROR: GDL mode should be run with no normalization" << std::endl;
-                return 2;
-            }
         }
         else if (opt == "--shared") {
             taxa_mode = "1";
@@ -482,16 +472,6 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--gdl") {
             gdl_mode = "1";
-
-            if (weight_mode != "n"){
-                std::cout << "\nERROR: running under GDL mode with quartet weighting has not been tested" << std::endl;
-                return 2;
-            }
-            else if (normal_mode != "0"){
-                std::cout << "\nERROR: GDL mode should be run with no normalization" << std::endl;
-                return 2;
-            }
-
         }
         else if (opt == "--tagged") {
             tagged = "1";
@@ -534,6 +514,11 @@ int Instance::parse(int argc, char **argv) {
         std::cout << "target root placement:";
         for (auto &taxon : outgroup_taxon_set) std::cout << " " << taxon;
         std::cout << std::endl;
+    }
+
+    if (gdl_mode == "1" && normal_mode != "0"){
+        std::cout << "\nERROR: GDL mode should be run with no normalization (add --norm_atax 0 to command)" << std::endl;
+        return 2;
     }
 
     if (data_mode == "t") {

@@ -92,7 +92,7 @@ const std::string help_info =
 "       Contract internal branches with support less than specified threshold\n"
 "       after mapping suport to the interval 0 to 1\n"
 "[(--gdl)]\n"
-"       Use the gdl algorithm for computing the species tree\n\n"
+"       Use the gdl algorithm for computing the species tree\n"
 "[(--tagged)]\n"
 "       The input trees are tagged with duplication nodes (use with --gdl option)\n\n"
 "Advanced Options:\n"
