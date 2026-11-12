@@ -89,14 +89,12 @@ Instance::Instance(int argc, char **argv) {
 
     // TODO: Add suppress uniforcations!
     refine_trees();
-    prepare_trees();
 
     if (gdl_mode == "1" && tagged == "0") {
-        // std::cout << "\nBefore calling root and tag\n\n"; 
         root_and_tag();
-        std::cout << "\nFinished calling root and tag\n\n";
-        // std::cout << dict->to_string() << "\n";
+        std::cout << "\nRooting and tagging gene trees\n\n";
     }
+    prepare_trees();
 
     if (verbose > "0") {
         subproblem_csv.open(output_file + "_subproblems.csv");
@@ -349,6 +347,11 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
             nweightparam += 1;
+
+            if (gdl_mode == "1" && weight_mode != "n"){
+                std::cout << "\nERROR: running under GDL mode with quartet weighting has not been tested" << std::endl;
+                return 2;
+            }
         }
 
         // Handle support range options
@@ -424,6 +427,11 @@ int Instance::parse(int argc, char **argv) {
                 return 2;
             }
             normal_mode = param;
+
+            if (gdl_mode == "1" && normal_mode != "0"){
+                std::cout << "\nERROR: GDL mode should be run with no normalization" << std::endl;
+                return 2;
+            }
         }
         else if (opt == "--shared") {
             taxa_mode = "1";
@@ -474,11 +482,23 @@ int Instance::parse(int argc, char **argv) {
         }
         else if (opt == "--gdl") {
             gdl_mode = "1";
-            // std::cout << "\nSelected GDL option" << std::endl;
-            // return 2; 
+
+            if (weight_mode != "n"){
+                std::cout << "\nERROR: running under GDL mode with quartet weighting has not been tested" << std::endl;
+                return 2;
+            }
+            else if (normal_mode != "0"){
+                std::cout << "\nERROR: GDL mode should be run with no normalization" << std::endl;
+                return 2;
+            }
+
         }
         else if (opt == "--tagged") {
             tagged = "1";
+            if (gdl_mode != "1"){
+                std::cout << "\nERROR: Missing --gdl option" << std::endl;
+                return 2;
+            }
         }
         else {
             std::cout << "ERROR: Unrecognized option: " << opt << std::endl;
@@ -536,7 +556,7 @@ int Instance::parse(int argc, char **argv) {
             std::cout << "\nERROR: Unrecognized weight option!" << std::endl;
             return 2;
         }
-        if (weight_mode != "h")
+        if (weight_mode != "h" && gdl_mode != "1")
             std::cout << "  WARNING: --hybrid option is recommended" << std::endl;
 
         // Process support branch options
@@ -615,7 +635,7 @@ int Instance::parse(int argc, char **argv) {
         std::cout << "normalization for artifical taxa mode: n" + normal_mode;
         if (taxa_mode == "1") std::cout << " (shared)";
         std::cout << std::endl;
-        if (normal_mode != "2")
+        if (normal_mode != "2" && gdl_mode != "1")
             std::cout << "  WARNING: --norm_atax 2 is recommended" << std::endl;
 
         // Process execution mode

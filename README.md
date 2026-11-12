@@ -36,7 +36,7 @@ To run TQMC-GDL on multi-copy gene trees (with internal rooting and tagging), us
     --norm_atax 0 \
     --gdl \
     -i multi_true_250_g_trees.trees \
-    -o tqmcpro.tre
+    -o tqmcgdl.tre
 ```
 where `--root 0` indicates rooting at taxon `0` to make the trees easier to compare visually.
 
@@ -48,7 +48,7 @@ To run TQMC-GDL on multi-copy gene trees, already rooted and tagged, use the com
     --gdl \
     --tagged \
     -i apro250_tagged_multi.trees \
-    -o tqmcpro-atagged.tre
+    -o tqmcgdl-atagged.tre
 ```
 
 You can also compare to the original version of TQMC-GDL, with the command:

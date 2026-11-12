@@ -271,11 +271,9 @@ Node *Tree::build_tree(const std::string &newick,
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
                 length = branch.substr(sep + 1, std::string::npos);
-                //std::cout << "Found internal node " << branch << " with support " << support << " and length " << length << std::endl;
                 if (length.size() > 0) root->length = std::stod(length);
             } else {
                 support = branch.substr(0, std::string::npos);
-                //std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
             if (support.size() > 0) {
                 if (support == "PCS")
@@ -360,7 +358,6 @@ Node *Tree::build_tree(const std::string &newick,
             // Get internal branch and support
             if (tagged == "1" && branch.substr(0, 1) == "D"){
                 root->duplication = 1;
-                std::cout << "Found duplication";
                 branch = branch.substr(1, std::string::npos);
             }
             
@@ -369,20 +366,16 @@ Node *Tree::build_tree(const std::string &newick,
             if (sep != std::string::npos) {
                 support = branch.substr(0, sep);
                 length = branch.substr(sep + 1, std::string::npos);
-                // std::cout << "Found internal node " << branch << " with support " << support << " and length " << length << std::endl;
                 if (length.size() > 0) root->length = std::stod(length);
             } 
             else {
                 if (tagged == "1" && branch.substr(0, std::string::npos) == "D") {
                     root->duplication = 1;
-                    std::cout << "Found duplication";
                     support = branch.substr(1, std::string::npos); 
                 }
                 else {
                     support = branch.substr(0, std::string::npos);
                 }
-                
-                std::cout << "Found internal node " << branch << ' ' << support << std::endl;
             }
             if (support.size() > 0) {
                 if (support == "PCS")
